@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Marketing · Chapter 15 · Universidad del Rosario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body{margin:0;padding:0;background:#090b10;color:#f0f0eb;font-family:'DM Sans',sans-serif;overflow:hidden}
+    *{box-sizing:border-box}
+    .app-root{height:100vh;height:100dvh}
+    .slide-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .slide-enter{animation:fadeIn .3s ease-out forwards}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(99,179,86,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,179,86,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0}
+    .bg-glow{position:absolute;top:-20%;right:-10%;width:60%;height:80%;background:radial-gradient(circle,rgba(99,179,86,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-glow-left{position:absolute;bottom:-20%;left:-10%;width:50%;height:70%;background:radial-gradient(circle,rgba(99,179,86,.035) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-art{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const T  = "#63b356";   // green accent
+const T2 = "#9de84d";   // bright lime
+const BL = "#4a9eed";   // blue
+const AM = "#f0a500";   // amber
+const RD = "#e05252";   // red
+const BG = "#090b10";
+const BG2= "#0f1318";
+const BG3= "#0d1117";
+const W  = "#f0f0eb";
+const G  = "#7a7a72";
+const BDR= "rgba(255,255,255,.08)";
+
+// ── RESPONSIVE ──────────────────────────────────────────────────
+// MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
+let MOB = typeof window!=='undefined' && window.innerWidth<=820;
+const V = (d,m) => MOB ? m : d;
+// Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
+const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+
+// ── BACKGROUND ART ──────────────────────────────────────────────
+const BgGlobe = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".5" width="100%" height="100%">
+      <circle cx="100" cy="100" r="80"/>
+      <ellipse cx="100" cy="100" rx="40" ry="80"/>
+      <ellipse cx="100" cy="100" rx="70" ry="80"/>
+      <line x1="20" y1="100" x2="180" y2="100" opacity=".5"/>
+      <line x1="100" y1="20" x2="100" y2="180" opacity=".5"/>
+      <path d="M30 60 Q100 55 170 60" fill="none" opacity=".4"/>
+      <path d="M25 140 Q100 135 175 140" fill="none" opacity=".4"/>
+    </svg>
+  </div>
+);
+
+const BgChain = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".6" width="100%" height="100%">
+      <rect x="20" y="80" width="40" height="40" rx="4"/>
+      <rect x="80" y="80" width="40" height="40" rx="4"/>
+      <rect x="140" y="80" width="40" height="40" rx="4"/>
+      <line x1="60" y1="100" x2="80" y2="100"/>
+      <line x1="120" y1="100" x2="140" y2="100"/>
+      <line x1="40" y1="80" x2="40" y2="40"/>
+      <line x1="100" y1="80" x2="100" y2="40"/>
+      <line x1="160" y1="80" x2="160" y2="40"/>
+      <line x1="40" y1="120" x2="40" y2="160"/>
+      <line x1="100" y1="120" x2="100" y2="160"/>
+      <line x1="160" y1="120" x2="160" y2="160"/>
+    </svg>
+  </div>
+);
+
+// ── HELPER COMPONENTS ────────────────────────────────────────────
+function P({children,style={}}){return <div style={{position:'relative',zIndex:2,...style}}>{children}</div>;}
+
+const ModuleTag = ({module,color=T}) => (
+  <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
+    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    textTransform:'uppercase',marginBottom:20}}>
+    {module}
+  </div>
+);
+
+// ── SVG ICONS ────────────────────────────────────────────────────
+const Ico = {
+  globe:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+  target:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+  zap:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  link:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+  map:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>,
+  trend:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  users:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  box:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
+  refresh: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  award:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+  layers:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+  alert:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  chart:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  shuffle: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>,
+  cpu:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+  arrow:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  flag:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+  star:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  wifi:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>,
+};
+
+// ── SLIDE DATA ────────────────────────────────────────────────────────────
+const SLIDES = [
+
+  // ── INTRO ──────────────────────────────────────────────────────────────
+  { type:'title',
+    tag:'Universidad del Rosario · Global Marketing · Chapter 15',
+    title:'Pricing Decisions\n& Terms',
+    subtitle:'The only marketing weapon you can change overnight —\nand the easiest one to fire into your own foot.',
+    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+
+  { type:'impact',
+    title:'Why Pricing Decisions Matter',
+    stats:[
+      {n:'#1',  d:'Pricing is the only area of the global marketing mix where policy can be changed rapidly without large direct costs.', src:'Hollensen, Ch. 15'},
+      {n:'2-4X', d:'Export prices can multiply on the way to the foreign consumer — shipping, tariffs and mark-ups stack up. That\'s price escalation.', src:'Hollensen, Table 15.1'},
+      {n:'3',   d:'Strategic price levels for a new product: skimming, market pricing, penetration — each with its own trap.', src:'Hollensen, Fig. 15.2'},
+      {n:'7',   d:'Incoterms every exporter must speak fluently: EXW, FAS, FOB, CFR, CIF, DEQ, DDP.', src:'Incoterms'},
+    ],
+    quote:'Price is the moment your strategy turns into money — or doesn\'t.' },
+
+  { type:'agenda',
+    title:'What We Cover Today',
+    modules:[
+      {num:1, title:'The Pricing Framework',  desc:'Internal & external factors'},
+      {num:2, title:'Price Escalation',       desc:'Why exports get expensive · counters'},
+      {num:3, title:'Pricing New Products',   desc:'Skimming · market · penetration · experience curve'},
+      {num:4, title:'Pricing Across Countries', desc:'Standardize vs differentiate · GPCs · transfer pricing · currency'},
+      {num:5, title:'Terms of Sale & Payment', desc:'Incoterms · letters of credit · export finance'},
+      {num:6, title:'Takeaways & Quiz',       desc:'Final assessment'},
+    ]},
+
+  // ── MODULE 1 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:1, title:'The International Pricing Framework', icon:'chart',
+    question:'A price is one number — set by how many forces?' },
+
+  { type:'concept', module:'Module 1', icon:'zap',
+    title:'The Fastest Lever in the Mix',
+    text:'Pricing is the only area of the global marketing mix where policy can be changed rapidly without large direct cost implications. Change the product, the channel or the campaign and you spend months and millions; change the price and the market reacts tomorrow. That speed cuts both ways: competitors can match a price cut just as fast.',
+    highlight:'Fast to change, easy to copy — which is why price wars destroy industries faster than any other rivalry.' },
+
+  { type:'comparison',
+    module:'Module 1',
+    title:'What Shapes the International Price',
+    left:{label:'Internal Factors', color:BL, items:[
+      {k:'Firm-level',   v:'Corporate & marketing objectives · competitive strategy · firm positioning'},
+      {k:'Operations',   v:'Product development · production location · market entry modes'},
+      {k:'Product',      v:'Stage in the PLC · place in the product line'},
+      {k:'Positioning',  v:'Most important features · product positioning · cost structure'},
+    ]},
+    right:{label:'External Factors', color:AM, items:[
+      {k:'Environment',  v:'Government influences & constraints · inflation · currency fluctuations · business cycle stage'},
+      {k:'Customers',    v:'Perceptions · ability to pay'},
+      {k:'Competition',  v:'Nature of competition · competitors\' objectives, strategies, strengths & weaknesses'},
+      {k:'Channels',     v:'Grey market appeal — parallel imports lurk wherever price gaps grow'},
+    ]}},
+
+  { type:'exercise', module:'Module 1',
+    title:'Exercise 1 · Internal or External?',
+    question:'A Colombian textile exporter wants to raise prices in Ecuador, but discovers the Ecuadorian government just froze prices on clothing categories, and a local competitor is running aggressive promotions. Which factors are blocking the price rise?',
+    options:['A) Internal factors — the firm\'s own cost structure is the problem.','B) External factors — government constraints and the nature of local competition.','C) Neither — pricing is always free to change.'],
+    correct:1,
+    explanation:'Option B. Government influence and competitors\' strategies are textbook external factors. The lesson: pricing freedom varies by market — the "fastest lever" can still be locked from outside.' },
+
+  // ── MODULE 2 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:2, title:'Price Escalation', icon:'trend',
+    question:'Your product leaves the factory at $10. Why does the foreign shopper pay $38?' },
+
+  { type:'price_escalation' },
+
+  { type:'concept', module:'Module 2', icon:'refresh',
+    title:'Countering Price Escalation',
+    text:'Four main tactics: rationalize the distribution process (cut layers, shorten the channel), lower the export price from the factory (thinner ex-works margin), establish local production in the target market (skip tariffs and freight entirely), and pressurize channel members to accept lower profit margins.',
+    highlight:'Local production is the nuclear option: it kills escalation, but converts a pricing problem into an investment decision.' },
+
+  { type:'exercise', module:'Module 2',
+    title:'Exercise 2 · Attack the Stack',
+    question:'A Bogotá cosmetics brand sells at $8 ex-works, but lands at $29 retail in Chile after freight, tariffs, an importer margin AND a sub-distributor margin. Which tactic attacks the LARGEST avoidable layer?',
+    options:['A) Lowering the ex-works price by 50 cents.','B) Rationalizing distribution — selling directly to Chilean retailers and eliminating the sub-distributor layer.','C) Asking the retailer to advertise the product more.'],
+    correct:1,
+    explanation:'Option B. Each intermediary applies its mark-up on top of everything below it — cutting one whole layer removes its compounded margin. A 50-cent factory discount barely dents the final price after it\'s been multiplied down the chain.' },
+
+  // ── MODULE 3 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:3, title:'Pricing New Products', icon:'target',
+    question:'Launch high and milk it, match the market, or launch low and flood it?' },
+
+  { type:'pricing_strategies' },
+
+  { type:'concept', module:'Module 3', icon:'users',
+    title:'What Makes Customers Price-Insensitive',
+    text:'Customers tolerate higher prices when: the product is more distinctive, perceived quality is greater, they are less aware of substitutes, comparisons are difficult, the price is a small share of their total expenditure, perceived benefit increases, the product works with something already bought (components, replacements), costs are shared with other parties, or the product can\'t be stored.',
+    highlight:'Every one of these is a lever: increase distinctiveness or complicate comparison, and price sensitivity falls.' },
+
+  { type:'concept', module:'Module 3', icon:'chart',
+    title:'Experience Curve & Bundle Pricing',
+    text:'Experience curve pricing exploits the fact that total unit costs fall by a predictable percentage with each doubling of cumulative production — so you can price below current costs today to buy the volume that makes those prices profitable tomorrow. Bundle pricing groups products and services into one system-solution price to overcome customer price concerns.',
+    highlight:'Texas Instruments made experience pricing famous: price ahead of the cost curve, win the volume, let costs catch up.' },
+
+  { type:'case', module:'Module 3', icon:'alert',
+    title:'Case: The Skimming Trap & the Grey Market',
+    problem:'A premium electronics firm launches with skimming: high price, top-end positioning, fat early margins. But the small market share invites aggressive local competitors, the high-quality promise demands constant resources — and the same product sells cheaper in a neighbouring country.',
+    solution:'Arbitrageurs notice the gap. Grey marketers buy the product legally in the cheap market and re-import it into the expensive one, undercutting the firm\'s own distributors. The skimming premium collapses — destroyed not by competitors, but by the firm\'s own price differences across borders.',
+    lesson:'Skimming works only if you can keep your own markets from leaking into each other.' },
+
+  { type:'exercise', module:'Module 3',
+    title:'Exercise 3 · Choose the Launch Price',
+    question:'A startup launches a snack in Peru, where income levels are modest, three local brands fight intensely, and exporting is currently a side activity for the firm. Which price strategy does the textbook point to?',
+    options:['A) Skimming — premium pricing maximizes early contribution.','B) Penetration pricing — low price to win the highest possible sales volume.','C) Bundle pricing — sell the snack with a subscription service.'],
+    correct:1,
+    explanation:'Option B. The classic motives for penetration: intensive local competition, lower income levels, and exporting viewed as a marginal activity. Skimming would price the product out of a fight it needs volume to win.' },
+
+  // ── MODULE 4 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:4, title:'Pricing Across Countries', icon:'globe',
+    question:'One global price, or one price per market? Both answers cost you something.' },
+
+  { type:'concept', module:'Module 4', icon:'shuffle',
+    title:'Standardization vs Differentiation',
+    text:'The two basic approaches: price standardization (one price worldwide — clean, fair, grey-market-proof, but ignores local incomes and competition) and price differentiation (per-market prices — locally optimal, but vulnerable to parallel imports wherever gaps exceed arbitrage costs). Solberg\'s taxonomy maps the practice to the firm\'s globalism and local market conditions.',
+    highlight:'In Europe, price transparency from the euro squeezed differentiation: when everyone sees the gap, someone arbitrages it.' },
+
+  { type:'comparison',
+    module:'Module 4',
+    title:'Global Pricing Contracts (GPCs)',
+    left:{label:'Why They\'re Loved', color:T, items:[
+      {k:'Customer',  v:'Lower prices worldwide · higher service levels · standardized products · process efficiency'},
+      {k:'Supplier',  v:'Access to new markets · economies of scale · strong relationships'},
+      {k:'Both',      v:'Faster diffusion of innovations · price and service anomalies solved across countries'},
+    ]},
+    right:{label:'Why They Backfire', color:RD, items:[
+      {k:'Customer',  v:'Less adaptability to market changes · dependence on one supplier · monitoring costs'},
+      {k:'Supplier',  v:'Risk of failing to deliver · over-dependence on one customer · channel conflict'},
+      {k:'Both',      v:'Local managers resist · cost information can be used against you in the next negotiation'},
+    ]}},
+
+  { type:'concept', module:'Module 4', icon:'box',
+    title:'Transfer Pricing',
+    text:'Transfer prices are the prices charged for intracompany movement of goods and services between subsidiaries. Three approaches: transfer at cost, transfer at arm\'s length (what an unrelated buyer would pay — the standard tax authorities demand), and transfer at cost plus. Because transfer prices shift where profit appears, they sit at the centre of international tax scrutiny.',
+    highlight:'Fair arm\'s-length prices are hard to compute precisely because no real market exists for many intra-firm transfers.' },
+
+  { type:'concept', module:'Module 4', icon:'refresh',
+    title:'Currency Choices in Export Pricing',
+    text:'Quote in the buyer\'s currency, the exporter\'s currency, a third country\'s currency, or a currency unit like the euro. Quoting in the buyer\'s currency can be a contract condition, gives access to cheaper finance abroad, lets good currency management produce extra profit, and matches customer preference. The eurozone showed the system effect: transparency, lower transaction costs, more competition, easier entry.',
+    highlight:'Whoever\'s currency is NOT used carries the exchange risk. Quoting in their currency is a customer service — priced in.' },
+
+  { type:'exercise', module:'Module 4',
+    title:'Exercise 4 · The Parallel Import',
+    question:'A pharma firm sells the same medicine at €30 in Germany and €12 in Greece. Wholesalers start buying in Greece and reselling in Germany at €22. What is this, and which pricing approach invited it?',
+    options:['A) Counterfeiting — the Greek product is fake.','B) Grey marketing (parallel imports) — invited by aggressive price differentiation across connected markets.','C) Transfer pricing — the subsidiaries set the wrong internal price.'],
+    correct:1,
+    explanation:'Option B. The product is genuine; only the channel is unofficial. Differentiation works until the price gap exceeds the cost of moving goods between markets — then the grey market closes the gap for you, on its own terms.' },
+
+  // ── MODULE 5 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:5, title:'Terms of Sale & Terms of Payment', icon:'flag',
+    question:'Who pays the freight, who carries the risk, and when does the money actually arrive?' },
+
+  { type:'incoterms_ladder' },
+
+  { type:'concept', module:'Module 5', icon:'award',
+    title:'Letters of Credit',
+    text:'A letter of credit is an arrangement by banks for settling international commercial transactions: it provides security for both parties and ensures payment, provided the terms and conditions of the credit are fulfilled. Crucially, payment is based on documents only — not on the merchandise itself. Three forms, in rising order of security: revocable L/C, irrevocable but unconfirmed L/C, and confirmed irrevocable L/C.',
+    highlight:'Confirmed + irrevocable = neither the buyer, the buyer\'s bank, nor the buyer\'s country can cancel it. New trade relationships start here.' },
+
+  { type:'concept', module:'Module 5', icon:'link',
+    title:'Export Financing',
+    text:'The exporter\'s toolbox: commercial banks, export credit insurance, factoring (selling receivables), forfeiting (selling longer-term claims), bonding, leasing — and counter-trade when buyers lack hard currency: barter (goods for goods), compensation deals (part goods, part cash), and buy-back agreements (plant paid with its own future output).',
+    highlight:'Counter-trade sounds exotic until a buyer has factories, no dollars, and wants yours.' },
+
+  { type:'exercise', module:'Module 5',
+    title:'Exercise 5 · Read the Incoterm',
+    question:'A Medellín exporter agrees "CIF Valparaíso" with a Chilean buyer. Who pays the ocean freight and insurance to Valparaíso — and where does the risk transfer?',
+    options:['A) The buyer pays freight and insurance; risk transfers at the factory gate in Medellín.','B) The seller pays cost, insurance and freight to Valparaíso; risk transfers when goods are on board at the port of shipment.','C) The seller pays everything, including delivery to the buyer\'s warehouse, duty paid.'],
+    correct:1,
+    explanation:'Option B. CIF = the seller pays Cost, Insurance and Freight to the named destination port, but risk passes to the buyer once goods are loaded at origin. Option C describes DDP — the maximum-obligation term at the other end of the ladder.' },
+
+  // ── MODULE 6 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
+    question:'From factory gate to foreign shelf — can you trace the price?' },
+
+  { type:'takeaways',
+    title:'Chapter 15 — What You Now Know',
+    items:[
+      {icon:'zap',   c:T,  t:'The Fastest Lever',     d:'Price changes overnight without direct costs — shaped by internal and external factors, copied by rivals just as fast.'},
+      {icon:'trend', c:RD, t:'Price Escalation',      d:'Freight, tariffs and stacked margins multiply export prices. Counter: shorter channels, lower ex-works, local production.'},
+      {icon:'target',c:BL, t:'Launch Strategies',     d:'Skimming milks the top, penetration buys the market, experience pricing bets on tomorrow\'s costs.'},
+      {icon:'globe', c:AM, t:'Across Countries',      d:'Differentiate too far and grey markets arbitrage the gap. GPCs and transfer prices need careful design.'},
+      {icon:'flag',  c:T2, t:'Terms & Payment',       d:'Incoterms split costs and risk from EXW to DDP; letters of credit make strangers safe to trade with.'},
+    ]},
+
+  { type:'discussion',
+    title:'Discussion Questions',
+    questions:[
+      'What are the major causes of international price escalation? Suggest possible courses of action to deal with this problem.',
+      'In order to protect themselves, how should marketers price their product in a country with high inflation?',
+      'Why is it often difficult to compute fair arm\'s-length transfer prices?',
+      'What is counter-trade? Why should firms be willing to consider counter-trade arrangements in their global marketing efforts?',
+    ],
+    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+
+  { type:'quiz_intro',
+    title:'Final Assessment',
+    subtitle:'10 questions · Global Marketing Chapter 15 · No time limit · Good luck 🎯' },
+
+  { type:'quiz',
+    questions:[
+      { q:'Why is pricing unique within the global marketing mix?',
+        opts:['It is the hardest element to change once set.','It is the only element that can be changed rapidly without large direct cost implications.','It is the only element customers never notice.','It is fixed by international law in most markets.'],
+        correct:1 },
+      { q:'Price escalation is caused by…',
+        opts:['Inflation in the home country only.','The summation of all cost factors in the distribution channel: ex-works price, shipping, tariffs and distributor mark-ups.','Customers\' willingness to pay more abroad.','Currency appreciation in the export market.'],
+        correct:1 },
+      { q:'Which is NOT a tactic for countering price escalation?',
+        opts:['Rationalizing the distribution process.','Establishing local production.','Adding an extra layer of importers to share the work.','Pressurizing channel members to accept lower margins.'],
+        correct:2 },
+      { q:'Skimming pricing means…',
+        opts:['Charging a low price to win maximum sales volume.','Charging a high price at the top end of the market to achieve the highest possible contribution in a short time.','Matching competitors\' prices exactly.','Selling below cost to bankrupt competitors.'],
+        correct:1 },
+      { q:'Which motives point to PENETRATION pricing?',
+        opts:['Weak competition and high local incomes.','Intensive local competition, lower income levels, and exporting seen as a marginal activity.','A unique patented product with no substitutes.','A government-imposed minimum price.'],
+        correct:1 },
+      { q:'Experience curve pricing is based on the idea that…',
+        opts:['Older products must always cost more.','Total unit costs fall by a certain percentage with each doubling of cumulative production.','Prices should rise with the firm\'s experience.','Customers pay more as they gain experience with the product.'],
+        correct:1 },
+      { q:'Transfer pricing refers to…',
+        opts:['Prices charged for intracompany movement of goods and services.','The cost of transferring money between banks.','Discounts for customers who switch from competitors.','The price of shipping containers.'],
+        correct:0 },
+      { q:'A "global pricing contract" (GPC) is…',
+        opts:['A government treaty fixing world prices.','A customer requiring one global price per product from the supplier for all its foreign SBUs and subsidiaries.','An agreement between competitors to keep prices high.','A currency hedging instrument.'],
+        correct:1 },
+      { q:'Under CIF terms, the seller pays…',
+        opts:['Nothing — the buyer collects at the factory.','Cost, insurance and freight to the destination port.','All costs including import duty to the buyer\'s door.','Only the export packaging.'],
+        correct:1 },
+      { q:'The MOST secure letter of credit for an exporter is…',
+        opts:['A revocable L/C.','An irrevocable but unconfirmed L/C.','A confirmed irrevocable L/C.','A verbal promise from the buyer\'s bank.'],
+        correct:2 },
+    ]},
+
+  { type:'closing',
+    title:'See You Next Class',
+    subtitle:'Chapter 16: Distribution Decisions\nHow products physically reach customers across borders — channels, logistics and retail.',
+    quote:'"There are two kinds of companies: those that work to raise prices and those that work to lower them." — Jeff Bezos' },
+];
+
+// ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
+
+const TitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.4}}>
+      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+    </P>
+    {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
+      <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
+    </P>}
+  </div>
+);
+
+const ImpactSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.03}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
+        {data.stats.map((s,i)=>(
+          <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div>
+              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
+      </div>
+    </P>
+  </div>
+);
+
+const AgendaSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
+        {data.modules.map(m=>(
+          <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
+            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
+            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const ModuleTitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.5}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+        MODULE {data.num}
+      </div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+        {data.question}
+      </div>
+    </P>
+  </div>
+);
+
+const ConceptSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(80,0),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.035}/></div>
+    <P style={{flex:1.5}}>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      {data.highlight&&(
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
+        </div>
+      )}
+    </P>
+    {!MOB&&<P style={{flex:.65,display:'flex',justifyContent:'center',opacity:.07}}>
+      <div style={{width:340,height:340}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+    </P>}
+  </div>
+);
+
+const CaseSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(50,0),zIndex:2})}>
+    {!MOB&&<P style={{flex:.6,display:'flex',justifyContent:'center',opacity:.2}}>
+      <div style={{width:240,height:240}}>{Ico[data.icon]?Ico[data.icon](RD):null}</div>
+    </P>}
+    <P style={{flex:1.8}}>
+      <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
+        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+      </div>
+      <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
+        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+      </div>
+      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+        <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
+      </div>
+    </P>
+  </div>
+);
+
+const ComparisonSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
+        {[data.left,data.right].map((side,si)=>(
+          <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+              {side.label}
+            </div>
+            <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
+              {side.items.map((item,i)=>(
+                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
+                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const PriceEscalationSlide = () => {
+  const steps=[
+    {t:'Ex-works price',          v:'$10.00', c:T,  w:V('26%','100%')},
+    {t:'+ Freight & insurance',   v:'$13.50', c:T2, w:V('40%','100%')},
+    {t:'+ Tariff (e.g. 15%)',     v:'$15.50', c:AM, w:V('55%','100%')},
+    {t:'+ Importer margin',       v:'$21.70', c:AM, w:V('72%','100%')},
+    {t:'+ Wholesaler & retailer margins', v:'$38.00', c:RD, w:'100%'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 2"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Price Escalation — The Export Staircase</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Illustrative example — each channel layer applies its mark-up on top of everything below it.</p>
+        <div style={{display:'flex',flexDirection:'column',gap:V(10,8),maxWidth:880,margin:'0 auto',width:'100%'}}>
+          {steps.map((s,i)=>(
+            <div key={i} style={{width:s.w,background:BG2,border:`1px solid ${s.c}40`,borderRadius:10,padding:V('11px 18px','10px 14px'),display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+              <div style={{fontSize:V(14,12),color:W,fontWeight:i===0||i===4?700:400}}>{s.t}</div>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(18,15),fontWeight:900,color:s.c,whiteSpace:'nowrap'}}>{s.v}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>$10 at the factory → $38 on the foreign shelf: a 3.8× escalation, with no one feeling greedy along the way.</p>
+      </P>
+    </div>
+  );
+};
+
+const PricingStrategiesSlide = () => {
+  const strats=[
+    {t:'Skimming', c:RD, tag:'HIGH PRICE', d:'Top-end price for the highest possible contribution in a short time.', w:'Risks: small share invites local attack · quality promise is expensive · price gaps breed grey markets.'},
+    {t:'Market Pricing', c:AM, tag:'COMPETITIVE PRICE', d:'Final price based on competitive prices — position in the existing structure.', w:'Requires deep knowledge of competitors\' costs, moves and reactions.'},
+    {t:'Penetration', c:T, tag:'LOW PRICE', d:'Low price aiming for the highest possible sales volume.', w:'Motives: intensive local competition · lower local incomes · exporting as a marginal activity.'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 3"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Three Strategies for Pricing a New Product</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 15.2 — the launch price sets the trajectory for everything after.</p>
+        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(14,10),maxWidth:980,margin:'0 auto',width:'100%'}}>
+          {strats.map((s,i)=>(
+            <div key={i} style={{background:BG2,border:`1px solid ${s.c}35`,borderRadius:14,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+              <div style={{background:`${s.c}15`,padding:V('11px 16px','9px 14px')}}>
+                <div style={{fontSize:V(16,14),fontWeight:700,color:s.c,marginBottom:3}}>{s.t}</div>
+                <div style={{fontSize:V(10,9),fontWeight:700,letterSpacing:1.5,color:`${s.c}90`}}>{s.tag}</div>
+              </div>
+              <div style={{padding:V('13px 16px','10px 14px'),flex:1,display:'flex',flexDirection:'column',gap:8}}>
+                <div style={{fontSize:V(13,12),color:W,lineHeight:1.55}}>{s.d}</div>
+                <div style={{fontSize:V(12,11),color:G,lineHeight:1.5,fontStyle:'italic'}}>{s.w}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const IncotermsLadderSlide = () => {
+  const terms=[
+    {t:'EXW', d:'Ex Works — buyer collects at the factory gate', pos:0},
+    {t:'FAS', d:'Free Alongside Ship — seller delivers beside the vessel', pos:14},
+    {t:'FOB', d:'Free On Board — risk passes when goods cross the ship\'s rail', pos:28},
+    {t:'CFR', d:'Cost & Freight — seller pays freight to destination port', pos:46},
+    {t:'CIF', d:'Cost, Insurance & Freight — CFR plus insurance', pos:62},
+    {t:'DEQ', d:'Delivered Ex Quay — seller delivers onto the destination dock', pos:80},
+    {t:'DDP', d:'Delivered Duty Paid — seller delivers to the door, duties included', pos:100},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 5"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Incoterms Ladder</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(20,14)}}>Each step up transfers more cost and obligation from the buyer to the seller.</p>
+        <div style={{display:'flex',justifyContent:'space-between',maxWidth:880,margin:'0 auto 10px',width:'100%',fontSize:V(11,9),fontWeight:700,letterSpacing:1.5}}>
+          <div style={{color:T}}>SELLER’S OBLIGATION: MINIMUM</div>
+          <div style={{color:RD}}>MAXIMUM</div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:V(8,7),maxWidth:880,margin:'0 auto',width:'100%'}}>
+          {terms.map((t,i)=>(
+            <div key={i} style={{display:'flex',gap:V(14,10),alignItems:'center'}}>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(16,13),fontWeight:900,color:W,background:BG2,border:`1px solid ${BDR}`,borderRadius:8,padding:V('7px 12px','6px 9px'),minWidth:V(58,46),textAlign:'center',flexShrink:0}}>{t.t}</div>
+              <div style={{flex:1}}>
+                <div style={{height:V(7,6),background:BG3,borderRadius:4,overflow:'hidden',marginBottom:4}}>
+                  <div style={{height:'100%',width:`${Math.max(t.pos,4)}%`,background:`linear-gradient(90deg,${T},${AM},${RD})`,borderRadius:4}}/>
+                </div>
+                <div style={{fontSize:V(12,10),color:G,lineHeight:1.4}}>{t.d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </P>
+    </div>
+  );
+};
+const TakeawaysSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.04}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
+        {data.items.map((item,i)=>(
+          <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
+            <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const DiscussionSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
+        {data.questions.map((q,i)=>(
+          <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+          </div>
+        ))}
+      </div>
+      {data.resource && (
+        <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
+          <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
+          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+            {data.resource.label}{' '}
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+          </div>
+        </div>
+      )}
+    </P>
+  </div>
+);
+
+const ExerciseSlide = ({data}) => {
+  const [revealed,setRevealed] = useState(false);
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
+      <P>
+        <ModuleTag module={data.module}/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
+          {data.options.map((opt,i)=>(
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+              {opt}
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:'center'}}>
+          {!revealed?(
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+              Reveal Answer
+            </button>
+          ):(
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+              <strong>Explanation:</strong> {data.explanation}
+            </div>
+          )}
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const QuizIntroSlide = ({data,onStart}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{textAlign:'center'}}>
+      <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+        Start Assessment →
+      </button>
+    </P>
+  </div>
+);
+
+const QuizSlide = ({data,onFinish}) => {
+  const [current,setCurrent]=useState(0);
+  const [answers,setAnswers]=useState({});
+  const [done,setDone]=useState(false);
+
+  const answer=(idx)=>{
+    if(answers[current]!==undefined) return;
+    setAnswers(p=>({...p,[current]:idx}));
+  };
+  const next=()=>{
+    if(current<data.questions.length-1) setCurrent(c=>c+1);
+    else setDone(true);
+  };
+
+  if(done){
+    const score=Object.keys(answers).filter(k=>answers[k]===data.questions[k].correct).length;
+    const pct=Math.round((score/data.questions.length)*100);
+    const rating=pct>=90?{l:'Global Marketing Expert 🏆',c:T}:pct>=70?{l:'Solid understanding — keep going ✅',c:BL}:pct>=50?{l:'Getting there — review the slides ⚠️',c:AM}:{l:'Needs reinforcement — review Chapter 1 🔴',c:RD};
+    return(
+      <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+        <P style={{textAlign:'center'}}>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
+            {data.questions.map((q,i)=>(
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+                {answers[i]===q.correct?'✓':'✗'}
+              </div>
+            ))}
+          </div>
+          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            Continue →
+          </button>
+        </P>
+      </div>
+    );
+  }
+
+  const q=data.questions[current];
+  const answered=answers[current]!==undefined;
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
+          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
+          </div>
+        </div>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
+          {q.opts.map((opt,i)=>{
+            let bg=BG2,border=`1px solid ${BDR}`,color=W;
+            if(answered){
+              if(i===q.correct){bg=`${T}15`;border=`2px solid ${T}`;color=T;}
+              else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
+            }
+            return(
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+                {opt}
+              </div>
+            );
+          })}
+        </div>
+        {answered&&(
+          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            {current<data.questions.length-1?'Next Question →':'See Results →'}
+          </button>
+        )}
+      </P>
+    </div>
+  );
+};
+
+const ClosingSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V('0 120px','48px 24px'),textAlign:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.06}/></div>
+    <P>
+      <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
+        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+      </div>
+      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+    </P>
+  </div>
+);
+
+// ── APP ────────────────────────────────────────────────────────────────────
+function App(){
+  const [cur,setCur]=useState(0);
+  const [quizDone,setQuizDone]=useState(false);
+  const [vw,setVw]=useState(window.innerWidth);
+  const total=SLIDES.length;
+  MOB = vw<=820; // refresh responsive flag before children render
+
+  const next=useCallback(()=>setCur(c=>Math.min(c+1,total-1)),[total]);
+  const prev=useCallback(()=>setCur(c=>Math.max(c-1,0)),[]);
+
+  useEffect(()=>{
+    const r=()=>setVw(window.innerWidth);
+    window.addEventListener('resize',r);
+    window.addEventListener('orientationchange',r);
+    return()=>{window.removeEventListener('resize',r);window.removeEventListener('orientationchange',r);};
+  },[]);
+
+  useEffect(()=>{
+    const h=e=>{
+      if(e.key==='ArrowRight'||e.key===' ') next();
+      if(e.key==='ArrowLeft') prev();
+      if(e.key==='f'||e.key==='F'){
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen();
+      }
+    };
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  },[next,prev]);
+
+  const s=SLIDES[cur];
+
+  // Touch swipe navigation (disabled on the quiz slide so a stray swipe can't lose quiz progress)
+  useEffect(()=>{
+    if(s.type==='quiz') return;
+    let sx=0,sy=0;
+    const ts=e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;};
+    const te=e=>{
+      const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.5){ if(dx<0) next(); else prev(); }
+    };
+    window.addEventListener('touchstart',ts,{passive:true});
+    window.addEventListener('touchend',te,{passive:true});
+    return()=>{window.removeEventListener('touchstart',ts);window.removeEventListener('touchend',te);};
+  },[next,prev,s.type]);
+
+  const renderSlide=()=>{
+    switch(s.type){
+      case 'title':            return <TitleSlide data={s}/>;
+      case 'impact':           return <ImpactSlide data={s}/>;
+      case 'agenda':           return <AgendaSlide data={s}/>;
+      case 'module_title':     return <ModuleTitleSlide data={s}/>;
+      case 'concept':          return <ConceptSlide data={s}/>;
+      case 'case':             return <CaseSlide data={s}/>;
+      case 'comparison':       return <ComparisonSlide data={s}/>;
+      case 'price_escalation': return <PriceEscalationSlide/>;
+      case 'pricing_strategies': return <PricingStrategiesSlide/>;
+      case 'incoterms_ladder': return <IncotermsLadderSlide/>;
+      case 'takeaways':        return <TakeawaysSlide data={s}/>;
+      case 'discussion':       return <DiscussionSlide data={s}/>;
+      case 'exercise':         return <ExerciseSlide key={cur} data={s}/>;
+      case 'quiz_intro':       return <QuizIntroSlide data={s} onStart={next}/>;
+      case 'quiz':             return <QuizSlide key={cur} data={s} onFinish={()=>{setQuizDone(true);next();}}/>;
+      case 'closing':          return <ClosingSlide data={s}/>;
+      default:                 return <TitleSlide data={s}/>;
+    }
+  };
+
+  // Module color based on current slide
+  const moduleColors = [T,T,T,BL,BL,BL,BL,AM,AM,AM,AM,T,T,T,T,T,T,BL,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,T,T,T,T,T,T];
+  const accentColor = moduleColors[cur]||T;
+
+  return(
+    <div className="app-root" style={{width:'100vw',display:'flex',flexDirection:'column',position:'relative',background:BG}}>
+      <div className="bg-grid"/>
+      <div className="bg-glow"/>
+      <div className="bg-glow-left"/>
+      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+        {renderSlide()}
+      </div>
+      {/* FOOTER NAV */}
+      <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:14}}>
+          {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
+            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 15</div>
+          </div>}
+          {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>}
+          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.15</div>}
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
+          </div>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+        </div>
+        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+      </div>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

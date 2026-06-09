@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Marketing · Chapter 14 · Universidad del Rosario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body{margin:0;padding:0;background:#090b10;color:#f0f0eb;font-family:'DM Sans',sans-serif;overflow:hidden}
+    *{box-sizing:border-box}
+    .app-root{height:100vh;height:100dvh}
+    .slide-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .slide-enter{animation:fadeIn .3s ease-out forwards}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(99,179,86,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,179,86,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0}
+    .bg-glow{position:absolute;top:-20%;right:-10%;width:60%;height:80%;background:radial-gradient(circle,rgba(99,179,86,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-glow-left{position:absolute;bottom:-20%;left:-10%;width:50%;height:70%;background:radial-gradient(circle,rgba(99,179,86,.035) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-art{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const T  = "#63b356";   // green accent
+const T2 = "#9de84d";   // bright lime
+const BL = "#4a9eed";   // blue
+const AM = "#f0a500";   // amber
+const RD = "#e05252";   // red
+const BG = "#090b10";
+const BG2= "#0f1318";
+const BG3= "#0d1117";
+const W  = "#f0f0eb";
+const G  = "#7a7a72";
+const BDR= "rgba(255,255,255,.08)";
+
+// ── RESPONSIVE ──────────────────────────────────────────────────
+// MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
+let MOB = typeof window!=='undefined' && window.innerWidth<=820;
+const V = (d,m) => MOB ? m : d;
+// Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
+const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+
+// ── BACKGROUND ART ──────────────────────────────────────────────
+const BgGlobe = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".5" width="100%" height="100%">
+      <circle cx="100" cy="100" r="80"/>
+      <ellipse cx="100" cy="100" rx="40" ry="80"/>
+      <ellipse cx="100" cy="100" rx="70" ry="80"/>
+      <line x1="20" y1="100" x2="180" y2="100" opacity=".5"/>
+      <line x1="100" y1="20" x2="100" y2="180" opacity=".5"/>
+      <path d="M30 60 Q100 55 170 60" fill="none" opacity=".4"/>
+      <path d="M25 140 Q100 135 175 140" fill="none" opacity=".4"/>
+    </svg>
+  </div>
+);
+
+const BgChain = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".6" width="100%" height="100%">
+      <rect x="20" y="80" width="40" height="40" rx="4"/>
+      <rect x="80" y="80" width="40" height="40" rx="4"/>
+      <rect x="140" y="80" width="40" height="40" rx="4"/>
+      <line x1="60" y1="100" x2="80" y2="100"/>
+      <line x1="120" y1="100" x2="140" y2="100"/>
+      <line x1="40" y1="80" x2="40" y2="40"/>
+      <line x1="100" y1="80" x2="100" y2="40"/>
+      <line x1="160" y1="80" x2="160" y2="40"/>
+      <line x1="40" y1="120" x2="40" y2="160"/>
+      <line x1="100" y1="120" x2="100" y2="160"/>
+      <line x1="160" y1="120" x2="160" y2="160"/>
+    </svg>
+  </div>
+);
+
+// ── HELPER COMPONENTS ────────────────────────────────────────────
+function P({children,style={}}){return <div style={{position:'relative',zIndex:2,...style}}>{children}</div>;}
+
+const ModuleTag = ({module,color=T}) => (
+  <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
+    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    textTransform:'uppercase',marginBottom:20}}>
+    {module}
+  </div>
+);
+
+// ── SVG ICONS ────────────────────────────────────────────────────
+const Ico = {
+  globe:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+  target:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+  zap:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  link:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+  map:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>,
+  trend:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  users:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  box:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
+  refresh: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  award:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+  layers:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+  alert:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  chart:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  shuffle: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>,
+  cpu:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+  arrow:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  flag:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+  star:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  wifi:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>,
+};
+
+// ── SLIDE DATA ────────────────────────────────────────────────────────────
+const SLIDES = [
+
+  // ── INTRO ──────────────────────────────────────────────────────────────
+  { type:'title',
+    tag:'Universidad del Rosario · Global Marketing · Chapter 14',
+    title:'Product Decisions',
+    subtitle:'The same product everywhere — or a different one per market?\nProducts, services, life cycles and brands across borders.',
+    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+
+  { type:'impact',
+    title:'Why Product Decisions Matter',
+    stats:[
+      {n:'3',  d:'Levels of every product: core benefits, attributes, support services — each with different standardization potential.', src:'Hollensen, Fig. 14.1'},
+      {n:'5',  d:'Strategic options in the product/communication mix — from straight extension to full product invention.', src:'Keegan (1995)'},
+      {n:'4',  d:'Stages of the product life cycle — and the IPLC replays them country by country across the world.', src:'PLC · IPLC theory'},
+      {n:'4',  d:'Service characteristics that complicate going global: intangibility, perishability, heterogeneity, inseparability.', src:'Hollensen, Ch. 14'},
+    ],
+    quote:'The product is what travels. The decision is how much of it must change at each border.' },
+
+  { type:'agenda',
+    title:'What We Cover Today',
+    modules:[
+      {num:1, title:'Standardize or Adapt', desc:'The core dilemma · three product levels'},
+      {num:2, title:'Services Go Global',   desc:'Characteristics · categories · B2B'},
+      {num:3, title:'PLC & IPLC',           desc:'Life cycles at home and across countries'},
+      {num:4, title:'Product–Communication Mix', desc:'Keegan\'s five strategies · country of origin'},
+      {num:5, title:'Branding & Green',     desc:'Brand options · equity · green marketing'},
+      {num:6, title:'Takeaways & Quiz',     desc:'Cases · final assessment'},
+    ]},
+
+  // ── MODULE 1 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:1, title:'Standardize or Adapt?', icon:'globe',
+    question:'Coca-Cola sells one formula worldwide. Kellogg\'s reinvents itself for India. Who\'s right?' },
+
+  { type:'concept', module:'Module 1', icon:'shuffle',
+    title:'The Standardization–Adaptation Balance',
+    text:'Every element of the international marketing mix sits on a slider between full standardization (one offer worldwide: scale economies, consistent image, lower complexity) and full adaptation (per-market offers: cultural fit, regulation compliance, local preference). Environmental factors — culture, regulation, infrastructure, competition, usage conditions — push each product element toward one end or the other.',
+    highlight:'It\'s never all-or-nothing: firms standardize some product levels and adapt others, simultaneously.' },
+
+  { type:'product_levels' },
+
+  { type:'exercise', module:'Module 1',
+    title:'Exercise 1 · Which Level Adapts?',
+    question:'A Colombian appliance brand enters Brazil. The motor and energy efficiency stay identical, the manual is translated and plugs changed, and a new local call-centre handles installation and repairs. Which product level changed the MOST?',
+    options:['A) Core product benefits — the motor is the heart of the product.','B) Support services — delivery, installation and after-sales were rebuilt for the new market.','C) Nothing changed — this is full standardization.'],
+    correct:1,
+    explanation:'Option B. Core benefits (motor, performance) standardized; attributes adapted lightly (manual, plug); support services — the hardest level to standardize — were rebuilt locally. Exactly the pattern Figure 14.1 predicts.' },
+
+  // ── MODULE 2 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:2, title:'Services Go Global', icon:'users',
+    question:'You can ship a phone in a box. How do you ship a haircut?' },
+
+  { type:'concept', module:'Module 2', icon:'zap',
+    title:'The Four Service Characteristics',
+    text:'Services differ from physical products in four ways. Intangibility: they can\'t be seen or touched before purchase. Perishability: they can\'t be stored — an empty hotel room tonight is revenue lost forever. Heterogeneity: quality varies with who delivers them, when, and where. Inseparability: production and consumption happen at the same moment, usually requiring local presence.',
+    highlight:'Inseparability is why service firms usually internationalize through people and presence — not containers.' },
+
+  { type:'concept', module:'Module 2', icon:'layers',
+    title:'Service Categories & Supplementary Services',
+    text:'Three core categories: people processing (the customer must be present — healthcare, transport), possession processing (work on the customer\'s things — repair, logistics), and information-based services (deliverable anywhere — banking, education, software). Around the core, supplementary services add value: information, consultation, order taking, hospitality, safekeeping, exceptions, billing and payment.',
+    highlight:'Information-based services are the easiest to globalize — the internet carries them across borders at near-zero cost.' },
+
+  { type:'comparison',
+    module:'Module 2',
+    title:'B2B Markets vs Consumer Markets',
+    left:{label:'B2B (Business-to-Business)', color:BL, items:[
+      {k:'Buyers',       v:'Fewer and larger buyers'},
+      {k:'Demand',       v:'Derived, fluctuating and relatively inelastic'},
+      {k:'Buying process',v:'Many participants · professional buyers'},
+      {k:'Relationships', v:'Closer, long-term, often direct technological links'},
+      {k:'Channel',      v:'Absence of intermediaries — direct relationships'},
+    ]},
+    right:{label:'B2C (Consumer Markets)', color:T, items:[
+      {k:'Buyers',       v:'Many small individual buyers'},
+      {k:'Demand',       v:'Direct demand, more price-elastic'},
+      {k:'Buying process',v:'Individual or family decision, often emotional'},
+      {k:'Relationships', v:'Transactional, brand-mediated'},
+      {k:'Channel',      v:'Retailers and intermediaries dominate'},
+    ]}},
+
+  { type:'exercise', module:'Module 2',
+    title:'Exercise 2 · Classify the Service',
+    question:'A Bogotá-based firm teaches business English to Mexican executives 100% over video calls. Which service category is this, and what does it mean for internationalization?',
+    options:['A) People processing — students must fly to Bogotá for classes.','B) Information-based service — deliverable across borders digitally, the easiest category to globalize.','C) Possession processing — the firm processes the students\' documents.'],
+    correct:1,
+    explanation:'Option B. Education delivered digitally is information-based: no physical presence needed, infinitely exportable. That\'s why ed-tech and software services internationalize faster than hotels or hospitals.' },
+
+  // ── MODULE 3 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:3, title:'Life Cycles: PLC & IPLC', icon:'trend',
+    question:'Products are born, grow, age and die. What happens when that cycle crosses borders?' },
+
+  { type:'plc_stages' },
+
+  { type:'concept', module:'Module 3', icon:'globe',
+    title:'The International Product Life Cycle (IPLC)',
+    text:'The IPLC describes the diffusion of an innovation across national boundaries. Demand grows first in the innovating country; the product is then exported as other advanced markets adopt it; eventually demand (and often production itself) migrates to less developed countries — sometimes leaving the innovator importing the product it invented.',
+    highlight:'A product can be in decline at home and still in introduction abroad. Each country sits at its own point on the curve.' },
+
+  { type:'case', module:'Module 3', icon:'award',
+    title:'Case: Japanese Manufacturers — Competing on Time-to-Market',
+    problem:'In mature industries, the PLC keeps compressing: shorter life cycles mean less time to recover R&D investment. Whoever reaches the market late sells into a cycle that\'s already aging.',
+    solution:'Japanese manufacturers attacked the clock itself: early integration of customers and suppliers, multiskilled project teams, interlinked R&D–production–marketing, total quality management, parallel planning of products and production facilities, and outsourcing. R&D cycles compressed — products hit the market while the demand curve was still young.',
+    lesson:'When life cycles shrink, speed becomes a product decision — not just an operations metric.' },
+
+  { type:'concept', module:'Module 3', icon:'box',
+    title:'Degrees of Product Newness',
+    text:'New products carry different risk levels depending on two dimensions: newness to the company and newness to the international market. From low to high risk: cost reductions, line extensions and improvements, repositioned existing products, products new to the company, new to the home country — and riskiest of all, products new to international markets.',
+    highlight:'Risk climbs the diagonal: the further from what you know AND what the market knows, the more dangerous the launch.' },
+
+  { type:'exercise', module:'Module 3',
+    title:'Exercise 3 · Read the IPLC',
+    question:'Feature phones are nearly dead in Europe but still sell millions of units in parts of Africa and South Asia, where local manufacturers now produce them. Which theory explains this best?',
+    options:['A) The PLC — the product is simply in global decline everywhere.','B) The IPLC — demand and production migrated to later-adopting countries while the innovator markets moved on.','C) Brand equity — Nokia\'s brand kept the product alive.'],
+    correct:1,
+    explanation:'Option B. Classic IPLC: invented in advanced markets, exported, then both demand and manufacturing shifted to developing markets as the innovator countries moved to smartphones.' },
+
+  // ── MODULE 4 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:4, title:'The Product–Communication Mix', icon:'target',
+    question:'Same product, same message? Keegan says you have five options — choose deliberately.' },
+
+  { type:'keegan_matrix' },
+
+  { type:'case', module:'Module 4', icon:'alert',
+    title:'Case: Kellogg\'s in India — Dual Adaptation',
+    problem:'Kellogg\'s entered India assuming breakfast habits would bend to the product: cold cereal with cold milk. But Indian breakfasts are traditionally warm, savoury and home-cooked — and the western health message didn\'t connect. Early sales disappointed.',
+    solution:'Kellogg\'s switched to dual adaptation: the product changed (flavours and formats for Indian tastes and price points) AND the promotion changed (positioning aligned to local breakfast culture and family values, not imported western messaging).',
+    lesson:'When both usage conditions and communication culture differ, adapting only one half of the mix isn\'t enough.' },
+
+  { type:'concept', module:'Module 4', icon:'flag',
+    title:'Country-of-Origin Effects',
+    text:'Country-of-origin (COO) effects are the impact on quality perceptions caused by knowing where a product was made. "German engineering", "Italian design", "Japanese reliability" — these halos (or stigmas) attach to products before customers ever try them, and they vary by product category and by market.',
+    highlight:'COO is part of the product attributes level — and one a firm can manage: emphasize it, downplay it, or build against it.' },
+
+  { type:'exercise', module:'Module 4',
+    title:'Exercise 4 · Name the Strategy',
+    question:'Unilever sells Lux soap with essentially the same product formula in the UK and India — but completely different advertising in each market. In Keegan\'s matrix, this is…',
+    options:['A) Straight extension — same product, same promotion everywhere.','B) Promotion adaptation — standard product, adapted communication.','C) Product invention — a new product developed for the market.'],
+    correct:1,
+    explanation:'Option B. The product is standardized; only the communication changes to match local culture. Compare with Kellogg\'s India (dual adaptation: both changed) and Organics shampoo in Argentina (straight extension: only language translated).' },
+
+  // ── MODULE 5 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:5, title:'Branding Decisions & Green Marketing', icon:'star',
+    question:'A commodity has a price. A brand has a premium. How do you build — and protect — one globally?' },
+
+  { type:'concept', module:'Module 5', icon:'award',
+    title:'Why Brands? Functions & Brand Equity',
+    text:'Branding distinguishes the offering from competitors, creates identification and awareness, guarantees a level of quality and satisfaction, and helps promotion. The financial result is brand equity: the premium a customer pays for the branded product versus an identical unbranded one. Its assets: brand loyalty, awareness, perceived quality, brand associations and other proprietary assets.',
+    highlight:'Brand equity is the only line of the marketing mix that competitors cannot photocopy overnight.' },
+
+  { type:'brand_options' },
+
+  { type:'comparison',
+    module:'Module 5',
+    title:'Private Labels — Two Sides of the Shelf',
+    left:{label:'Retailer Perspective', color:T, items:[
+      {k:'Margins',  v:'Better profit margins than reselling manufacturer brands'},
+      {k:'Image',    v:'Strengthens the retailer\'s own image and loyalty'},
+      {k:'Control',  v:'Controls shelf placement, pricing and promotion'},
+      {k:'Data',     v:'Owns the customer relationship and purchase data'},
+    ]},
+    right:{label:'Manufacturer Perspective', color:RD, items:[
+      {k:'Costs',    v:'No promotional expenses — the retailer markets it'},
+      {k:'Access',   v:'Provides access to shelf space otherwise closed'},
+      {k:'Risk',     v:'Requires competing on price · loss of control'},
+      {k:'Cannibalization', v:'May eat sales of the manufacturer\'s own brands'},
+    ]}},
+
+  { type:'concept', module:'Module 5', icon:'link',
+    title:'Co-Branding, Sensory & Celebrity Branding',
+    text:'Co-branding is cooperation between two or more brands creating synergies above what each would generate alone — including ingredient branding ("Intel Inside"). Sensory branding engages sight, sound, smell, touch and taste. Celebrity branding uses a famous person\'s status; the licence\'s value depends on the celebrity\'s Q score, the product promoted, the quality of the licensed product and the amount of design control.',
+    highlight:'Every alliance borrows equity — and lends yours. Choose partners whose halo you want attached to your product.' },
+
+  { type:'concept', module:'Module 5', icon:'refresh',
+    title:'Green Marketing & Environmental Strategy',
+    text:'Green marketing integrates environmentally friendly practices and products while still meeting consumer needs. Strategic postures range from accommodative (compliance, green differentiation) to proactive (green product innovation, pollution prevention beyond compliance). Alliances with environmental groups add consumer confidence, information access, new markets, positive publicity and consumer education.',
+    highlight:'Green claims must be real: the same connectivity that spreads your message exposes greenwashing in hours.' },
+
+  { type:'exercise', module:'Module 5',
+    title:'Exercise 5 · The Brand Option',
+    question:'A Colombian coffee cooperative with excellent beans but no marketing budget gets an offer: produce coffee sold under Éxito\'s own label. Strategically, what is the biggest RISK of accepting?',
+    options:['A) Losing brand-building opportunity and control, while competing mostly on price.','B) Paying higher promotional expenses than before.','C) Losing access to shelf space in supermarkets.'],
+    correct:0,
+    explanation:'Option A. Private labels give access and volume with zero promotion costs — but the cooperative builds Éxito\'s equity instead of its own, accepts price competition, and risks never escaping commodity status. The classic manufacturer trade-off.' },
+
+  // ── MODULE 6 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
+    question:'Let\'s see what stuck — from product levels to brand equity.' },
+
+  { type:'takeaways',
+    title:'Chapter 14 — What You Now Know',
+    items:[
+      {icon:'globe',  c:T,  t:'Standardize vs Adapt',   d:'Three product levels with different standardization potential: core benefits travel best, support services travel worst.'},
+      {icon:'users',  c:BL, t:'Services',               d:'Intangible, perishable, heterogeneous, inseparable — information-based services globalize easiest.'},
+      {icon:'trend',  c:AM, t:'PLC & IPLC',             d:'Life cycles replay country by country; production migrates toward later adopters. Speed to market is strategy.'},
+      {icon:'target', c:T2, t:'Keegan\'s Five Strategies', d:'Straight extension → product/promotion adaptation → dual adaptation → invention. Choose per market, deliberately.'},
+      {icon:'star',   c:RD, t:'Branding',               d:'Equity = the premium customers pay for your name. Manage the options: own brand, co-brand, private label.'},
+    ]},
+
+  { type:'discussion',
+    title:'Discussion Questions',
+    questions:[
+      'How would you distinguish between services and products? What are the main implications of this difference for the global marketing of services?',
+      'What implications does the product life cycle theory have for international product development strategy?',
+      'What are the requirements that must be met so that a commodity can effectively be transformed into a branded product?',
+      'What is the importance of "country of origin" in international product marketing?',
+    ],
+    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+
+  { type:'quiz_intro',
+    title:'Final Assessment',
+    subtitle:'10 questions · Global Marketing Chapter 14 · No time limit · Good luck 🎯' },
+
+  { type:'quiz',
+    questions:[
+      { q:'Which product level has the LOWEST ability to be standardized across markets?',
+        opts:['Core product benefits (functional features, performance, technology).','Product attributes (brand, design, packaging).','Support services (delivery, installation, after-sales service).','All three levels standardize equally well.'],
+        correct:2 },
+      { q:'Which set correctly lists the four service characteristics?',
+        opts:['Intangibility, perishability, heterogeneity, inseparability.','Tangibility, durability, homogeneity, separability.','Intangibility, durability, heterogeneity, profitability.','Perishability, elasticity, complexity, locality.'],
+        correct:0 },
+      { q:'Compared with consumer markets, B2B markets typically have…',
+        opts:['More and smaller buyers with elastic demand.','Fewer and larger buyers, derived and relatively inelastic demand, professional buyers.','No long-term relationships between buyer and seller.','More intermediaries between producer and customer.'],
+        correct:1 },
+      { q:'The product life cycle states that products follow which sequence?',
+        opts:['Invention, patent, production, sales.','Introduction, growth, maturity, sales decline.','Launch, peak, plateau, rebirth.','Design, test, scale, exit.'],
+        correct:1 },
+      { q:'According to IPLC theory, demand for an innovation…',
+        opts:['Grows simultaneously in all countries thanks to the internet.','Grows first in the innovating country, is then exported, and eventually grows in less developed countries.','Only ever exists in the country of invention.','Starts in developing countries and moves to advanced ones.'],
+        correct:1 },
+      { q:'In Keegan\'s product/communication matrix, "dual adaptation" means…',
+        opts:['Selling two products in the same market.','Adapting both the product and the promotion for the foreign market.','Standardizing both product and promotion.','Inventing an entirely new product.'],
+        correct:1 },
+      { q:'Country-of-origin effects refer to…',
+        opts:['Import tariffs charged by the destination country.','The effect on quality perceptions caused by knowledge of where the product was made.','The legal requirement to label products with their origin.','The cost of shipping from the production country.'],
+        correct:1 },
+      { q:'Brand equity is best defined as…',
+        opts:['The total advertising budget invested in a brand.','The premium a customer would pay for the branded product compared to an identical unbranded version.','The number of countries where the brand is registered.','The stock market value of the parent company.'],
+        correct:1 },
+      { q:'From the manufacturer\'s perspective, producing private labels involves which trade-off?',
+        opts:['High promotion costs but full control of the brand.','No promotional expenses and shelf access — but price competition, loss of control and possible cannibalization.','Better margins and a stronger own-brand image.','No risks: private labels are pure upside for manufacturers.'],
+        correct:1 },
+      { q:'A proactive environmental strategic posture combines…',
+        opts:['Minimum legal compliance and cost cutting.','Green product innovation with pollution prevention beyond compliance.','Outsourcing pollution to suppliers.','Avoiding all environmental claims in marketing.'],
+        correct:1 },
+    ]},
+
+  { type:'closing',
+    title:'See You Next Class',
+    subtitle:'Chapter 15: Pricing Decisions\nWhat a product costs the customer — and what that decision costs the firm.',
+    quote:'"A product is something made in a factory; a brand is something bought by the customer. A product can be copied; a brand is unique." — Stephen King (WPP)' },
+];
+
+// ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
+
+const TitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.4}}>
+      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+    </P>
+    {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
+      <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
+    </P>}
+  </div>
+);
+
+const ImpactSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.03}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
+        {data.stats.map((s,i)=>(
+          <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div>
+              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
+      </div>
+    </P>
+  </div>
+);
+
+const AgendaSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
+        {data.modules.map(m=>(
+          <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
+            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
+            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const ModuleTitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.5}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+        MODULE {data.num}
+      </div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+        {data.question}
+      </div>
+    </P>
+  </div>
+);
+
+const ConceptSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(80,0),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.035}/></div>
+    <P style={{flex:1.5}}>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      {data.highlight&&(
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
+        </div>
+      )}
+    </P>
+    {!MOB&&<P style={{flex:.65,display:'flex',justifyContent:'center',opacity:.07}}>
+      <div style={{width:340,height:340}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+    </P>}
+  </div>
+);
+
+const CaseSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(50,0),zIndex:2})}>
+    {!MOB&&<P style={{flex:.6,display:'flex',justifyContent:'center',opacity:.2}}>
+      <div style={{width:240,height:240}}>{Ico[data.icon]?Ico[data.icon](RD):null}</div>
+    </P>}
+    <P style={{flex:1.8}}>
+      <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
+        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+      </div>
+      <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
+        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+      </div>
+      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+        <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
+      </div>
+    </P>
+  </div>
+);
+
+const ComparisonSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
+        {[data.left,data.right].map((side,si)=>(
+          <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+              {side.label}
+            </div>
+            <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
+              {side.items.map((item,i)=>(
+                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
+                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const LevelBar = ({c,t,d,tag}) => (
+  <div style={{background:BG2,border:`1px solid ${c}40`,borderRadius:12,padding:V('14px 20px','11px 14px'),display:'flex',gap:V(16,10),alignItems:'center'}}>
+    <div style={{flex:1}}>
+      <div style={{fontSize:V(15,13),fontWeight:700,color:c,marginBottom:4}}>{t}</div>
+      <div style={{fontSize:V(13,11),color:G,lineHeight:1.5}}>{d}</div>
+    </div>
+    <div style={{fontSize:V(11,9),fontWeight:700,color:c,background:`${c}15`,border:`1px solid ${c}30`,borderRadius:100,padding:'4px 10px',whiteSpace:'nowrap',flexShrink:0}}>{tag}</div>
+  </div>
+);
+
+const ProductLevelsSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 1"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Three Levels of a Product</h2>
+      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 14.1 — each level has a different ability to standardize across markets.</p>
+      <div style={{display:'flex',flexDirection:'column',gap:V(12,10),maxWidth:880,margin:'0 auto',width:'100%'}}>
+        <LevelBar c={RD} t="Support Services" tag="HARDEST TO STANDARDIZE"
+          d="Delivery · installation · guarantees · after-sales service · spare parts — bound to local infrastructure and expectations"/>
+        <LevelBar c={AM} t="Product Attributes" tag="MIDDLE GROUND"
+          d="Brand · quality · design · packaging · price · country of origin · staff behaviour · size"/>
+        <LevelBar c={T} t="Core Product Benefits" tag="EASIEST TO STANDARDIZE"
+          d="Functional features · performance · perceived value · image · technology — the universal heart of the offer"/>
+      </div>
+      <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>Rule of thumb: the closer to the core, the more the product can travel unchanged.</p>
+    </P>
+  </div>
+);
+
+const PLCStagesSlide = () => {
+  const stages=[
+    {t:'Introduction',c:BL, d:'Launch · build awareness · high costs, low or negative profit'},
+    {t:'Growth',      c:T,  d:'Sales climb · competitors enter · invest in share and distribution'},
+    {t:'Maturity',    c:AM, d:'Sales peak · defend share · differentiate or segment'},
+    {t:'Decline',     c:RD, d:'Sales fall · harvest, reposition or exit'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 3"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Product Life Cycle</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>Four stages, each with its own strategic marketing implications — and a clock that keeps compressing.</p>
+        <div style={{display:'flex',flexDirection:V('row','column'),gap:0,alignItems:'stretch',maxWidth:980,margin:'0 auto',width:'100%'}}>
+          {stages.map((s,i)=>(
+            <React.Fragment key={i}>
+              <div style={{flex:1,background:BG2,padding:V('18px 16px','13px 14px'),border:`1px solid ${s.c}35`,borderRadius:V(i===0?'12px 0 0 12px':i===3?'0 12px 12px 0':'0',i===0?'12px 12px 0 0':i===3?'0 0 12px 12px':'0'),textAlign:'center'}}>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:V(19,15),fontWeight:700,color:s.c,marginBottom:7}}>{s.t}</div>
+                <div style={{fontSize:V(12,11),color:G,lineHeight:1.6}}>{s.d}</div>
+              </div>
+              {i<3&&(
+                <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:5}}>
+                  <div style={{background:BG,padding:'0 2px',transform:V('none','rotate(90deg)')}}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.5" strokeLinecap="round" width="20" height="20">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+        <div style={{background:`${T}08`,border:`1px solid ${T}25`,borderRadius:10,padding:V('14px 18px','11px 14px'),marginTop:V(20,14),maxWidth:980,margin:V('20px auto 0','14px auto 0')}}>
+          <div style={{fontSize:V(13,11),fontWeight:700,color:T,marginBottom:5}}>THE INTERNATIONAL TWIST (IPLC)</div>
+          <div style={{fontSize:V(13,12),color:G,lineHeight:1.55}}>The same curve replays across countries with a delay: innovating country → other advanced economies → developing countries. Production gradually migrates toward the later adopters.</div>
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const KeeganMatrixSlide = () => {
+  const cells=[
+    {t:'Straight Extension',  c:T,  pr:'Standard product · Standard promotion', ex:'Organics shampoo in Argentina — only the language changed'},
+    {t:'Product Adaptation',  c:BL, pr:'Adapted product · Standard promotion',  ex:'Electrical goods re-engineered for local voltage, same campaign'},
+    {t:'Promotion Adaptation',c:AM, pr:'Standard product · Adapted promotion',  ex:'Lux soap — same bar, different message in UK vs India'},
+    {t:'Dual Adaptation',     c:RD, pr:'Adapted product · Adapted promotion',   ex:'Kellogg\'s for the Indian market — new flavours AND new message'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 4"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Keegan's Product / Communication Mode</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Keegan (1995) — five strategies from two questions: change the product? change the promotion?</p>
+        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(14,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
+          {cells.map((cell,i)=>(
+            <div key={i} style={{background:BG2,border:`1px solid ${cell.c}35`,borderRadius:14,overflow:'hidden'}}>
+              <div style={{background:`${cell.c}15`,padding:V('10px 18px','9px 14px')}}>
+                <div style={{fontSize:V(15,13),fontWeight:700,color:cell.c}}>{cell.t}</div>
+                <div style={{fontSize:V(11,10),color:`${cell.c}90`,marginTop:2}}>{cell.pr}</div>
+              </div>
+              <div style={{padding:V('12px 18px','10px 14px'),fontSize:V(13,11),color:G,lineHeight:1.55,fontStyle:'italic'}}>→ {cell.ex}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:`${T2}0d`,border:`1px solid ${T2}35`,borderRadius:14,padding:V('13px 20px','11px 14px'),marginTop:V(14,10),maxWidth:920,margin:V('14px auto 0','10px auto 0'),display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{fontSize:V(15,13),fontWeight:700,color:T2,whiteSpace:'nowrap'}}>+ Product Invention</div>
+          <div style={{fontSize:V(13,11),color:G,lineHeight:1.5}}>When neither extension nor adaptation fits: develop a NEW product for the market’s needs and income level — e.g. purpose-built low-cost products for India.</div>
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const BrandOptionsSlide = () => {
+  const opts=[
+    {t:'Private Branding',c:RD, tag:'100% EXTERNALIZING', d:'Produce for a retailer’s own label (e.g. Marks & Spencer’s). Volume and shelf access — zero brand equity of your own.'},
+    {t:'Co-Branding / Brand Alliance',c:AM, tag:'SHARED', d:'Two or more brands create synergies above what each generates alone — including ingredient branding ("Intel Inside").'},
+    {t:'Manufacturer’s Own Brand',c:T, tag:'100% INTERNALIZING', d:'Build and own the equity: full control, full promotion cost, full upside.'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 5"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Three Brand Options</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 14.15 — a spectrum from externalizing the brand to fully owning it.</p>
+        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(14,10),maxWidth:980,margin:'0 auto',width:'100%'}}>
+          {opts.map((o,i)=>(
+            <div key={i} style={{background:BG2,border:`1px solid ${o.c}35`,borderRadius:14,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+              <div style={{background:`${o.c}15`,padding:V('11px 16px','9px 14px')}}>
+                <div style={{fontSize:V(15,13),fontWeight:700,color:o.c,marginBottom:3}}>{o.t}</div>
+                <div style={{fontSize:V(10,9),fontWeight:700,letterSpacing:1.5,color:`${o.c}90`}}>{o.tag}</div>
+              </div>
+              <div style={{padding:V('13px 16px','10px 14px'),fontSize:V(13,11),color:G,lineHeight:1.55,flex:1}}>{o.d}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>Most global manufacturers run a portfolio: own brands where equity is strong, private labels where volume pays, alliances where halos transfer.</p>
+      </P>
+    </div>
+  );
+};
+const TakeawaysSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.04}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
+        {data.items.map((item,i)=>(
+          <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
+            <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const DiscussionSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
+        {data.questions.map((q,i)=>(
+          <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+          </div>
+        ))}
+      </div>
+      {data.resource && (
+        <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
+          <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
+          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+            {data.resource.label}{' '}
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+          </div>
+        </div>
+      )}
+    </P>
+  </div>
+);
+
+const ExerciseSlide = ({data}) => {
+  const [revealed,setRevealed] = useState(false);
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
+      <P>
+        <ModuleTag module={data.module}/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
+          {data.options.map((opt,i)=>(
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+              {opt}
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:'center'}}>
+          {!revealed?(
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+              Reveal Answer
+            </button>
+          ):(
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+              <strong>Explanation:</strong> {data.explanation}
+            </div>
+          )}
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const QuizIntroSlide = ({data,onStart}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{textAlign:'center'}}>
+      <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+        Start Assessment →
+      </button>
+    </P>
+  </div>
+);
+
+const QuizSlide = ({data,onFinish}) => {
+  const [current,setCurrent]=useState(0);
+  const [answers,setAnswers]=useState({});
+  const [done,setDone]=useState(false);
+
+  const answer=(idx)=>{
+    if(answers[current]!==undefined) return;
+    setAnswers(p=>({...p,[current]:idx}));
+  };
+  const next=()=>{
+    if(current<data.questions.length-1) setCurrent(c=>c+1);
+    else setDone(true);
+  };
+
+  if(done){
+    const score=Object.keys(answers).filter(k=>answers[k]===data.questions[k].correct).length;
+    const pct=Math.round((score/data.questions.length)*100);
+    const rating=pct>=90?{l:'Global Marketing Expert 🏆',c:T}:pct>=70?{l:'Solid understanding — keep going ✅',c:BL}:pct>=50?{l:'Getting there — review the slides ⚠️',c:AM}:{l:'Needs reinforcement — review Chapter 1 🔴',c:RD};
+    return(
+      <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+        <P style={{textAlign:'center'}}>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
+            {data.questions.map((q,i)=>(
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+                {answers[i]===q.correct?'✓':'✗'}
+              </div>
+            ))}
+          </div>
+          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            Continue →
+          </button>
+        </P>
+      </div>
+    );
+  }
+
+  const q=data.questions[current];
+  const answered=answers[current]!==undefined;
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
+          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
+          </div>
+        </div>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
+          {q.opts.map((opt,i)=>{
+            let bg=BG2,border=`1px solid ${BDR}`,color=W;
+            if(answered){
+              if(i===q.correct){bg=`${T}15`;border=`2px solid ${T}`;color=T;}
+              else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
+            }
+            return(
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+                {opt}
+              </div>
+            );
+          })}
+        </div>
+        {answered&&(
+          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            {current<data.questions.length-1?'Next Question →':'See Results →'}
+          </button>
+        )}
+      </P>
+    </div>
+  );
+};
+
+const ClosingSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V('0 120px','48px 24px'),textAlign:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.06}/></div>
+    <P>
+      <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
+        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+      </div>
+      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+    </P>
+  </div>
+);
+
+// ── APP ────────────────────────────────────────────────────────────────────
+function App(){
+  const [cur,setCur]=useState(0);
+  const [quizDone,setQuizDone]=useState(false);
+  const [vw,setVw]=useState(window.innerWidth);
+  const total=SLIDES.length;
+  MOB = vw<=820; // refresh responsive flag before children render
+
+  const next=useCallback(()=>setCur(c=>Math.min(c+1,total-1)),[total]);
+  const prev=useCallback(()=>setCur(c=>Math.max(c-1,0)),[]);
+
+  useEffect(()=>{
+    const r=()=>setVw(window.innerWidth);
+    window.addEventListener('resize',r);
+    window.addEventListener('orientationchange',r);
+    return()=>{window.removeEventListener('resize',r);window.removeEventListener('orientationchange',r);};
+  },[]);
+
+  useEffect(()=>{
+    const h=e=>{
+      if(e.key==='ArrowRight'||e.key===' ') next();
+      if(e.key==='ArrowLeft') prev();
+      if(e.key==='f'||e.key==='F'){
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen();
+      }
+    };
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  },[next,prev]);
+
+  const s=SLIDES[cur];
+
+  // Touch swipe navigation (disabled on the quiz slide so a stray swipe can't lose quiz progress)
+  useEffect(()=>{
+    if(s.type==='quiz') return;
+    let sx=0,sy=0;
+    const ts=e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;};
+    const te=e=>{
+      const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.5){ if(dx<0) next(); else prev(); }
+    };
+    window.addEventListener('touchstart',ts,{passive:true});
+    window.addEventListener('touchend',te,{passive:true});
+    return()=>{window.removeEventListener('touchstart',ts);window.removeEventListener('touchend',te);};
+  },[next,prev,s.type]);
+
+  const renderSlide=()=>{
+    switch(s.type){
+      case 'title':            return <TitleSlide data={s}/>;
+      case 'impact':           return <ImpactSlide data={s}/>;
+      case 'agenda':           return <AgendaSlide data={s}/>;
+      case 'module_title':     return <ModuleTitleSlide data={s}/>;
+      case 'concept':          return <ConceptSlide data={s}/>;
+      case 'case':             return <CaseSlide data={s}/>;
+      case 'comparison':       return <ComparisonSlide data={s}/>;
+      case 'product_levels':   return <ProductLevelsSlide/>;
+      case 'plc_stages':       return <PLCStagesSlide/>;
+      case 'keegan_matrix':    return <KeeganMatrixSlide/>;
+      case 'brand_options':    return <BrandOptionsSlide/>;
+      case 'takeaways':        return <TakeawaysSlide data={s}/>;
+      case 'discussion':       return <DiscussionSlide data={s}/>;
+      case 'exercise':         return <ExerciseSlide key={cur} data={s}/>;
+      case 'quiz_intro':       return <QuizIntroSlide data={s} onStart={next}/>;
+      case 'quiz':             return <QuizSlide key={cur} data={s} onFinish={()=>{setQuizDone(true);next();}}/>;
+      case 'closing':          return <ClosingSlide data={s}/>;
+      default:                 return <TitleSlide data={s}/>;
+    }
+  };
+
+  // Module color based on current slide
+  const moduleColors = [T,T,T,BL,BL,BL,BL,AM,AM,AM,AM,AM,T,T,T,T,T,T,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,AM,T,T,T,T,T,T];
+  const accentColor = moduleColors[cur]||T;
+
+  return(
+    <div className="app-root" style={{width:'100vw',display:'flex',flexDirection:'column',position:'relative',background:BG}}>
+      <div className="bg-grid"/>
+      <div className="bg-glow"/>
+      <div className="bg-glow-left"/>
+      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+        {renderSlide()}
+      </div>
+      {/* FOOTER NAV */}
+      <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:14}}>
+          {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
+            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 14</div>
+          </div>}
+          {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>}
+          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.14</div>}
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
+          </div>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+        </div>
+        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+      </div>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>

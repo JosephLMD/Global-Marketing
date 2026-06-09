@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Marketing · Chapter 1 · Universidad del Rosario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body{margin:0;padding:0;background:#090b10;color:#f0f0eb;font-family:'DM Sans',sans-serif;overflow:hidden}
+    *{box-sizing:border-box}
+    .app-root{height:100vh;height:100dvh}
+    .slide-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .slide-enter{animation:fadeIn .3s ease-out forwards}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .bg-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(99,179,86,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(99,179,86,.02) 1px,transparent 1px);background-size:80px 80px;z-index:0}
+    .bg-glow{position:absolute;top:-20%;right:-10%;width:60%;height:80%;background:radial-gradient(circle,rgba(99,179,86,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-glow-left{position:absolute;bottom:-20%;left:-10%;width:50%;height:70%;background:radial-gradient(circle,rgba(99,179,86,.035) 0%,transparent 60%);pointer-events:none;z-index:0}
+    .bg-art{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const T  = "#63b356";   // green accent
+const T2 = "#9de84d";   // bright lime
+const BL = "#4a9eed";   // blue
+const AM = "#f0a500";   // amber
+const RD = "#e05252";   // red
+const BG = "#090b10";
+const BG2= "#0f1318";
+const BG3= "#0d1117";
+const W  = "#f0f0eb";
+const G  = "#7a7a72";
+const BDR= "rgba(255,255,255,.08)";
+
+// ── RESPONSIVE ──────────────────────────────────────────────────
+// MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
+let MOB = typeof window!=='undefined' && window.innerWidth<=820;
+const V = (d,m) => MOB ? m : d;
+// Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
+const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+
+// ── BACKGROUND ART ──────────────────────────────────────────────
+const BgGlobe = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".5" width="100%" height="100%">
+      <circle cx="100" cy="100" r="80"/>
+      <ellipse cx="100" cy="100" rx="40" ry="80"/>
+      <ellipse cx="100" cy="100" rx="70" ry="80"/>
+      <line x1="20" y1="100" x2="180" y2="100" opacity=".5"/>
+      <line x1="100" y1="20" x2="100" y2="180" opacity=".5"/>
+      <path d="M30 60 Q100 55 170 60" fill="none" opacity=".4"/>
+      <path d="M25 140 Q100 135 175 140" fill="none" opacity=".4"/>
+    </svg>
+  </div>
+);
+
+const BgChain = ({opacity=0.03}) => (
+  <div style={{position:'absolute',right:'-5%',top:'5%',width:'55%',height:'90%',opacity,zIndex:0}}>
+    <svg viewBox="0 0 200 200" fill="none" stroke={T} strokeWidth=".6" width="100%" height="100%">
+      <rect x="20" y="80" width="40" height="40" rx="4"/>
+      <rect x="80" y="80" width="40" height="40" rx="4"/>
+      <rect x="140" y="80" width="40" height="40" rx="4"/>
+      <line x1="60" y1="100" x2="80" y2="100"/>
+      <line x1="120" y1="100" x2="140" y2="100"/>
+      <line x1="40" y1="80" x2="40" y2="40"/>
+      <line x1="100" y1="80" x2="100" y2="40"/>
+      <line x1="160" y1="80" x2="160" y2="40"/>
+      <line x1="40" y1="120" x2="40" y2="160"/>
+      <line x1="100" y1="120" x2="100" y2="160"/>
+      <line x1="160" y1="120" x2="160" y2="160"/>
+    </svg>
+  </div>
+);
+
+// ── HELPER COMPONENTS ────────────────────────────────────────────
+function P({children,style={}}){return <div style={{position:'relative',zIndex:2,...style}}>{children}</div>;}
+
+const ModuleTag = ({module,color=T}) => (
+  <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
+    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    textTransform:'uppercase',marginBottom:20}}>
+    {module}
+  </div>
+);
+
+// ── SVG ICONS ────────────────────────────────────────────────────
+const Ico = {
+  globe:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+  target:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+  zap:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  link:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
+  map:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>,
+  trend:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+  users:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  box:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
+  refresh: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  award:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+  layers:  c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+  alert:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  chart:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  shuffle: c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>,
+  cpu:     c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+  arrow:   c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  flag:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
+  star:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  wifi:    c=><svg viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.5" strokeLinecap="round" width="100%" height="100%"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>,
+};
+
+// ── SLIDE DATA ────────────────────────────────────────────────────────────
+const SLIDES = [
+
+  // ── INTRO ──────────────────────────────────────────────────────────────
+  { type:'title',
+    tag:'Universidad del Rosario · Global Marketing · Chapter 1',
+    title:'Global Marketing\nin the Firm',
+    subtitle:'How do companies conquer the world?\nFrom local players to global brands — this is where it starts.',
+    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+
+  { type:'impact',
+    title:'Why Global Marketing Matters',
+    stats:[
+      {n:'$32T',   d:'Global trade in goods and services in 2024 — the world is one big market',     src:'WTO 2024'},
+      {n:'95%',    d:'of the world\'s consumers live outside your home country',                      src:'U.S. Census & World Bank'},
+      {n:'$8.7B',  d:'Revenue generated daily by McDonald\'s across 119 countries',                  src:'McDonald\'s Corp 2024'},
+      {n:'2X',     d:'Companies with global strategies grow twice as fast as purely domestic ones',   src:'McKinsey Global Institute'},
+    ],
+    quote:'Staying local is a strategy. But so is watching a foreign rival eat your market for breakfast.' },
+
+  { type:'agenda',
+    title:'What We Cover Today',
+    modules:[
+      {num:1, title:'The Global Firm',        desc:'SMEs, LSEs & management styles'},
+      {num:2, title:'Strategic Windows',      desc:'9 windows · Economies of scale & scope'},
+      {num:3, title:'Glocalization',          desc:'Global integration vs local response'},
+      {num:4, title:'The Value Chain',        desc:'Upstream, downstream & virtual'},
+      {num:5, title:'Global Marketing Plan',  desc:'5-stage model · Entry modes'},
+      {num:6, title:'Brand Cases & Quiz',     desc:'Real brands · Final assessment'},
+    ]},
+
+  // ── MODULE 1 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:1, title:'The Global Firm: SMEs vs LSEs', icon:'users',
+    question:'What really changes when a company crosses a border for the first time?' },
+
+  { type:'concept', module:'Module 1', icon:'globe',
+    title:'What is Globalization?',
+    text:'Globalization reflects the trend of buying, developing, producing, selling and distributing products and services across many countries and regions of the world. It\'s not just about multinationals — it affects every firm, every supplier, every market.',
+    highlight:'A Colombian coffee brand competing with Nestlé in Paris is globalization in action.' },
+
+  { type:'concept', module:'Module 1', icon:'target',
+    title:'Defining Global Marketing',
+    text:'Global marketing is the firm\'s commitment to coordinate its marketing activities across national boundaries to find and satisfy global customer needs better than competition. This means the firm can: develop a global strategy based on market similarities and differences; exploit headquarters knowledge through worldwide learning; and transfer best practices across markets.',
+    highlight:'Global ≠ identical everywhere. It means strategically connected across markets.' },
+
+  { type:'comparison',
+    module:'Module 1',
+    title:'SMEs vs LSEs — Two Very Different Worlds',
+    left:{label:'LSEs (Large-Scale Enterprises)', color:BL, items:[
+      {k:'Resources',    v:'Many — internalized, coordinated across functions'},
+      {k:'Strategy',     v:'Deliberate, planned — logical incrementalism'},
+      {k:'Organization', v:'Formal, hierarchical — independent of one person'},
+      {k:'Risk',         v:'Mainly risk-averse · Long-term focus'},
+      {k:'Flexibility',  v:'Low — size creates inertia'},
+      {k:'Info sources', v:'Databases, consultancies, market research firms'},
+    ]},
+    right:{label:'SMEs (Small & Medium Enterprises)', color:T, items:[
+      {k:'Resources',    v:'Limited — outsourced and externalized'},
+      {k:'Strategy',     v:'Emergent — driven by opportunity and instinct'},
+      {k:'Organization', v:'Informal — owner/entrepreneur dominates decisions'},
+      {k:'Risk',         v:'Sometimes bold, sometimes cautious · Short-term wins'},
+      {k:'Flexibility',  v:'High — pivot fast, decide overnight'},
+      {k:'Info sources', v:'Internal knowledge, face-to-face, industry networks'},
+    ]}},
+
+  { type:'concept', module:'Module 1', icon:'shuffle',
+    title:'Intended vs Emergent Strategy',
+    text:'Mintzberg (1987) showed that real strategy is rarely 100% what was planned. LSEs tend toward deliberate, calculated strategy. SMEs tend to evolve — acting on what the market throws at them. The "realized strategy" is a mix of what you planned and what you adapted to. Neither is better — context decides.',
+    highlight:'ZARA\'s global dominance wasn\'t planned in 1975. It emerged from fast iteration and market observation.' },
+
+  { type:'case', module:'Module 1', icon:'alert',
+    title:'Case: ZARA — Emergent Strategy That Changed Fashion',
+    problem:'In 1975, Amancio Ortega opened a small store in La Coruña, Spain. There was no "global plan." The first model — making clothes that looked like expensive designer wear at low prices — emerged from necessity, not a board presentation.',
+    solution:'By reacting fast to consumer data (not fashion calendars), ZARA cut design-to-shelf time to 15 days. They didn\'t plan a global empire — they built one by iterating relentlessly across 96 countries.',
+    lesson:'Emergent strategy is not the absence of strategy. It\'s the discipline of learning faster than competitors.' },
+
+  { type:'exercise', module:'Module 1',
+    title:'Exercise 1 · SME or LSE?',
+    question:'A startup founder in Bogotá reads that vegan protein is trending globally. By Friday, she\'s reformulated her product and is pitching to a distributor in Mexico. Which strategic type is this?',
+    options:['A) Deliberate strategy — she clearly planned this expansion months ago.','B) Emergent strategy — she sensed an opportunity and acted faster than a plan would allow.','C) Neither — she needs a formal strategic plan before acting globally.'],
+    correct:1,
+    explanation:'Option B. Emergent strategy is the SME\'s superpower. She used market signals to move before a large competitor could even schedule a committee meeting. Mintzberg would approve.' },
+
+  // ── MODULE 2 ────────────────────────────────────────────────────────────
+  { type:'module_title', num:2, title:'Strategic Windows, Scale & Scope', icon:'map',
+    question:'When should a firm stay home — and when should it leap into the global arena?' },
+
+  { type:'concept', module:'Module 2', icon:'layers',
+    title:'The Nine Strategic Windows',
+    text:'Solberg (1997) proposed a 3×3 matrix crossing Industry Globalism (Local → Potentially Global → Global) with the Firm\'s Preparedness for Internationalization (Immature → Adolescent → Mature). Each cell prescribes a different strategic response. This model prevents one of the deadliest errors in international business: moving global before you\'re ready.',
+    highlight:'Window 1 is "Stay at Home." Window 9 is "Strengthen your global position." Knowing where you are matters.' },
+
+  { type:'windows_grid' },
+
+  { type:'concept', module:'Module 2', icon:'trend',
+    title:'Economies of Scale — The Volume Advantage',
+    text:'When accumulated production volume results in lower cost per unit, economies of scale occur. This is one of the most powerful drivers of globalization. Companies that operate globally can spread fixed costs over millions of units worldwide — making them structurally cheaper than any local competitor.',
+    highlight:'Nintendo Game Boy: 200M units sold = hardware costs that no rival could replicate.' },
+
+  { type:'concept', module:'Module 2', icon:'refresh',
+    title:'Economies of Scope — The Reuse Advantage',
+    text:'When resources (brand, technology, production capacity, distribution) can be reused from one business or country in additional businesses or countries, economies of scope occur. A strong global brand is the ultimate scope economy — it costs almost the same to maintain in 1 country or in 80.',
+    highlight:'Coca-Cola\'s global brand is worth ~$100B. The 195th country they enter costs almost nothing extra.' },
+
+  { type:'case', module:'Module 2', icon:'award',
+    title:'Case: Nintendo Game Boy — Economies of Scale',
+    problem:'Nine companies tried to beat Game Boy between 1989 and 2004. Sega, NEC, SNK, Nokia — all launched competing portable game systems. All failed. The hardware was good. The pricing was competitive. So why did they lose?',
+    solution:'Nintendo had sold 200M units by mid-2009. Manufacturing at that scale created cost structures competitors simply couldn\'t match. Every rival was starting from zero volume. Nintendo was already at the bottom of the cost curve.',
+    lesson:'Economies of scale aren\'t just an advantage — they\'re a moat that takes years and hundreds of millions of units to cross.' },
+
+  { type:'exercise', module:'Module 2',
+    title:'Exercise 2 · Which Strategic Window?',
+    question:'A Colombian agro-tech startup has developed precision irrigation software. The industry is still highly local — most farms in Latin America don\'t even have broadband. The startup is 2 years old with $500K in revenue. Which window applies?',
+    options:['A) Window 9 — Strengthen global position. Tech is always global.','B) Window 1 — Stay at home. The industry is local and the firm is immature.','C) Window 4 — Seek niches in international markets. Industry is potentially global.'],
+    correct:1,
+    explanation:'Option B. The industry globalism is local (farms don\'t have global buying patterns yet) and the firm is immature. Window 1 says: build your home market first, develop your competence profile, then look outward. Rushing to Window 9 burns cash on markets you\'re not ready for.' },
+
+  // ── MODULE 3 ─────────────────────────────────────────────────────────────
+  { type:'module_title', num:3, title:'Glocalization — Think Global, Act Local', icon:'globe',
+    question:'Should McDonald\'s sell the same burger everywhere? Or is that exactly the wrong question?' },
+
+  { type:'concept', module:'Module 3', icon:'layers',
+    title:'Global Integration vs Market Responsiveness',
+    text:'Every global firm sits on a spectrum: Globalization (standardization) on one end, Localization (differentiation) on the other. Forces for global integration include: removal of trade barriers, global customers, standardized technology, worldwide communication, and global cost drivers. Forces for market responsiveness include: cultural differences, regionalism, protectionism, and local consumer behavior.',
+    highlight:'The convergence trend: both LSEs and SMEs are moving toward the GLOCAL quadrant — high integration AND high responsiveness.' },
+
+  { type:'glocal_venn' },
+
+  { type:'case', module:'Module 3', icon:'alert',
+    title:'Case: McDonald\'s — Think Global, Act Local',
+    problem:'In the 1990s, McDonald\'s pushed full standardization globally. The Big Mac, the same fries, the same packaging, the same marketing. India pushed back — cows are sacred. France pushed back — the food culture rejects fast food homogeneity. Sales stagnated in several markets.',
+    solution:'McDonald\'s shifted to a glocal model. McAloo Tikki in India, McBaguette in France, Rice Burgers in East Asia, the McFalafel in Egypt. Core operations (supply chain, training, quality systems) stayed global. Product and positioning adapted locally.',
+    lesson:'"Think global, act local" is not a slogan. It is an operational architecture that took McDonald\'s years and millions of dollars to actually build.' },
+
+  { type:'case', module:'Module 3', icon:'alert',
+    title:'Case: NIVEA — Global Brand, Local Emotion',
+    problem:'NIVEA (Beiersdorf) is the #1 skin care brand in dozens of countries. But different markets have profoundly different associations. In Germany: trusted, clinical, efficient. In Brazil: sensorial, beauty-forward, aspirational. In the US: niche and underperforming against American brands like Neutrogena.',
+    solution:'NIVEA maintains one global brand identity (blue tin, white text, trusted formulations) while adapting advertising tone, product variants, and distribution channels by region. The US market gets targeted premium positioning because American consumers don\'t respond to European-style mass-market skin care messaging.',
+    lesson:'A global brand is not a uniform brand. It is a consistently positioned brand that speaks the local emotional language.' },
+
+  { type:'exercise', module:'Module 3',
+    title:'Exercise 3 · Standardize or Localize?',
+    question:'A Medellín tech company launches an AI productivity app. They want to expand to Japan, Germany, and the US. Which elements should they STANDARDIZE and which should they LOCALIZE?',
+    options:['A) Standardize everything — it\'s software, it\'s the same in every country.','B) Standardize the core product & pricing; localize language, UX patterns, support hours, and cultural onboarding flow.','C) Localize everything, including rebuilding the algorithm for each market. Full customization wins.'],
+    correct:1,
+    explanation:'Option B is the glocal answer. The algorithm and core value prop can be global. But Japan expects formal onboarding, Germany expects data privacy transparency upfront, and the US wants instant self-serve. Localizing the go-to-market, not the product, is the art of glocalization.' },
+
+  // ── MODULE 4 ─────────────────────────────────────────────────────────────
+  { type:'module_title', num:4, title:'The Value Chain — Where Competitive Advantage Lives', icon:'link',
+    question:'What part of your business creates value — and what part just supports those that do?' },
+
+  { type:'concept', module:'Module 4', icon:'box',
+    title:'Understanding the Value Chain',
+    text:'Porter\'s value chain splits a firm\'s activities into Upstream (R&D, Production) and Downstream (Marketing, Sales & Service). Each activity adds value — or costs more than it adds. The insight for global marketing: upstream activities benefit from centralization and economies of scale. Downstream activities benefit from decentralization and local adaptation.',
+    highlight:'Where does your competitive advantage live? Find that link in the chain and protect it globally.' },
+
+  { type:'value_chain_visual' },
+
+  { type:'concept', module:'Module 4', icon:'globe',
+    title:'Centralizing Upstream, Decentralizing Downstream',
+    text:'The most common global architecture: centralize R&D and production in one or few locations (scale, quality control, IP protection) — then decentralize marketing, sales, and service into each local market (cultural fit, customer relationships, speed of response). This is how Samsung, Unilever, and IKEA operate at global scale without losing local relevance.',
+    highlight:'IKEA designs in Sweden, manufactures across Asia, but lets each country adapt store layouts and local product lines.' },
+
+  { type:'case', module:'Module 4', icon:'alert',
+    title:'Case: Pocoyo — Upstream-Downstream Globalization',
+    problem:'Zinkia Entertainment, a small Madrid animation studio, created Pocoyo in 2005. Brilliant content — but zero global distribution. Without a global sales network, no child outside Spain would ever see it. Staying upstream meant staying small.',
+    solution:'Zinkia partnered with Granada Ventures (UK) as downstream distributor. Granada handled sales, licensing, and brand deals across 100+ countries. Zinkia kept creative control (upstream). Granada controlled market access (downstream). By 2010, Pocoyo was sold in over 100 countries.',
+    lesson:'You don\'t have to own every link of the global value chain. You have to control the link where your unique value lives.' },
+
+  { type:'concept', module:'Module 4', icon:'cpu',
+    title:'The Virtual Value Chain',
+    text:'Beyond the physical chain, firms now operate a Virtual Value Chain — where information processing itself creates value. Steps: Define the information problem → Gather and organize data → Synthesize insights → Distribute value. This virtual layer sits parallel to the physical chain and feeds it. Amazon, Spotify, and Netflix built entire businesses in this layer.',
+    highlight:'"Data is the new oil" — but only if you have the virtual chain to refine it into customer value.' },
+
+  { type:'case', module:'Module 4', icon:'alert',
+    title:'Case: Spotify — A Purely Virtual Value Chain',
+    problem:'The music industry\'s physical value chain (record, press, ship, sell CDs) was destroyed by piracy in the 2000s. Labels lost billions. Physical distribution became a liability overnight.',
+    solution:'Spotify built an entirely virtual value chain: Define (what does each listener want?) → Gather (stream data, skip patterns, saves) → Synthesize (recommendation algorithms) → Distribute (curated playlists, Discover Weekly). No physical product. No manufacturing. Pure information value creation. 600M+ users in 183 countries.',
+    lesson:'The virtual value chain doesn\'t replace the physical one — it creates new forms of value that the physical chain cannot. Global firms need both.' },
+
+  { type:'exercise', module:'Module 4',
+    title:'Exercise 4 · Where in the Chain?',
+    question:'Rappi, the Colombian delivery superapp, is expanding to Brazil and Mexico. Which activity should they CENTRALIZE (upstream) and which should they LOCALIZE (downstream)?',
+    options:['A) Centralize everything — technology is technology. Let Brazil use the same app as Colombia.','B) Centralize the tech platform & algorithm; localize restaurant partnerships, delivery pricing, payment methods, and customer support per country.','C) Localize everything — rebuild the app from scratch for each country.'],
+    correct:1,
+    explanation:'Option B is exactly right. Rappi\'s algorithm, logistics engine, and app architecture live upstream — centralized. But payment methods (Pix in Brazil, OXXO in Mexico), local restaurant networks, and regulatory compliance live downstream — localized. This is how Rappi actually operates.' },
+
+  // ── MODULE 5 ─────────────────────────────────────────────────────────────
+  { type:'module_title', num:5, title:'The Global Marketing Plan', icon:'flag',
+    question:'Once you decide to go global — what\'s the actual roadmap?' },
+
+  { type:'five_stage_model' },
+
+  { type:'concept', module:'Module 5', icon:'chart',
+    title:'SWOT in the Global Context',
+    text:'The global SWOT isn\'t just internal vs external — it must be matched against each target market. Strengths include: technology advantage, brand recognition, supply chain scale, institutional knowledge. Weaknesses: limited resources, no local network, cultural distance. Opportunities: underserved markets, trade agreements, digital infrastructure. Threats: local champions, regulatory barriers, currency risk.',
+    highlight:'A strength in Colombia may be irrelevant in Japan. A weakness at home may not matter in a new market. Context is everything.' },
+
+  { type:'entry_modes' },
+
+  { type:'case', module:'Module 5', icon:'alert',
+    title:'Case: Build-A-Bear Workshop — Global Comeback',
+    problem:'Build-A-Bear (BBW) expanded aggressively in Europe in the 2000s, opening own-stores in the UK, Germany, and France. Germany failed. Consumer behavior differed: German parents didn\'t embrace the "experience retail" concept the same way American families did. Cultural distance was underestimated. Stores closed.',
+    solution:'BBW pivoted to a franchise model for international markets — giving local operators control of the experience while BBW maintained brand standards and the core product. Today they operate in 15+ countries through franchising, keeping capital risk low and local knowledge high.',
+    lesson:'The entry mode decision is not just financial — it\'s cultural. Franchise when the market knows itself better than you do.' },
+
+  { type:'case', module:'Module 5', icon:'award',
+    title:'Case: Arcor — Latin America Goes Global',
+    problem:'Arcor, Argentina\'s confectionery giant, is the largest candy producer in Latin America. Dominant in 6+ countries. But global expansion faced a wall: European and North American retailers didn\'t know the brand, didn\'t trust the supply chain, and had no incentive to shelf-space a foreign candy company.',
+    solution:'Arcor used their virtual value chain (consumer data, flavor R&D) to develop products aligned with global tastes while keeping their cost structure advantage (massive Argentine production scale). They entered the US through the Latino community first — a niche that appreciated familiar Latin flavors — then expanded shelf presence.',
+    lesson:'When you can\'t buy brand recognition, earn it. Arcor found their bridgehead market (the diaspora) and used it to prove the brand globally.' },
+
+  // ── MODULE 6 / QUIZ ──────────────────────────────────────────────────────
+  { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
+    question:'Let\'s see how much of this has actually stuck.' },
+
+  { type:'takeaways',
+    title:'Chapter 1 — What You Now Know',
+    items:[
+      {icon:'users',  c:T,  t:'SMEs vs LSEs',       d:'Different resources, different strategies, different risk profiles — but both can win globally.'},
+      {icon:'map',    c:BL, t:'9 Strategic Windows', d:'Know where your industry and your firm are before choosing how far to reach.'},
+      {icon:'globe',  c:AM, t:'Glocalization',       d:'The winning architecture: standardize what scales, adapt what connects.'},
+      {icon:'link',   c:T2, t:'The Value Chain',     d:'Centralize upstream for scale. Decentralize downstream for relevance. Build the virtual layer.'},
+      {icon:'flag',   c:RD, t:'Global Marketing Plan',d:'5 stages: internalize → select markets → choose entry → design the mix → implement & control.'},
+    ]},
+
+  { type:'discussion',
+    title:'Discussion Questions',
+    questions:[
+      'How can an SME compensate for its lack of resources and expertise in global marketing when trying to enter export markets?',
+      'What are the main differences between global marketing and marketing in a purely domestic context?',
+      'Explain the main advantages of centralizing upstream activities and decentralizing downstream activities in a global firm.',
+      'How is the "virtual value chain" different from the conventional value chain? Give a Colombian example.',
+    ],
+    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+
+  { type:'quiz_intro',
+    title:'Final Assessment',
+    subtitle:'10 questions · Global Marketing Chapter 1 · No time limit · Good luck 🎯' },
+
+  { type:'quiz',
+    questions:[
+      { q:'According to Hollensen\'s definition, what does Global Marketing fundamentally require a firm to do?',
+        opts:['Sell the same product in every country simultaneously.','Coordinate marketing activities across national boundaries to satisfy global customer needs better than competition.','Establish a physical presence (store or office) in every target market.','Hire local marketing teams in each country independently.'],
+        correct:1 },
+      { q:'ZARA\'s global expansion is best described as which type of strategy?',
+        opts:['Deliberate — planned years in advance with full market research.','Emergent — evolved through rapid iteration and market response.','Opportunistic — based purely on where real estate was cheapest.','Defensive — a reaction to competitors entering its home market.'],
+        correct:1 },
+      { q:'In Solberg\'s Nine Strategic Windows model, what should a firm with "immature" internationalization in a "local" industry do?',
+        opts:['Immediately seek global alliances to leapfrog competition.','Prepare for a buyout by a larger foreign firm.','Stay at home and build domestic competences first.','Launch in the most geographically distant market to build resilience.'],
+        correct:2 },
+      { q:'What is the key difference between Economies of Scale and Economies of Scope?',
+        opts:['Scale is about cost reduction through volume; Scope is about reusing resources across products/markets.','Scale is for large firms only; Scope is for SMEs with limited resources.','Scale applies to services; Scope applies to physical goods.','They are synonyms — both describe the cost advantages of global expansion.'],
+        correct:0 },
+      { q:'Which of the following best represents a "glocal" strategy?',
+        opts:['KFC selling identical products worldwide with no adaptation.','A firm selling only in its home market with plans to export later.','McDonald\'s maintaining global operations while offering McAloo Tikki in India and McBaguette in France.','A firm that outsources all operations to local partners with no central oversight.'],
+        correct:2 },
+      { q:'Why does the value chain recommend CENTRALIZING upstream activities in global firms?',
+        opts:['Because R&D and production are more culturally sensitive than sales.','To achieve economies of scale, protect intellectual property, and maintain quality control.','Because upstream activities have no impact on customer experience.','To make it easier for local managers to make production decisions.'],
+        correct:1 },
+      { q:'Pocoyo\'s partnership with Granada Ventures illustrates which value chain principle?',
+        opts:['Vertical integration — owning every step from creation to consumer.','Upstream-downstream collaboration — creative control upstream, distribution downstream.','Virtual value chain — using data to replace physical distribution.','Glocalization — adapting Pocoyo\'s content for each local market.'],
+        correct:1 },
+      { q:'What is the "Virtual Value Chain" and who pioneered the concept?',
+        opts:['A supply chain that uses only online suppliers — coined by Amazon in 1994.','An extension of the physical chain where information processing itself creates value for customers — Rayport & Sviokla, 1995.','A theoretical model where firms imagine future value before it exists — McKinsey, 2002.','A blockchain-based supply chain management system — Deloitte, 2015.'],
+        correct:1 },
+      { q:'Build-A-Bear\'s shift from own-stores to franchising in international markets primarily addressed which issue?',
+        opts:['High production costs in foreign markets.','Cultural distance and local market knowledge gaps.','Lack of product quality in European markets.','Regulatory barriers preventing direct retail investment.'],
+        correct:1 },
+      { q:'According to the Global Integration / Market Responsiveness grid, where are most large firms (LSEs) heading?',
+        opts:['Toward pure globalization — maximum standardization, minimum local adaptation.','Toward pure localization — maximum adaptation, minimum global coordination.','Toward the glocal quadrant — high global integration AND high market responsiveness.','Toward staying home — risk aversion drives a retreat from global markets.'],
+        correct:2 },
+    ]},
+
+  { type:'closing',
+    title:'See You Next Class',
+    subtitle:'Chapter 2: The Decision Whether to Internationalize\nInternationalization triggers, motives, and the psychic distance paradox.',
+    quote:'"The world is not flat. But it is increasingly connected — and the firms that understand both the connections and the frictions will win." — Adapted from Hollensen' },
+];
+
+// ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
+
+const TitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.4}}>
+      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+    </P>
+    {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
+      <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
+    </P>}
+  </div>
+);
+
+const ImpactSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.03}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
+        {data.stats.map((s,i)=>(
+          <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div>
+              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
+      </div>
+    </P>
+  </div>
+);
+
+const AgendaSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
+        {data.modules.map(m=>(
+          <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
+            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
+            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const ModuleTitleSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{flex:1.5}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+        MODULE {data.num}
+      </div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+        <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+        {data.question}
+      </div>
+    </P>
+  </div>
+);
+
+const ConceptSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(80,0),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.035}/></div>
+    <P style={{flex:1.5}}>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      {data.highlight&&(
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
+        </div>
+      )}
+    </P>
+    {!MOB&&<P style={{flex:.65,display:'flex',justifyContent:'center',opacity:.07}}>
+      <div style={{width:340,height:340}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
+    </P>}
+  </div>
+);
+
+const CaseSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','40px 22px'),gap:V(50,0),zIndex:2})}>
+    {!MOB&&<P style={{flex:.6,display:'flex',justifyContent:'center',opacity:.2}}>
+      <div style={{width:240,height:240}}>{Ico[data.icon]?Ico[data.icon](RD):null}</div>
+    </P>}
+    <P style={{flex:1.8}}>
+      <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
+        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+      </div>
+      <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
+        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+      </div>
+      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+        <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
+      </div>
+    </P>
+  </div>
+);
+
+const ComparisonSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module={data.module}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
+        {[data.left,data.right].map((side,si)=>(
+          <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+              {side.label}
+            </div>
+            <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
+              {side.items.map((item,i)=>(
+                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
+                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const WindowsGridSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 14px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 2"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Solberg's Nine Strategic Windows</h2>
+      <p style={{color:G,fontSize:V(14,12),marginBottom:22}}>Source: Solberg (1997) — Industry Globalism × Firm Preparedness for Internationalization</p>
+      <div style={{display:'grid',gridTemplateColumns:V('140px 1fr 1fr 1fr','62px 1fr 1fr 1fr'),gap:2}}>
+        {/* Header row */}
+        <div/>
+        {['Local Industry','Potentially Global','Global Industry'].map((h,i)=>(
+          <div key={i} style={{background:`${BL}12`,padding:V('10px 14px','8px 4px'),borderRadius:'8px 8px 0 0',fontSize:V(13,10),fontWeight:700,color:BL,textAlign:'center',border:`1px solid ${BL}25`}}>{h}</div>
+        ))}
+        {/* Rows */}
+        {[
+          { label:'Mature Firm', cells:[
+            {n:'3',t:'Enter new business',c:T},
+            {n:'6',t:'Prepare for globalization',c:AM},
+            {n:'9',t:'Strengthen global position',c:T2},
+          ]},
+          { label:'Adolescent Firm', cells:[
+            {n:'2',t:'Consolidate export markets',c:T},
+            {n:'5',t:'Consider international expansion',c:AM},
+            {n:'8',t:'Seek global alliances',c:AM},
+          ]},
+          { label:'Immature Firm', cells:[
+            {n:'1',t:'Stay at home',c:RD},
+            {n:'4',t:'Seek niches internationally',c:AM},
+            {n:'7',t:'Prepare for buyout',c:RD},
+          ]},
+        ].map((row,ri)=>(
+          <React.Fragment key={ri}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',padding:'0 12px 0 0',fontSize:V(13,10),fontWeight:700,color:G,textAlign:'right'}}>{row.label}</div>
+            {row.cells.map((cell,ci)=>(
+              <div key={ci} style={{background:BG2,padding:V('16px 14px','10px 4px'),border:`1px solid ${cell.c}25`,textAlign:'center',borderRadius:ri===0&&ci===0?'0':(ri===2&&ci===2?'0 0 8px 0':'0')}}>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:V(28,18),fontWeight:900,color:cell.c,lineHeight:1,marginBottom:6}}>{cell.n}</div>
+                <div style={{fontSize:V(13,10),color:G,lineHeight:1.4}}>{cell.t}</div>
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+      <p style={{color:`${G}80`,fontSize:12,marginTop:12,fontStyle:'italic'}}>Window 1 = Stay home · Window 9 = Global dominance. Know which window you're in before deciding strategy.</p>
+    </P>
+  </div>
+);
+
+const GlocalVennSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 3"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(28,18)}}>The Glocalization Framework</h2>
+      <div style={{display:'flex',flexDirection:V('row','column'),gap:V(32,20),alignItems:'center'}}>
+        {/* Venn-style diagram */}
+        <div style={{position:'relative',width:V(380,'100%'),maxWidth:380,height:V(220,190),flexShrink:0}}>
+          {/* Global circle */}
+          <div style={{position:'absolute',left:0,top:10,width:V(260,'66%'),height:V(200,170),borderRadius:'50%',background:`${BL}15`,border:`2px solid ${BL}40`,display:'flex',flexDirection:'column',alignItems:'flex-start',justifyContent:'center',paddingLeft:V(24,16)}}>
+            <div style={{fontSize:V(13,11),fontWeight:700,color:BL,marginBottom:8}}>GLOBAL</div>
+            <div style={{fontSize:V(12,10),color:G,lineHeight:1.5}}>Low-cost production<br/>Global roll-out<br/>Low complexity</div>
+          </div>
+          {/* Local circle */}
+          <div style={{position:'absolute',right:0,top:10,width:V(260,'66%'),height:V(200,170),borderRadius:'50%',background:`${T}15`,border:`2px solid ${T}40`,display:'flex',flexDirection:'column',alignItems:'flex-end',justifyContent:'center',paddingRight:V(24,16)}}>
+            <div style={{fontSize:V(13,11),fontWeight:700,color:T,marginBottom:8,textAlign:'right'}}>LOCAL</div>
+            <div style={{fontSize:V(12,10),color:G,lineHeight:1.5,textAlign:'right'}}>Culturally close<br/>Flexible response<br/>Local penetration</div>
+          </div>
+          {/* Center */}
+          <div style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',textAlign:'center',zIndex:5}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:22,fontWeight:900,color:W,lineHeight:1}}>GLOCAL</div>
+            <div style={{fontSize:11,color:`${W}80`}}>Global + Local</div>
+          </div>
+        </div>
+        {/* Right side explanation */}
+        <div style={{flex:1,display:'flex',flexDirection:'column',gap:14}}>
+          {[
+            {t:'Think Global',    d:'Standardize what scales: brand identity, core product, production systems, technology stack.',      c:BL},
+            {t:'Act Local',      d:'Adapt what connects: language, tone, pricing, distribution channel, cultural references, legal compliance.',c:T},
+            {t:'The Sweet Spot', d:'GLOCAL firms achieve global cost advantages while winning local consumer hearts. McDonald\'s. Unilever. Samsung.',c:AM},
+          ].map((item,i)=>(
+            <div key={i} style={{background:BG2,padding:'16px 20px',borderRadius:12,border:`1px solid ${item.c}25`}}>
+              <div style={{fontSize:15,fontWeight:700,color:item.c,marginBottom:5}}>{item.t}</div>
+              <div style={{fontSize:14,color:G,lineHeight:1.5}}>{item.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </P>
+  </div>
+);
+
+const ValueChainVisualSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgChain opacity={.03}/></div>
+    <P>
+      <ModuleTag module="Module 4"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(28,18)}}>A Simplified Value Chain</h2>
+      {/* Chain arrows */}
+      <div style={{display:'flex',flexDirection:V('row','column'),gap:0,marginBottom:24,alignItems:'stretch'}}>
+        {[
+          {label:'R&D',      c:'#e05252',  sub:'Technology · Research · Patents · Product features · Engineering',},
+          {label:'Production',c:AM,        sub:'Purchasing · Scale economies · Component parts · Quality management'},
+          {label:'Marketing', c:BL,        sub:'Distribution · Pricing · Communication · Brand positioning'},
+          {label:'Sales & Service',c:T,    sub:'Sales force · Logistics · Customer service · Terms of payment'},
+        ].map((s,i)=>(
+          <React.Fragment key={i}>
+            <div style={{flex:1,background:BG2,padding:V('18px 16px','14px 14px'),border:`1px solid ${s.c}35`,borderRadius:V(i===0?'12px 0 0 12px':i===3?'0 12px 12px 0':'0',i===0?'12px 12px 0 0':i===3?'0 0 12px 12px':'0'),textAlign:'center'}}>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(20,16),fontWeight:700,color:s.c,marginBottom:8}}>{s.label}</div>
+              <div style={{fontSize:12,color:G,lineHeight:1.6}}>{s.sub}</div>
+            </div>
+            {i<3&&(
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:5}}>
+                <div style={{background:BG,padding:'0 2px',transform:V('none','rotate(90deg)')}}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.5" strokeLinecap="round" width="20" height="20">
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </div>
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+      {/* Upstream / Downstream label */}
+      <div style={{display:'flex',marginBottom:16}}>
+        <div style={{flex:1,textAlign:'center',fontSize:V(13,11),color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',borderRight:`1px solid ${BDR}`,paddingRight:16}}>{V('← UPSTREAM','↑ UPSTREAM')}</div>
+        <div style={{flex:1,textAlign:'center',fontSize:V(13,11),color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',paddingLeft:16}}>{V('DOWNSTREAM →','DOWNSTREAM ↓')}</div>
+      </div>
+      {/* Key insight */}
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(16,12)}}>
+        <div style={{background:`${RD}08`,border:`1px solid ${RD}25`,borderRadius:10,padding:'14px 18px'}}>
+          <div style={{fontSize:13,fontWeight:700,color:RD,marginBottom:6}}>CENTRALIZE UPSTREAM</div>
+          <div style={{fontSize:14,color:G,lineHeight:1.5}}>R&D and production benefit from global scale economies, IP concentration, and quality control. Keep them in one or few locations.</div>
+        </div>
+        <div style={{background:`${T}08`,border:`1px solid ${T}25`,borderRadius:10,padding:'14px 18px'}}>
+          <div style={{fontSize:13,fontWeight:700,color:T,marginBottom:6}}>DECENTRALIZE DOWNSTREAM</div>
+          <div style={{fontSize:14,color:G,lineHeight:1.5}}>Marketing and sales must speak local. Cultural fit, customer relationships, and speed of response require local presence and autonomy.</div>
+        </div>
+      </div>
+    </P>
+  </div>
+);
+
+const FiveStageModelSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 18px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 5"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,24),marginBottom:V(28,18)}}>The 5-Stage Global Marketing Decision Model</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:10,maxWidth:900,margin:'0 auto',width:'100%'}}>
+        {[
+          {n:'I',  t:'The Decision Whether to Internationalize', d:'Should we go? Analyze firm competences vs industry globalism via the 9 windows model.',c:T},
+          {n:'II', t:'Deciding Which Markets to Enter',          d:'SWOT analysis, market size estimation, segmentation, and international market selection.',c:BL},
+          {n:'III',t:'Market Entry Strategies',                  d:'Export modes (low control) → Intermediate modes (shared) → Hierarchical modes (high control).',c:AM},
+          {n:'IV', t:'Designing the Global Marketing Programme', d:'The 4Ps adapted globally: Product, Price, Place, Promotion — per country, per year.',c:T2},
+          {n:'V',  t:'Implementing & Coordinating the Programme',d:'Budget, organization structure, cross-border negotiation, and marketing control systems.',c:RD},
+        ].map((stage,i)=>(
+          <div key={i} style={{display:'flex',gap:V(16,10),alignItems:'center'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(28,20),fontWeight:900,color:stage.c,width:V(36,26),flexShrink:0,textAlign:'center'}}>{stage.n}</div>
+            <div style={{flex:1,background:BG2,padding:V('14px 20px','12px 14px'),borderRadius:10,border:`1px solid ${stage.c}25`,display:'flex',gap:16,alignItems:'center'}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:V(16,14),fontWeight:700,color:stage.c,marginBottom:4}}>{stage.t}</div>
+                <div style={{fontSize:V(13,12),color:G,lineHeight:1.5}}>{stage.d}</div>
+              </div>
+            </div>
+            {i<4&&!MOB&&<div style={{width:12,height:12,flexShrink:0,opacity:.4}}>{Ico.arrow(G)}</div>}
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const EntryModesSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 5"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(28,18)}}>Market Entry Mode Strategies</h2>
+      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(18,14)}}>
+        {[
+          {label:'Export Modes', c:T, control:'Low Control', risk:'Low Risk', flex:'High Flexibility',
+           examples:['Direct exporting via agents or distributors','Indirect exporting via trading companies','Online direct sales to foreign consumers'],
+           brands:['Smaller Colombian brands exporting coffee','A Bogotá designer selling on Etsy globally']},
+          {label:'Intermediate Modes', c:AM, control:'Shared Control', risk:'Shared Risk', flex:'Medium Flexibility',
+           examples:['Licensing (pay to use brand/IP)','Franchising (replicate the model)','Joint ventures (co-own an operation)','Strategic alliances'],
+           brands:['McDonald\'s franchising internationally','BBW franchising after Germany failure']},
+          {label:'Hierarchical Modes', c:RD, control:'High Control', risk:'High Risk', flex:'Low Flexibility',
+           examples:['Wholly owned subsidiary','Acquisition of a local firm','Greenfield investment (build from scratch)','Own retail stores globally'],
+           brands:['ZARA-owned stores worldwide','Samsung\'s own manufacturing plants']},
+        ].map((mode,i)=>(
+          <div key={i} style={{background:BG2,borderRadius:14,border:`1px solid ${mode.c}30`,overflow:'hidden'}}>
+            <div style={{background:`${mode.c}15`,padding:'14px 18px',borderBottom:`1px solid ${mode.c}20`}}>
+              <div style={{fontSize:17,fontWeight:700,color:mode.c,marginBottom:8}}>{mode.label}</div>
+              <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                {[mode.control, mode.risk, mode.flex].map((tag,ti)=>(
+                  <span key={ti} style={{background:`${mode.c}20`,color:mode.c,fontSize:11,fontWeight:600,padding:'2px 8px',borderRadius:100}}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div style={{padding:'14px 16px'}}>
+              {mode.examples.map((ex,ei)=>(
+                <div key={ei} style={{display:'flex',gap:8,alignItems:'flex-start',marginBottom:7}}>
+                  <div style={{width:5,height:5,borderRadius:'50%',background:mode.c,flexShrink:0,marginTop:7}}/>
+                  <div style={{fontSize:13,color:G,lineHeight:1.5}}>{ex}</div>
+                </div>
+              ))}
+              <div style={{marginTop:12,borderTop:`1px solid ${BDR}`,paddingTop:10}}>
+                {mode.brands.map((b,bi)=>(
+                  <div key={bi} style={{fontSize:12,color:`${mode.c}90`,fontStyle:'italic',marginBottom:4}}>→ {b}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const TakeawaysSlide = ({data}) => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.04}/></div>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
+        {data.items.map((item,i)=>(
+          <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
+            <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </P>
+  </div>
+);
+
+const DiscussionSlide = ({data}) => (
+  <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
+        {data.questions.map((q,i)=>(
+          <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+          </div>
+        ))}
+      </div>
+      {data.resource && (
+        <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
+          <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
+          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+            {data.resource.label}{' '}
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+          </div>
+        </div>
+      )}
+    </P>
+  </div>
+);
+
+const ExerciseSlide = ({data}) => {
+  const [revealed,setRevealed] = useState(false);
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
+      <P>
+        <ModuleTag module={data.module}/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
+          {data.options.map((opt,i)=>(
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+              {opt}
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:'center'}}>
+          {!revealed?(
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+              Reveal Answer
+            </button>
+          ):(
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+              <strong>Explanation:</strong> {data.explanation}
+            </div>
+          )}
+        </div>
+      </P>
+    </div>
+  );
+};
+
+const QuizIntroSlide = ({data,onStart}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.05}/></div>
+    <P style={{textAlign:'center'}}>
+      <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+        Start Assessment →
+      </button>
+    </P>
+  </div>
+);
+
+const QuizSlide = ({data,onFinish}) => {
+  const [current,setCurrent]=useState(0);
+  const [answers,setAnswers]=useState({});
+  const [done,setDone]=useState(false);
+
+  const answer=(idx)=>{
+    if(answers[current]!==undefined) return;
+    setAnswers(p=>({...p,[current]:idx}));
+  };
+  const next=()=>{
+    if(current<data.questions.length-1) setCurrent(c=>c+1);
+    else setDone(true);
+  };
+
+  if(done){
+    const score=Object.keys(answers).filter(k=>answers[k]===data.questions[k].correct).length;
+    const pct=Math.round((score/data.questions.length)*100);
+    const rating=pct>=90?{l:'Global Marketing Expert 🏆',c:T}:pct>=70?{l:'Solid understanding — keep going ✅',c:BL}:pct>=50?{l:'Getting there — review the slides ⚠️',c:AM}:{l:'Needs reinforcement — review Chapter 1 🔴',c:RD};
+    return(
+      <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
+        <P style={{textAlign:'center'}}>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
+            {data.questions.map((q,i)=>(
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+                {answers[i]===q.correct?'✓':'✗'}
+              </div>
+            ))}
+          </div>
+          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            Continue →
+          </button>
+        </P>
+      </div>
+    );
+  }
+
+  const q=data.questions[current];
+  const answered=answers[current]!==undefined;
+  return(
+    <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
+          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
+          </div>
+        </div>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
+          {q.opts.map((opt,i)=>{
+            let bg=BG2,border=`1px solid ${BDR}`,color=W;
+            if(answered){
+              if(i===q.correct){bg=`${T}15`;border=`2px solid ${T}`;color=T;}
+              else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
+            }
+            return(
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+                {opt}
+              </div>
+            );
+          })}
+        </div>
+        {answered&&(
+          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            {current<data.questions.length-1?'Next Question →':'See Results →'}
+          </button>
+        )}
+      </P>
+    </div>
+  );
+};
+
+const ClosingSlide = ({data}) => (
+  <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V('0 120px','48px 24px'),textAlign:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.06}/></div>
+    <P>
+      <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
+        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+      </div>
+      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+    </P>
+  </div>
+);
+
+// ── APP ────────────────────────────────────────────────────────────────────
+function App(){
+  const [cur,setCur]=useState(0);
+  const [quizDone,setQuizDone]=useState(false);
+  const [vw,setVw]=useState(window.innerWidth);
+  const total=SLIDES.length;
+  MOB = vw<=820; // refresh responsive flag before children render
+
+  const next=useCallback(()=>setCur(c=>Math.min(c+1,total-1)),[total]);
+  const prev=useCallback(()=>setCur(c=>Math.max(c-1,0)),[]);
+
+  useEffect(()=>{
+    const r=()=>setVw(window.innerWidth);
+    window.addEventListener('resize',r);
+    window.addEventListener('orientationchange',r);
+    return()=>{window.removeEventListener('resize',r);window.removeEventListener('orientationchange',r);};
+  },[]);
+
+  useEffect(()=>{
+    const h=e=>{
+      if(e.key==='ArrowRight'||e.key===' ') next();
+      if(e.key==='ArrowLeft') prev();
+      if(e.key==='f'||e.key==='F'){
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen();
+      }
+    };
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  },[next,prev]);
+
+  const s=SLIDES[cur];
+
+  // Touch swipe navigation (disabled on the quiz slide so a stray swipe can't lose quiz progress)
+  useEffect(()=>{
+    if(s.type==='quiz') return;
+    let sx=0,sy=0;
+    const ts=e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;};
+    const te=e=>{
+      const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.5){ if(dx<0) next(); else prev(); }
+    };
+    window.addEventListener('touchstart',ts,{passive:true});
+    window.addEventListener('touchend',te,{passive:true});
+    return()=>{window.removeEventListener('touchstart',ts);window.removeEventListener('touchend',te);};
+  },[next,prev,s.type]);
+
+  const renderSlide=()=>{
+    switch(s.type){
+      case 'title':            return <TitleSlide data={s}/>;
+      case 'impact':           return <ImpactSlide data={s}/>;
+      case 'agenda':           return <AgendaSlide data={s}/>;
+      case 'module_title':     return <ModuleTitleSlide data={s}/>;
+      case 'concept':          return <ConceptSlide data={s}/>;
+      case 'case':             return <CaseSlide data={s}/>;
+      case 'comparison':       return <ComparisonSlide data={s}/>;
+      case 'windows_grid':     return <WindowsGridSlide/>;
+      case 'glocal_venn':      return <GlocalVennSlide/>;
+      case 'value_chain_visual':return <ValueChainVisualSlide/>;
+      case 'five_stage_model': return <FiveStageModelSlide/>;
+      case 'entry_modes':      return <EntryModesSlide/>;
+      case 'takeaways':        return <TakeawaysSlide data={s}/>;
+      case 'discussion':       return <DiscussionSlide data={s}/>;
+      case 'exercise':         return <ExerciseSlide key={cur} data={s}/>;
+      case 'quiz_intro':       return <QuizIntroSlide data={s} onStart={next}/>;
+      case 'quiz':             return <QuizSlide key={cur} data={s} onFinish={()=>{setQuizDone(true);next();}}/>;
+      case 'closing':          return <ClosingSlide data={s}/>;
+      default:                 return <TitleSlide data={s}/>;
+    }
+  };
+
+  // Module color based on current slide
+  const moduleColors = [T,T,T,T,BL,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,T,T,T,T,T,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,T,T,T,T,T,T,BL,BL,T,T,T];
+  const accentColor = moduleColors[cur]||T;
+
+  return(
+    <div className="app-root" style={{width:'100vw',display:'flex',flexDirection:'column',position:'relative',background:BG}}>
+      <div className="bg-grid"/>
+      <div className="bg-glow"/>
+      <div className="bg-glow-left"/>
+      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+        {renderSlide()}
+      </div>
+      {/* FOOTER NAV */}
+      <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:14}}>
+          {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
+            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 1</div>
+          </div>}
+          {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>}
+          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.1</div>}
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
+            <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
+          </div>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+        </div>
+        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+      </div>
+    </div>
+  );
+}
+
+const root=ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
