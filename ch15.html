@@ -316,11 +316,11 @@ const SLIDES = [
   { type:'quiz',
     questions:[
       { q:'Why is pricing unique within the global marketing mix?',
-        opts:['It is the hardest element to change once set.','It is the only element that can be changed rapidly without large direct cost implications.','It is the only element customers never notice.','It is fixed by international law in most markets.'],
-        correct:1 },
+        opts:['It is the only element that can be changed rapidly without large direct cost implications.','It is the hardest element to change once set.','It is the only element customers never notice.','It is fixed by international law in most markets.'],
+        correct:0 },
       { q:'Price escalation is caused by…',
-        opts:['Inflation in the home country only.','The summation of all cost factors in the distribution channel: ex-works price, shipping, tariffs and distributor mark-ups.','Customers\' willingness to pay more abroad.','Currency appreciation in the export market.'],
-        correct:1 },
+        opts:['Inflation in the home country only.','Currency appreciation in the export market.','Customers\' willingness to pay more abroad.','The summation of all cost factors in the distribution channel: ex-works price, shipping, tariffs and distributor mark-ups.'],
+        correct:3 },
       { q:'Which is NOT a tactic for countering price escalation?',
         opts:['Rationalizing the distribution process.','Establishing local production.','Adding an extra layer of importers to share the work.','Pressurizing channel members to accept lower margins.'],
         correct:2 },
@@ -328,17 +328,17 @@ const SLIDES = [
         opts:['Charging a low price to win maximum sales volume.','Charging a high price at the top end of the market to achieve the highest possible contribution in a short time.','Matching competitors\' prices exactly.','Selling below cost to bankrupt competitors.'],
         correct:1 },
       { q:'Which motives point to PENETRATION pricing?',
-        opts:['Weak competition and high local incomes.','Intensive local competition, lower income levels, and exporting seen as a marginal activity.','A unique patented product with no substitutes.','A government-imposed minimum price.'],
-        correct:1 },
+        opts:['Weak competition and high local incomes.','A government-imposed minimum price.','A unique patented product with no substitutes.','Intensive local competition, lower income levels, and exporting seen as a marginal activity.'],
+        correct:3 },
       { q:'Experience curve pricing is based on the idea that…',
-        opts:['Older products must always cost more.','Total unit costs fall by a certain percentage with each doubling of cumulative production.','Prices should rise with the firm\'s experience.','Customers pay more as they gain experience with the product.'],
-        correct:1 },
+        opts:['Total unit costs fall by a certain percentage with each doubling of cumulative production.','Older products must always cost more.','Prices should rise with the firm\'s experience.','Customers pay more as they gain experience with the product.'],
+        correct:0 },
       { q:'Transfer pricing refers to…',
         opts:['Prices charged for intracompany movement of goods and services.','The cost of transferring money between banks.','Discounts for customers who switch from competitors.','The price of shipping containers.'],
         correct:0 },
       { q:'A "global pricing contract" (GPC) is…',
-        opts:['A government treaty fixing world prices.','A customer requiring one global price per product from the supplier for all its foreign SBUs and subsidiaries.','An agreement between competitors to keep prices high.','A currency hedging instrument.'],
-        correct:1 },
+        opts:['A government treaty fixing world prices.','A currency hedging instrument.','An agreement between competitors to keep prices high.','A customer requiring one global price per product from the supplier for all its foreign SBUs and subsidiaries.'],
+        correct:3 },
       { q:'Under CIF terms, the seller pays…',
         opts:['Nothing — the buyer collects at the factory.','Cost, insurance and freight to the destination port.','All costs including import duty to the buyer\'s door.','Only the export packaging.'],
         correct:1 },
@@ -879,5 +879,11 @@ function App(){
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
+<style>
+html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+#pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+#pmode:hover{background:rgba(127,127,127,.32);}
+</style>
+<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
 </body>
 </html>

@@ -212,9 +212,9 @@ const SLIDES = [
     highlight:'A product can be in decline at home and still in introduction abroad. Each country sits at its own point on the curve.' },
 
   { type:'case', module:'Module 3', icon:'award',
-    title:'Case: Japanese Manufacturers — Competing on Time-to-Market',
-    problem:'In mature industries, the PLC keeps compressing: shorter life cycles mean less time to recover R&D investment. Whoever reaches the market late sells into a cycle that\'s already aging.',
-    solution:'Japanese manufacturers attacked the clock itself: early integration of customers and suppliers, multiskilled project teams, interlinked R&D–production–marketing, total quality management, parallel planning of products and production facilities, and outsourcing. R&D cycles compressed — products hit the market while the demand curve was still young.',
+    title:'Case: Shein — Competing on Time-to-Market',
+    problem:'In mature industries, the PLC keeps compressing: shorter life cycles mean less time to recover investment. Whoever reaches the market late sells into a cycle that\'s already aging — nowhere more brutally than in fashion.',
+    solution:'Shein attacked the clock itself: a data-driven model that reads demand in real time, tiny test batches, tight integration of design, suppliers and production, and parallel planning — taking new styles from idea to online listing in days while rivals took months. Products hit the market while the trend was still young.',
     lesson:'When life cycles shrink, speed becomes a product decision — not just an operations metric.' },
 
   { type:'concept', module:'Module 3', icon:'box',
@@ -334,29 +334,29 @@ const SLIDES = [
         opts:['Intangibility, perishability, heterogeneity, inseparability.','Tangibility, durability, homogeneity, separability.','Intangibility, durability, heterogeneity, profitability.','Perishability, elasticity, complexity, locality.'],
         correct:0 },
       { q:'Compared with consumer markets, B2B markets typically have…',
-        opts:['More and smaller buyers with elastic demand.','Fewer and larger buyers, derived and relatively inelastic demand, professional buyers.','No long-term relationships between buyer and seller.','More intermediaries between producer and customer.'],
-        correct:1 },
+        opts:['More and smaller buyers with elastic demand.','More intermediaries between producer and customer.','No long-term relationships between buyer and seller.','Fewer and larger buyers, derived and relatively inelastic demand, professional buyers.'],
+        correct:3 },
       { q:'The product life cycle states that products follow which sequence?',
         opts:['Invention, patent, production, sales.','Introduction, growth, maturity, sales decline.','Launch, peak, plateau, rebirth.','Design, test, scale, exit.'],
         correct:1 },
       { q:'According to IPLC theory, demand for an innovation…',
-        opts:['Grows simultaneously in all countries thanks to the internet.','Grows first in the innovating country, is then exported, and eventually grows in less developed countries.','Only ever exists in the country of invention.','Starts in developing countries and moves to advanced ones.'],
-        correct:1 },
+        opts:['Grows first in the innovating country, is then exported, and eventually grows in less developed countries.','Grows simultaneously in all countries thanks to the internet.','Only ever exists in the country of invention.','Starts in developing countries and moves to advanced ones.'],
+        correct:0 },
       { q:'In Keegan\'s product/communication matrix, "dual adaptation" means…',
-        opts:['Selling two products in the same market.','Adapting both the product and the promotion for the foreign market.','Standardizing both product and promotion.','Inventing an entirely new product.'],
-        correct:1 },
+        opts:['Selling two products in the same market.','Inventing an entirely new product.','Standardizing both product and promotion.','Adapting both the product and the promotion for the foreign market.'],
+        correct:3 },
       { q:'Country-of-origin effects refer to…',
-        opts:['Import tariffs charged by the destination country.','The effect on quality perceptions caused by knowledge of where the product was made.','The legal requirement to label products with their origin.','The cost of shipping from the production country.'],
-        correct:1 },
+        opts:['Import tariffs charged by the destination country.','The legal requirement to label products with their origin.','The effect on quality perceptions caused by knowledge of where the product was made.','The cost of shipping from the production country.'],
+        correct:2 },
       { q:'Brand equity is best defined as…',
         opts:['The total advertising budget invested in a brand.','The premium a customer would pay for the branded product compared to an identical unbranded version.','The number of countries where the brand is registered.','The stock market value of the parent company.'],
         correct:1 },
       { q:'From the manufacturer\'s perspective, producing private labels involves which trade-off?',
-        opts:['High promotion costs but full control of the brand.','No promotional expenses and shelf access — but price competition, loss of control and possible cannibalization.','Better margins and a stronger own-brand image.','No risks: private labels are pure upside for manufacturers.'],
-        correct:1 },
+        opts:['No promotional expenses and shelf access — but price competition, loss of control and possible cannibalization.','High promotion costs but full control of the brand.','Better margins and a stronger own-brand image.','No risks: private labels are pure upside for manufacturers.'],
+        correct:0 },
       { q:'A proactive environmental strategic posture combines…',
-        opts:['Minimum legal compliance and cost cutting.','Green product innovation with pollution prevention beyond compliance.','Outsourcing pollution to suppliers.','Avoiding all environmental claims in marketing.'],
-        correct:1 },
+        opts:['Minimum legal compliance and cost cutting.','Avoiding all environmental claims in marketing.','Outsourcing pollution to suppliers.','Green product innovation with pollution prevention beyond compliance.'],
+        correct:3 },
     ]},
 
   { type:'closing',
@@ -611,7 +611,7 @@ const KeeganMatrixSlide = () => {
 
 const BrandOptionsSlide = () => {
   const opts=[
-    {t:'Private Branding',c:RD, tag:'100% EXTERNALIZING', d:'Produce for a retailer’s own label (e.g. Marks & Spencer’s). Volume and shelf access — zero brand equity of your own.'},
+    {t:'Private Branding',c:RD, tag:'100% EXTERNALIZING', d:'Produce for a retailer’s own label (e.g. Amazon Basics or Costco’s Kirkland). Volume and shelf access — zero brand equity of your own.'},
     {t:'Co-Branding / Brand Alliance',c:AM, tag:'SHARED', d:'Two or more brands create synergies above what each generates alone — including ingredient branding ("Intel Inside").'},
     {t:'Manufacturer’s Own Brand',c:T, tag:'100% INTERNALIZING', d:'Build and own the equity: full control, full promotion cost, full upside.'},
   ];
@@ -927,5 +927,11 @@ function App(){
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
+<style>
+html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+#pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+#pmode:hover{background:rgba(127,127,127,.32);}
+</style>
+<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
 </body>
 </html>

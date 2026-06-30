@@ -128,7 +128,7 @@ const SLIDES = [
       {n:'3',   d:'Levels of analysis — nation (macro), industry (meso), firm (micro). Competitiveness is built on all three.', src:'Hollensen, Ch. 4'},
       {n:'5+1', d:'Porter\'s five competitive forces — plus a sixth player: complementors who collaborate instead of compete.',  src:'Porter (1980) · The Value Net'},
       {n:'2',   d:'Routes to competitive advantage: higher perceived value or lower relative cost. Master at least one.',        src:'The Competitive Triangle'},
-      {n:'4',   d:'Actions that create a blue ocean: eliminate, reduce, raise, create. Formule 1 used all four.',                src:'Kim & Mauborgne (1997)'},
+      {n:'4',   d:'Actions that create a blue ocean: eliminate, reduce, raise, create. Airbnb used all four.',                src:'Kim & Mauborgne (1997)'},
     ],
     quote:'Competition is not won by fighting harder. It\'s won by choosing where — and where not — to fight.' },
 
@@ -284,9 +284,9 @@ const SLIDES = [
   { type:'four_actions' },
 
   { type:'case', module:'Module 5', icon:'award',
-    title:'Case: Formule 1 — Value Innovation in Budget Hotels',
-    problem:'France\'s budget hotel industry competed on the same checklist: restaurants, lounges, full-time reception, room features. Every hotel copied every other, and margins shrank in a classic red ocean.',
-    solution:'Accor\'s Formule 1 asked the four questions instead of copying. It eliminated restaurants and lounges, reduced reception hours and room size, raised bed quality, hygiene and room quietness far above industry standard, and created automated check-in plus cheap modular construction. Superior sleep at a fraction of the cost — a brand-new market space.',
+    title:'Case: Airbnb — Value Innovation in Travel',
+    problem:'The lodging industry competed on the same checklist: location, star ratings, lobbies, amenities. Every hotel copied every other, margins shrank in a classic red ocean — and budget travelers who wanted something local and affordable had nowhere to go.',
+    solution:'Airbnb asked the four questions instead of copying. It eliminated owning property and front desks, reduced the cost to travelers and the capital tied up in real estate, raised the variety of places to stay and local authenticity far above any hotel chain, and created a trust layer — verified profiles, reviews and secure payments — that made booking a stranger\'s home feel safe. A brand-new market space between hotels and couch-surfing.',
     lesson:'Value innovation = raising what customers truly value while ruthlessly cutting everything else.' },
 
   { type:'case', module:'Module 5', icon:'award',
@@ -333,34 +333,34 @@ const SLIDES = [
   { type:'quiz',
     questions:[
       { q:'Which sequence correctly orders the three levels of international competitiveness analysis?',
-        opts:['Micro = nation, meso = firm, macro = industry.','Macro = national competitiveness, meso = industry competition, micro = the firm\'s value chain.','Macro = the firm, meso = the customer, micro = the product.','They are interchangeable labels for the same analysis.'],
-        correct:1 },
+        opts:['Macro = national competitiveness, meso = industry competition, micro = the firm\'s value chain.','Micro = nation, meso = firm, macro = industry.','Macro = the firm, meso = the customer, micro = the product.','They are interchangeable labels for the same analysis.'],
+        correct:0 },
       { q:'Which of the following belongs to FACTOR conditions in Porter\'s diamond?',
-        opts:['Size and sophistication of home demand.','Educational system, infrastructure, human resources and capital.','The intensity of domestic rivalry.','The presence of substitutes in the market.'],
-        correct:1 },
+        opts:['Size and sophistication of home demand.','The intensity of domestic rivalry.','Educational system, infrastructure, human resources and capital.','The presence of substitutes in the market.'],
+        correct:2 },
       { q:'Which two outside variables influence all four corners of Porter\'s diamond?',
-        opts:['Suppliers and buyers.','Chance and government.','Exchange rates and inflation.','Technology and culture.'],
-        correct:1 },
+        opts:['Suppliers and buyers.','Technology and culture.','Exchange rates and inflation.','Chance and government.'],
+        correct:3 },
       { q:'Bargaining power of suppliers is HIGH when…',
-        opts:['Many small suppliers compete for the firm\'s business.','Supply is dominated by a few companies whose products are unique and switching costs are high.','Buyers can easily integrate backwards.','Products are fully standardized commodities.'],
-        correct:1 },
+        opts:['Supply is dominated by a few companies whose products are unique and switching costs are high.','Many small suppliers compete for the firm\'s business.','Buyers can easily integrate backwards.','Products are fully standardized commodities.'],
+        correct:0 },
       { q:'Which of these is an entry barrier protecting incumbents?',
-        opts:['Low capital requirements in production.','Economies of scale, brand identity and control of distribution channels.','Standardized products with zero switching costs.','High buyer concentration.'],
-        correct:1 },
+        opts:['Low capital requirements in production.','Standardized products with zero switching costs.','Economies of scale, brand identity and control of distribution channels.','High buyer concentration.'],
+        correct:2 },
       { q:'In the competitive triangle, winning the customer\'s favour depends on…',
-        opts:['Having the largest market share in the industry.','The perceived value offered compared to the relative costs between the firm and the competitor.','Spending more on advertising than the rival.','Always charging the lowest price in the market.'],
-        correct:1 },
+        opts:['Having the largest market share in the industry.','Always charging the lowest price in the market.','Spending more on advertising than the rival.','The perceived value offered compared to the relative costs between the firm and the competitor.'],
+        correct:3 },
       { q:'What is "relative cost advantage"?',
         opts:['Charging relatively less than last year.','The firm\'s cost position arising from the configuration of its value chain versus that of competitors.','The discount given to loyal customers.','The cost of switching suppliers.'],
         correct:1 },
       { q:'Core competences are defined as…',
-        opts:['Any asset listed on the firm\'s balance sheet.','Value chain activities in which the firm is regarded as better than its competitors.','Skills every firm in the industry shares.','The firm\'s mission and vision statements.'],
-        correct:1 },
+        opts:['Value chain activities in which the firm is regarded as better than its competitors.','Any asset listed on the firm\'s balance sheet.','Skills every firm in the industry shares.','The firm\'s mission and vision statements.'],
+        correct:0 },
       { q:'Competitive benchmarking is…',
-        opts:['Copying the market leader\'s products feature by feature.','A technique for assessing relative marketplace performance compared with main competitors.','Setting prices exactly at the industry average.','An internal audit of employee satisfaction.'],
-        correct:1 },
-      { q:'In its blue ocean move, Formule 1 RAISED which factors well above industry standard?',
-        opts:['Restaurant quality and lounge size.','Bed quality, hygiene and room quietness.','Reception availability and room size.','Number of TV channels and minibar variety.'],
+        opts:['Copying the market leader\'s products feature by feature.','An internal audit of employee satisfaction.','Setting prices exactly at the industry average.','A technique for assessing relative marketplace performance compared with main competitors.'],
+        correct:3 },
+      { q:'In its blue ocean move, Airbnb RAISED which factors well above industry standard?',
+        opts:['Hotel star ratings and lobby size.','Variety of unique stays and local authenticity.','Front-desk hours and room standardization.','Number of loyalty points and minibar options.'],
         correct:1 },
     ]},
 
@@ -642,17 +642,17 @@ const CompetenceRootsSlide = () => {
 
 const FourActionsSlide = () => {
   const acts=[
-    {t:'ELIMINATE',c:RD, q:'Which factors the industry takes for granted should be eliminated?', a:'Formule 1: restaurants · lounges'},
-    {t:'REDUCE',   c:AM, q:'Which factors should be reduced well below the industry standard?',  a:'Formule 1: room size · reception hours · room features'},
-    {t:'RAISE',    c:BL, q:'Which factors should be raised well above the industry standard?',   a:'Formule 1: bed quality · hygiene · room quietness'},
-    {t:'CREATE',   c:T,  q:'Which new factors, never offered by the industry, should be created?',a:'Formule 1: automated check-in · modular low-cost construction'},
+    {t:'ELIMINATE',c:RD, q:'Which factors the industry takes for granted should be eliminated?', a:'Airbnb: property ownership · front desks'},
+    {t:'REDUCE',   c:AM, q:'Which factors should be reduced well below the industry standard?',  a:'Airbnb: cost to travelers · real-estate capital'},
+    {t:'RAISE',    c:BL, q:'Which factors should be raised well above the industry standard?',   a:'Airbnb: variety of stays · local authenticity'},
+    {t:'CREATE',   c:T,  q:'Which new factors, never offered by the industry, should be created?',a:'Airbnb: trust layer — reviews · verified hosts · secure payments'},
   ];
   return (
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 5"/>
         <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Four Actions Framework</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the questions that produced Formule 1's value curve.</p>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(16,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
           {acts.map((a,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${a.c}35`,borderRadius:14,overflow:'hidden'}}>
@@ -959,5 +959,11 @@ function App(){
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
+<style>
+html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+#pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+#pmode:hover{background:rgba(127,127,127,.32);}
+</style>
+<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
 </body>
 </html>

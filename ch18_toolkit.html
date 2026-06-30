@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Marketing · Chapter 17 · Universidad del Rosario</title>
+  <title>Global Marketing · Toolkit · Universidad del Rosario</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -114,233 +114,146 @@ const Ico = {
 
 // ── SLIDE DATA ────────────────────────────────────────────────────────────
 const SLIDES = [
-
   // ── INTRO ──────────────────────────────────────────────────────────────
   { type:'title',
-    tag:'Universidad del Rosario · Global Marketing · Chapter 17',
-    title:'Communication\nDecisions',
-    subtitle:'A great product whispering in a noisy world loses to a good one that knows how to talk.\nAdvertising, promotion, PR, personal selling — and the viral layer on top.',
-    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+    tag:'Universidad del Rosario · Global Marketing · Toolkit',
+    title:'The Global Marketing\nToolkit',
+    subtitle:'Turn marketing into numbers you can defend — and money you can measure.\nFour tools, four ready-to-paste AI prompts.',
+    author:'Universidad del Rosario · Global Marketing' },
 
   { type:'impact',
-    title:'Why Communication Decisions Matter',
+    title:'Why a Toolkit?',
     stats:[
-      {n:'6',  d:'Major international advertising decisions: objectives, budget, message, media, agency, evaluation.', src:'Hollensen, Fig. 17.3'},
-      {n:'3',  d:'Classic budgeting methods — percentage of sales, competitive parity, objective & task — and only one starts from goals.', src:'Hollensen, Ch. 17'},
-      {n:'2',  d:'Numbers that rule media planning: reach × frequency = gross rating points (GRPs).', src:'Media planning'},
-      {n:'4',  d:'Steps of a viral campaign: compelling content, right audience, seeding, measurement.', src:'Hollensen, Ch. 17'},
+      {n:'4',   d:'Decision tools to run before spending a single peso: Benchmark, Customer Lifetime Value, Brand Funnel, Positioning Map.', src:'Global Marketing Toolkit'},
+      {n:'$',   d:'Each tool ends in a number — a score, a ranking, a peso value — you can defend to a boss, a client or an investor.', src:'Measure → Money'},
+      {n:'0',   d:'No paid AI required. Every tool ships with a "mother prompt" you paste into any free chatbot to generate the analysis.', src:'Copy · Paste · Run'},
+      {n:'5m',  d:'From blank page to an Excel-ready analysis in minutes. The prompt builds the structure; you bring the judgement.', src:'Speed advantage'},
     ],
-    quote:'In international markets the message crosses more than borders — it crosses languages, cultures and filters. Noise is guaranteed; clarity is engineered.' },
+    quote:'Marketing that cannot be measured cannot be defended — and what cannot be defended does not get a budget.' },
 
   { type:'agenda',
-    title:'What We Cover Today',
+    title:'What\'s in the Toolkit',
     modules:[
-      {num:1, title:'The Communication Process', desc:'Sender → noise → receiver · buyer initiative'},
-      {num:2, title:'Advertising Decisions',     desc:'Objectives · budgets · media · agencies'},
-      {num:3, title:'The Wider Promotion Mix',   desc:'PR · sales promotion · direct marketing · selling'},
-      {num:4, title:'Digital & Viral',           desc:'Internet in the buying process · viral marketing'},
-      {num:5, title:'Standardize or Adapt',      desc:'One global message vs local voices'},
-      {num:6, title:'Takeaways & Quiz',          desc:'Final assessment'},
+      {num:1, title:'Competitive Benchmark', desc:'20 attributes · 10 rivals · gold standard'},
+      {num:2, title:'CLV & Segmentation',    desc:'Ticket × frequency = customer value'},
+      {num:3, title:'Brand Funnel',          desc:'Awareness → loyalty, with metrics'},
+      {num:4, title:'Positioning Map',       desc:'Find the white space rivals left open'},
+      {num:5, title:'Using the Prompts',     desc:'How to run them in any free AI'},
     ]},
 
-  // ── MODULE 1 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:1, title:'The International Communication Process', icon:'wifi',
-    question:'Between what you say and what they hear, how much survives the journey?' },
+  { type:'concept', module:'Toolkit', icon:'trend',
+    title:'From Gut Feeling to Numbers',
+    text:'A junior marketer says "our brand feels strong." A professional says "we score 78 of 100 on our benchmark, our best segment is worth $1.2M in lifetime value, and we own the empty space rivals left at high quality / fair price." Same brand — but only one of those sentences gets a budget. Every tool in this kit exists to turn an opinion into a measurable, defendable number.',
+    highlight:'A number you can defend beats an adjective you can only feel.' },
 
-  { type:'comm_process' },
+  // ── TOOL 1 · BENCHMARK ──────────────────────────────────────────────────
+  { type:'module_title', num:1, title:'Tool 1 — The Competitive Benchmark', icon:'target',
+    question:'Exactly how good is your brand versus everyone else — on the things customers actually care about?' },
 
-  { type:'concept', module:'Module 1', icon:'refresh',
-    title:'Noise — and the Shift to Buyer Initiative',
-    text:'Noise is everything that distorts the message between encoding and decoding — and international communication multiplies it: language, cultural references, regulation, media habits, competing signals. Meanwhile the initiative has shifted from seller to buyer: customers now search, compare and start the conversation themselves, especially online.',
-    highlight:'Domestic communication assumes a shared field of experience. International communication has to build one first.' },
+  { type:'concept', module:'Tool 1 · Benchmark', icon:'layers',
+    title:'What a Benchmark Measures',
+    text:'A benchmark scores your brand and every rival on the same attributes, from 1 to 5. Add a "Gold Standard" column where everything is a 5 — the perfect brand — and the gap between you and that 5 becomes your to-do list. Sum each brand\'s scores and you get an instant, defendable ranking of who leads the market and where exactly you lose points.',
+    highlight:'The gap to the Gold Standard is your roadmap; the total score is your scoreboard.' },
 
-  { type:'exercise', module:'Module 1',
-    title:'Exercise 1 · Find the Noise',
-    question:'A Colombian brand launches its proven slogan in Germany, translated literally. Sales people report confusion: the wordplay doesn\'t exist in German, and the humorous tone reads as unserious for the category. Where did the message break?',
-    options:['A) The media plan — they chose the wrong TV channels.','B) Encoding/decoding — the message was encoded in one cultural field of experience and decoded in another, generating noise.','C) The budget — they simply spent too little.'],
+  { type:'prompt', tool:'Tool 1 · Benchmark', color:T,
+    title:'Mother Prompt — Competitive Benchmark',
+    intro:'Paste into any AI and replace the [brackets] with your market. It returns an Excel-ready benchmark with a gold standard, totals, and customer profiles ranked by lifetime value.',
+    prompt:'You are a market research analyst. Build a competitive benchmark for the [CATEGORY / INDUSTRY] market in [COUNTRY].\n\n1. Put 20 evaluation attributes in the first column — choose the 20 that matter most for this category (e.g. price, quality, brand awareness, distribution, customer service, innovation, packaging, digital presence, loyalty).\n2. Compare at least 10 brands that compete in this market. Score every attribute from 1 to 5 (5 = highest).\n3. Add a "Gold Standard" column where every attribute = 5 (the ideal brand).\n4. Apply these audience filters: age [18-24 / 25-34 / 35-44 / 45-54 / 55-64 / 65+], gender [ ], country [ ].\n5. Sum every brand\'s scores in a final row and rank them.\n6. Using the highest-scoring attributes, build at least 3 customer profiles (name, age, what they value most).\n7. For each profile, estimate Customer Lifetime Value = average ticket × purchase frequency (state your assumptions).\n\nReturn everything as an Excel-ready table with clearly labelled rows and columns.',
+    output:'Returns: a 20-attribute scorecard for 10+ brands, a gold-standard column, ranked totals, and 3 CLV-ranked customer profiles.' },
+
+  // ── TOOL 2 · CLV ────────────────────────────────────────────────────────
+  { type:'module_title', num:2, title:'Tool 2 — CLV & Segmentation', icon:'users',
+    question:'What is a single customer actually worth — in pesos — over the whole relationship?' },
+
+  { type:'concept', module:'Tool 2 · CLV', icon:'trend',
+    title:'Turning a Customer into a Number',
+    text:'Customer Lifetime Value is the simplest bridge from marketing to money: CLV = average ticket × purchase frequency × years as a customer × gross margin. Once you can put a peso figure on a customer, you can answer the only question a CFO cares about: how much can we afford to spend to win one? Segmentation then groups customers by value, so budget flows to the people worth the most.',
+    highlight:'If a loyal client is worth $2M in lifetime value, spending $200k to keep them is obvious, not extravagant.' },
+
+  { type:'prompt', tool:'Tool 2 · CLV', color:BL,
+    title:'Mother Prompt — CLV & Segmentation',
+    intro:'Feed it your customer data (or a description). It segments your customers, prices each segment in lifetime value, and tells you where to put the budget.',
+    prompt:'You are a CRM and segmentation analyst for [BRAND] in [COUNTRY].\n\n1. From this customer information [PASTE OR DESCRIBE YOUR CUSTOMERS], segment customers into 3-5 groups by behaviour and value.\n2. For each segment build a profile: name, demographics, main need, where they buy, what they value most.\n3. Calculate Customer Lifetime Value for each segment: CLV = average ticket × purchase frequency per year × expected years as a customer × gross margin %. Show the maths and state your assumptions.\n4. Rank the segments from most to least valuable.\n5. Recommend where to focus the marketing budget and why.\n\nReturn an Excel-ready table plus a three-line summary for each segment.',
+    output:'Returns: 3-5 priced customer segments, the CLV maths for each, a value ranking, and a budget recommendation.' },
+
+  { type:'exercise', module:'Tool 2 · CLV',
+    title:'Exercise · Price the Customer',
+    question:'A Juan Valdez regular spends $18,000 per visit, comes about twice a week (~100 visits a year), stays loyal ~6 years, and the café earns a 60% gross margin. Roughly what is their lifetime value?',
+    options:['A) About $108,000 — one year of visits.','B) About $648,000 — ticket × frequency × years × margin.','C) Impossible to calculate without their salary.'],
     correct:1,
-    explanation:'Option B. The channel delivered the message fine; the meaning died in translation between fields of experience. That\'s why global campaigns test decoding in every market before launch, not after.' },
+    explanation:'Option B. $18,000 × 100 × 6 × 0.60 ≈ $648,000. That single number tells you how hard it is worth fighting to keep this customer — and how much a loyalty app or free-coffee card can sensibly cost.' },
 
-  // ── MODULE 2 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:2, title:'The Major Advertising Decisions', icon:'target',
-    question:'Six decisions stand between an advertising idea and a working international campaign.' },
+  // ── TOOL 3 · BRAND FUNNEL ───────────────────────────────────────────────
+  { type:'module_title', num:3, title:'Tool 3 — The Brand Funnel', icon:'map',
+    question:'Where exactly are you losing people on the way from "never heard of you" to "buys you again"?' },
 
-  { type:'concept', module:'Module 2', icon:'layers',
-    title:'The Decision Sequence',
-    text:'International advertising runs through six linked decisions: objectives setting (what the campaign must achieve per market), budget decisions (how much), message decisions (what to say — the creative strategy), media decisions (where and how often), agency selection (who executes), and advertising evaluation (did it work). Each decision constrains the next.',
-    highlight:'Objectives first, budget second — firms that reverse the order buy media before knowing what it must accomplish.' },
+  { type:'concept', module:'Tool 3 · Funnel', icon:'layers',
+    title:'Every Stage Gets a Number',
+    text:'The brand funnel turns vague goals into measurable objectives at four stages: Awareness (do they know you?), Consideration (are you on the shortlist?), Conversion (do they buy?) and Loyalty (do they come back and refer?). Attach one metric and one realistic target to each stage and "grow the brand" becomes four specific, trackable jobs — each tied to a tactic and a number.',
+    highlight:'"Improve marketing" is not a plan. "Lift repeat purchase from 20% to 28% this quarter" is.' },
 
-  { type:'budget_methods' },
+  { type:'prompt', tool:'Tool 3 · Funnel', color:AM,
+    title:'Mother Prompt — Brand Funnel',
+    intro:'It maps your brand across the four funnel stages with a metric, a free way to measure it, a tactic and a target for each.',
+    prompt:'You are a marketing strategist for [BRAND] in [COUNTRY]. Target audience: [DESCRIBE].\n\nMap the brand funnel with a measurable objective for each stage:\n1. Awareness — metric (reach, impressions, aided/unaided recall) + a realistic monthly target.\n2. Consideration — metric (site visits, time on page, leads) + target.\n3. Conversion — metric (conversion rate, sales, average ticket) + target.\n4. Loyalty / Advocacy — metric (repeat rate, NPS, referrals) + target.\n\nFor every stage give: the objective, the metric, how to measure it with free tools, and one concrete tactic to improve it.\n\nReturn a table: Stage | Objective | Metric | How to measure | Tactic | Target.',
+    output:'Returns: a four-stage funnel table with objective, metric, free measurement method, tactic and target per stage.' },
 
-  { type:'concept', module:'Module 2', icon:'chart',
-    title:'Media Decisions: Reach, Frequency & GRPs',
-    text:'Reach is the portion of the target market exposed to at least one ad in a period. Frequency is the average number of times each potential customer sees it. Reach × frequency = gross rating points (GRPs) — the currency of media buying. Add momentum and the media mix across the main types: television, radio, newspapers, magazines, cinema, outdoor.',
-    highlight:'Same GRPs, different campaigns: wide-and-shallow (high reach) builds awareness; narrow-and-deep (high frequency) builds memory.' },
+  // ── TOOL 4 · POSITIONING ────────────────────────────────────────────────
+  { type:'module_title', num:4, title:'Tool 4 — The Positioning Map', icon:'trend',
+    question:'On the two things customers care about most, where do you sit — and what space did everyone leave empty?' },
+
+  { type:'concept', module:'Tool 4 · Positioning', icon:'map',
+    title:'Finding the White Space',
+    text:'A positioning (perceptual) map plots your brand and rivals on the two attributes customers care about most — say price versus quality, or traditional versus modern. Put everyone on the same grid and the clusters and the empty corners jump out. That empty corner — the white space no rival owns — is often the cheapest, clearest position to claim.',
+    highlight:'You rarely win by crowding where rivals already are. You win by owning the corner they left open.' },
+
+  { type:'prompt', tool:'Tool 4 · Positioning', color:RD,
+    title:'Mother Prompt — Positioning Map',
+    intro:'It picks the two axes that matter, scores you and your rivals on both, finds the white space, and tells you how to chart it.',
+    prompt:'You are a brand strategist. Build a positioning (perceptual) map for [BRAND] in the [CATEGORY] market in [COUNTRY].\n\n1. Choose the 2 attributes customers in this category care about most (e.g. price vs quality, traditional vs modern) and justify the choice.\n2. Place [BRAND] and at least 8 competitors on the two axes, scoring each from 1 to 10 on both attributes.\n3. Output the coordinates as a table: Brand | Axis X score | Axis Y score.\n4. Identify the empty spaces (white space) on the map and recommend the single most attractive position [BRAND] could own, with the reasoning.\n5. Explain how to plot it as a scatter chart in Excel or Google Sheets.',
+    output:'Returns: chosen axes, a coordinate table for your brand + 8 rivals, the white-space recommendation, and how to chart it.' },
+
+  // ── USING THE TOOLKIT ───────────────────────────────────────────────────
+  { type:'module_title', num:5, title:'Using the Toolkit', icon:'users',
+    question:'How do you run all of this without paying for an AI subscription?' },
+
+  { type:'concept', module:'Toolkit', icon:'layers',
+    title:'How to Run a Mother Prompt',
+    text:'Open any free AI assistant. Copy a mother prompt, replace every [BRACKET] with your real brand, country and audience, and send it. Read the result critically — the AI gives you the structure and a first draft of the numbers; you supply the judgement and verify the figures before anyone sees them. Ask it to "put this in an Excel-ready table" and paste the result straight into a spreadsheet.',
+    highlight:'The prompt builds the skeleton in seconds. Your job is the judgement: check the numbers, keep what is true, fix what is not.' },
 
   { type:'comparison',
-    module:'Module 2',
-    title:'Agency Selection: National vs Pan-European',
-    left:{label:'National Agencies', color:T, items:[
-      {k:'Fit',        v:'Supports the national subsidiary · closer to the marketplace'},
-      {k:'Brands',     v:'Investment in existing local brands handled best nationally'},
-      {k:'Service',    v:'Personalized service and greater creativity'},
-      {k:'Ideas',      v:'Diversity of ideas from independent local teams'},
+    module:'Toolkit',
+    title:'Each Tool → The Money Question It Answers',
+    left:{label:'The Tool', color:T, items:[
+      {k:'Benchmark',   v:'How good are we vs rivals, attribute by attribute?'},
+      {k:'CLV',         v:'What is a customer worth, in pesos?'},
+      {k:'Funnel',      v:'Where are we losing people on the way to a sale?'},
+      {k:'Positioning', v:'Which empty space can we own cheaply?'},
     ]},
-    right:{label:'Pan-European Agencies', color:BL, items:[
-      {k:'Fit',        v:'Reflects the new European reality · uniform treatment across markets'},
-      {k:'Scale',      v:'Economies of scale in new product development and branding'},
-      {k:'Resources',  v:'Resources and skills of a major agency network'},
-      {k:'Management', v:'Easier to manage one agency group than many'},
+    right:{label:'The Decision It Unlocks', color:AM, items:[
+      {k:'Benchmark',   v:'Where to invest to close the biggest gap to the Gold Standard.'},
+      {k:'CLV',         v:'How much we can afford to spend to win and keep a customer.'},
+      {k:'Funnel',      v:'Which stage to fix first for the fastest revenue lift.'},
+      {k:'Positioning', v:'The message and place in the market to claim.'},
     ]}},
 
-  { type:'exercise', module:'Module 2',
-    title:'Exercise 2 · Pick the Budget Method',
-    question:'A firm enters three new Asian markets where it has zero sales history, with specific goals: 40% brand awareness in year one and 500 retail listings. Which budgeting method fits?',
-    options:['A) Percentage of sales — allocate 5% of sales like in the home market.','B) Objective and task — define the objectives, cost the tasks needed to attain them, and budget that amount.','C) Competitive parity — copy whatever the biggest rival spends.'],
-    correct:1,
-    explanation:'Option B. Percentage of sales fails with zero sales history (and ignores goals); parity copies rivals whose objectives differ from yours. Objective and task is the only method that starts from what the campaign must achieve.' },
-
-  // ── MODULE 3 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:3, title:'The Wider Promotion Mix', icon:'box',
-    question:'Advertising shouts. The rest of the mix shakes hands, gives samples, and calls you by name.' },
-
-  { type:'concept', module:'Module 3', icon:'globe',
-    title:'Public Relations',
-    text:'PR manages the firm\'s relationships with all its publics, not just customers. Methods: event sponsorship, prizes at events, press releases, announcements, lobbying. Targets: employees, shareholders, suppliers, customers, the general public, governments and financial markets. PR earns credibility that paid media can\'t buy — and manages the crises advertising can\'t touch.',
-    highlight:'Advertising is what you say about yourself; PR shapes what others say about you.' },
-
-  { type:'concept', module:'Module 3', icon:'zap',
-    title:'Sales Promotion',
-    text:'Sales promotion is a short-term effort directed at the consumer and/or retailer to achieve specific objectives such as product trial. The toolkit: price discounts, catalogues and brochures, coupons, samples, gifts, competitions. Its expansion is driven by greater retail competition, higher brand awareness levels, improved retail technology and tighter integration with media campaigns.',
-    highlight:'Promotion buys behaviour now; advertising builds preference later. Healthy brands need both clocks running.' },
-
-  { type:'concept', module:'Module 3', icon:'users',
-    title:'Direct Marketing & Personal Selling',
-    text:'International direct marketing grows on mailing technology, escalating costs of other promotion, better lists, IT and interactive media — and it combines powerfully with personal selling: the database warms the lead, the salesperson closes it. Assessing a sales force: is the selling effort structured for coverage? Right people? Strong guidance? Adequate support? Does compensation motivate?',
-    highlight:'In B2B export markets, the salesperson often IS the brand — selection and training are communication decisions.' },
-
-  { type:'exercise', module:'Module 3',
-    title:'Exercise 3 · Match the Tool',
-    question:'A food brand entering Brazil needs supermarket shoppers to taste its product once — research shows trial converts 30% of tasters into buyers. Which tool fits the objective?',
-    options:['A) A six-month image advertising campaign on national TV.','B) Sales promotion — in-store sampling, a classic short-term effort aimed at product trial.','C) A press release to financial newspapers.'],
-    correct:1,
-    explanation:'Option B. The objective is specific, behavioural and short-term: trial. That\'s the textbook definition of sales promotion\'s job. Advertising builds the brand after the first taste convinces.' },
-
-  // ── MODULE 4 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:4, title:'Digital, Viral & Social', icon:'wifi',
-    question:'The cheapest medium ever invented is other people. How do you get them talking?' },
-
-  { type:'buying_funnel' },
-
-  { type:'concept', module:'Module 4', icon:'shuffle',
-    title:'Viral Marketing',
-    text:'Viral marketing exploits existing social networks to produce exponential increases in brand awareness through online word-of-mouth. Advantages: inexpensive, active and participatory, effectively targeted through peer-to-peer networks. Disadvantages: requires technologically compatible formats, filtering programs may block it, and it must be effortless to pass along.',
-    highlight:'Viral isn\'t a channel you buy — it\'s a behaviour you earn. The audience is the medium.' },
-
-  { type:'viral_steps' },
-
-  { type:'case', module:'Module 4', icon:'award',
-    title:'Case: Dollar Shave Club — "Our Blades Are Great"',
-    problem:'Dollar Shave Club was an unknown US startup selling cheap razors by subscription, with a marketing budget far too small to outspend Gillette and the established razor giants.',
-    solution:'In 2012 the founder shot one deadpan comedy video for a few thousand dollars. Compelling content (step 1), aimed at young men tired of overpriced razors (step 2), seeded on YouTube and shared organically (step 3), with sign-ups tracked obsessively (step 4). Millions of views and tens of thousands of orders in days followed — and the brand was later bought by Unilever for around $1 billion.',
-    lesson:'A piece of content worth sharing beats a media plan you can\'t afford.' },
-
-  { type:'exercise', module:'Module 4',
-    title:'Exercise 4 · Why Did It Spread?',
-    question:'Two campaigns launch the same week. A: a beautifully produced brand video with no surprise. B: a rougher video where the product does something nobody expected, easy to share with one tap. B explodes, A dies. Which viral principle decided it?',
-    options:['A) Production budget — polish always wins online.','B) Compelling content plus ease of passing along — surprise gives a reason to share, friction kills the chain.','C) Luck — virality is pure randomness.'],
-    correct:1,
-    explanation:'Option B. Step 1 (compelling content) is the engine and "must be easy" is the transmission. Polish without surprise gives nobody a reason to press share; friction breaks the peer-to-peer chain that viral depends on.' },
-
-  // ── MODULE 5 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:5, title:'Standardize or Adapt the Message?', icon:'globe',
-    question:'One voice for the whole planet — efficiency dream or cultural blindness?' },
-
-  { type:'concept', module:'Module 5', icon:'layers',
-    title:'Standardized International Advertising',
-    text:'Benefits: enormous cost economies, one consistent brand image worldwide, simpler coordination and faster rollouts. Drawbacks: cultural differences in humour, symbols and values; advertising regulations that vary by country; media availability differences; and local competitors free to speak the local language of emotion. Most global advertisers land in between: standardized strategy, locally adapted execution.',
-    highlight:'Standardize the idea, adapt the expression — the campaign\'s soul travels, its accent changes.' },
-
-  { type:'case', module:'Module 5', icon:'award',
-    title:'Case: Productos Ramo — Decades Without Shouting',
-    problem:'Ramo, the Colombian maker of Chocoramo and Ponqué Ramo, has competed for decades against multinational snack giants that outspend it on advertising many times over. Conventional logic says a modest local brand with almost no ad budget should fade away.',
-    solution:'Ramo barely advertises. Heritage, an almost unchanged recipe, nostalgia and word-of-mouth across generations do the talking — children grow into parents who buy the same Chocoramo for their own kids. The brand became a piece of Colombian identity, and that emotional loyalty kept demand alive without big media spend.',
-    lesson:'Communication strategy isn\'t about spending the most — it\'s about choosing which conversations your brand can own.' },
-
-  { type:'exercise', module:'Module 5',
-    title:'Exercise 5 · The Standardization Call',
-    question:'A beer brand\'s global campaign is built on beach humour and bikinis. Legal review flags several markets where alcohol advertising is restricted and the imagery is culturally unacceptable. What does the chapter suggest?',
-    options:['A) Run it anyway — a global campaign must be identical everywhere or it isn\'t global.','B) Keep the strategic platform but adapt execution per market — regulation and culture are hard constraints on standardization.','C) Cancel international advertising entirely.'],
-    correct:1,
-    explanation:'Option B. Advertising regulations and cultural values are exactly the environmental constraints that limit full standardization. Global advertisers keep the positioning constant and rebuild the execution wherever law or culture demands it.' },
-
-  // ── MODULE 6 ────────────────────────────────────────────────────────────
-  { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
-    question:'Last check: can the message survive the journey from your head to theirs?' },
-
   { type:'takeaways',
-    title:'Chapter 17 — What You Now Know',
+    title:'Toolkit — What You Now Carry',
     items:[
-      {icon:'wifi',   c:T,  t:'The Process',        d:'Encoding → media → decoding, with noise multiplied by culture. The buyer now starts the conversation.'},
-      {icon:'target', c:BL, t:'Advertising Decisions', d:'Objectives, budget, message, media, agency, evaluation — in that order. Objective & task beats habit-based budgets.'},
-      {icon:'chart',  c:AM, t:'Media Math',         d:'Reach × frequency = GRPs. Wide builds awareness, deep builds memory.'},
-      {icon:'shuffle',c:T2, t:'Viral & Digital',    d:'Compelling content, right audience, seeding, measurement — the audience is the medium.'},
-      {icon:'globe',  c:RD, t:'Standardize vs Adapt', d:'Standardize the idea, adapt the expression. Regulation and culture set the limits.'},
-    ]},
-
-  { type:'discussion',
-    title:'Discussion Questions',
-    questions:[
-      'Compare domestic communication with international communication. Explain why "noise" is more likely to occur in international communication processes.',
-      'Why do more companies not standardize advertising messages worldwide? Identify the environmental constraints that act as barriers to standardized global campaigns.',
-      'Evaluate the "percentage of sales" approach to setting advertising budgets in foreign markets.',
-      'Explain how personal selling may differ overseas from how it is used in the home market.',
-    ],
-    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
-
-  { type:'quiz_intro',
-    title:'Final Assessment',
-    subtitle:'10 questions · Global Marketing Chapter 17 · No time limit · Good luck 🎯' },
-
-  { type:'quiz',
-    questions:[
-      { q:'The six major international advertising decisions are…',
-        opts:['Objectives, budget, message, media, agency selection, evaluation.','Product, price, place, promotion, people, process.','Reach, frequency, GRPs, momentum, mix, timing.','Encoding, decoding, noise, feedback, channel, source.'],
-        correct:0 },
-      { q:'The percentage of sales budgeting method…',
-        opts:['Starts from objectives and costs the tasks to achieve them.','Guarantees maximum spending during declining sales.','Duplicates competitors\' spending.','Allocates a fixed proportion of sales to advertising — easy to justify, but based on history and blind to goals.'],
-        correct:3 },
-      { q:'Competitive parity budgeting means…',
-        opts:['Spending whatever is left after costs.','Matching last year\'s budget plus inflation.','Duplicating the amounts spent on advertising by major rivals.','Setting budget by government guidelines.'],
-        correct:2 },
-      { q:'"Reach" in media planning refers to…',
-        opts:['The total portion of the target market exposed to at least one ad in a given period.','The average number of exposures per customer.','The geographic size of the media market.','The cost per thousand impressions.'],
-        correct:0 },
-      { q:'"Frequency" refers to…',
-        opts:['How often the campaign changes creative.','The radio wavelength of the broadcast.','The number of media types used.','The average number of times each potential customer is exposed to the same ad in a time frame.'],
-        correct:3 },
-      { q:'Sales promotion is best defined as…',
-        opts:['A long-term brand image building effort.','A short-term effort directed at the consumer and/or retailer to achieve specific objectives such as product trial.','Any form of paid mass communication.','Press relations with trade media.'],
-        correct:1 },
-      { q:'Which list contains only PR methods?',
-        opts:['Coupons, samples, gifts.','Price discounts, competitions, catalogues.','Event sponsorship, press releases, lobbying.','Reach, frequency, GRPs.'],
-        correct:2 },
-      { q:'Viral marketing seeks to…',
-        opts:['Exploit existing social networks to produce exponential increases in brand awareness through online word-of-mouth.','Buy the cheapest TV slots available.','Replace the sales force with chatbots.','Send mass unsolicited email.'],
-        correct:0 },
-      { q:'The four steps of developing a viral campaign are…',
-        opts:['Plan, budget, launch, forget.','Hire agency, approve, pay, repeat.','Test, retest, launch, archive.','Create compelling content, target the right audience, seed the message, control and measure results.'],
-        correct:3 },
-      { q:'The main barriers to fully standardized global advertising include…',
-        opts:['Excessive creativity in local agencies.','Cultural differences, varying advertising regulations and media availability across countries.','The high cost of translation software.','The lack of global brands.'],
-        correct:1 },
+      {icon:'target', c:T,  t:'Benchmark',      d:'Score your brand vs 10+ rivals against a Gold Standard of 5s. The gap is your roadmap, the total is your scoreboard.'},
+      {icon:'trend',  c:BL, t:'CLV',            d:'Ticket × frequency × years × margin turns a customer into a peso figure — and sets how much you can spend to keep them.'},
+      {icon:'map',    c:AM, t:'Brand Funnel',   d:'Awareness → consideration → conversion → loyalty, each with a metric and a target. "Grow the brand" becomes four jobs.'},
+      {icon:'shuffle',c:RD, t:'Positioning',    d:'Plot rivals on the two axes customers care about and claim the white space nobody owns.'},
+      {icon:'cpu',    c:T2, t:'Mother Prompts', d:'Each tool ships with a copy-paste prompt for any free AI — it drafts, you verify.'},
     ]},
 
   { type:'closing',
-    title:'End of the Journey — For Now',
-    subtitle:'You\'ve covered the full arc: competitiveness, product, price, place and promotion.\nNext stop: applying all of it to real markets.',
-    quote:'"The aim of marketing is to know and understand the customer so well the product or service fits him and sells itself." — Peter Drucker' },
+    title:'Go Measure Something',
+    subtitle:'Pick one brand you know. Run one mother prompt tonight.\nBring a number to the next conversation instead of an opinion.',
+    quote:'"Half the money I spend on advertising is wasted; the trouble is I don\'t know which half." — John Wanamaker. These tools are how you finally find out.' },
 ];
+
 
 // ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
 
@@ -483,134 +396,157 @@ const ComparisonSlide = ({data}) => (
   </div>
 );
 
-const FlowBox = ({c,t,d}) => (
-  <div style={{flex:1,background:BG2,padding:V('14px 14px','12px 14px'),border:`1px solid ${c}35`,borderRadius:12,textAlign:'center'}}>
-    <div style={{fontSize:V(14,13),fontWeight:700,color:c,marginBottom:6}}>{t}</div>
-    <div style={{fontSize:V(11,10),color:G,lineHeight:1.5}}>{d}</div>
+const DBox = ({c,t,d,dashed}) => (
+  <div style={{background:BG2,border:`1px ${dashed?'dashed':'solid'} ${c}40`,borderRadius:12,padding:V('14px 18px','11px 13px'),flex:1}}>
+    <div style={{fontSize:V(15,13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:V(13,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
-const FlowArrow = () => (
-  <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,zIndex:5}}>
-    <div style={{background:BG,padding:'0 2px',transform:V('none','rotate(90deg)')}}>
-      <svg viewBox="0 0 24 24" fill="none" stroke={G} strokeWidth="1.5" strokeLinecap="round" width="18" height="18">
-        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-      </svg>
-    </div>
-  </div>
-);
-
-const CommProcessSlide = () => (
+const PorterDiamondSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 1"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The International Communication Process</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.2 — every arrow is a place where meaning can leak.</p>
-      <div style={{display:'flex',flexDirection:V('row','column'),gap:V(8,8),alignItems:'stretch',maxWidth:980,margin:'0 auto',width:'100%'}}>
-        <FlowBox c={T}  t="Sender" d="Firm + its field of experience"/>
-        <FlowArrow/>
-        <FlowBox c={BL} t="Encoding" d="Idea → message: words, images, symbols"/>
-        <FlowArrow/>
-        <FlowBox c={AM} t="Message & Media" d="The channel that carries it across the border"/>
-        <FlowArrow/>
-        <FlowBox c={BL} t="Decoding" d="Receiver interprets — with THEIR field of experience"/>
-        <FlowArrow/>
-        <FlowBox c={T}  t="Receiver" d="Customer in the foreign market"/>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(14,10),marginTop:V(18,12),maxWidth:980,margin:V('18px auto 0','12px auto 0')}}>
-        <div style={{background:`${RD}08`,border:`1px solid ${RD}30`,borderRadius:10,padding:V('12px 16px','10px 14px')}}>
-          <div style={{fontSize:V(12,11),fontWeight:700,color:RD,marginBottom:4}}>NOISE — EVERYWHERE</div>
-          <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>Language, culture, regulation, competing messages — international communication multiplies every source of distortion.</div>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Diamond — National Competitiveness</h2>
+      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Porter (1990) — The Competitive Advantage of Nations</p>
+      <div style={{display:'flex',flexDirection:'column',gap:V(12,10),maxWidth:880,margin:'0 auto',width:'100%'}}>
+        <DBox c={T} t="Firm Strategy, Structure & Rivalry" d="How companies are created, organized and managed — and the intensity of domestic rivalry that trains them for global battle"/>
+        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(12,10)}}>
+          <DBox c={BL} t="Factor Conditions" d="Climate · physical & technological infrastructure · natural resources · educational system · human resources · capital"/>
+          <DBox c={AM} t="Demand Conditions" d="Nature & size of home demand · economies of scale · transportation costs · buyer sophistication"/>
         </div>
-        <div style={{background:`${T}08`,border:`1px solid ${T}30`,borderRadius:10,padding:V('12px 16px','10px 14px')}}>
-          <div style={{fontSize:V(12,11),fontWeight:700,color:T,marginBottom:4}}>FEEDBACK — THE RETURN PATH</div>
-          <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>Sales, research, engagement: the only way to know what was actually decoded on the other side.</div>
+        <DBox c={T2} t="Related & Supporting Industries" d="Internationally competitive suppliers and clusters feeding the industry world-class inputs and knowledge"/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:V(12,10)}}>
+          <DBox c={RD} t="Chance" d="Discontinuities outside firms' control: inventions, wars, demand shifts" dashed/>
+          <DBox c={G} t="Government" d="Policy shapes all four corners: regulation, education, infrastructure" dashed/>
         </div>
       </div>
     </P>
   </div>
 );
 
-const BudgetMethodsSlide = () => {
-  const methods=[
-    {t:'Percentage of Sales', c:AM, d:'A fixed proportion of sales goes to advertising.', pro:'Easy to justify · guarantees affordability · equality among markets', con:'Based on history · ignores goals · cuts spending exactly when sales decline'},
-    {t:'Competitive Parity', c:RD, d:'Duplicate the amounts spent by major rivals.', pro:'Simple · keeps share-of-voice comparable', con:'Copies competitors whose objectives and situations differ from yours'},
-    {t:'Objective & Task', c:T, d:'Define objectives first, then cost the tasks needed to attain them.', pro:'Budget follows strategy · works in new markets with no sales history', con:'Demands real analysis — the hardest method to do honestly'},
-  ];
+const FFBox = ({c,t,d,center}) => (
+  <div style={{background:center?`${c}10`:BG2,border:`${center?2:1}px solid ${c}${center?'':'35'}`,borderRadius:12,padding:V('14px 16px','12px 14px'),textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+    <div style={{fontSize:V(center?17:15,center?15:13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+  </div>
+);
+
+const FiveForcesSlide = () => {
+  const boxes = {
+    entrants:   <FFBox c={AM} t="New Entrants" d="Threat depends on entry barriers: scale, brand, capital, switching costs, distribution access"/>,
+    suppliers:  <FFBox c={BL} t="Suppliers" d="Bargaining power squeezes margins from upstream"/>,
+    rivalry:    <FFBox c={T} center t="Intensity of Rivalry" d="Concentration · market growth · cost structure · differentiation · switching costs · exit barriers"/>,
+    buyers:     <FFBox c={BL} t="Buyers" d="Bargaining power squeezes margins from downstream"/>,
+    substitutes:<FFBox c={RD} t="Substitutes" d="Willingness to substitute · relative price & performance · switching costs"/>,
+  };
   return (
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 2"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Setting the Advertising Budget</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Three classic methods — only one of them starts from what the campaign must achieve.</p>
-        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(14,10),maxWidth:980,margin:'0 auto',width:'100%'}}>
-          {methods.map((m,i)=>(
-            <div key={i} style={{background:BG2,border:`1px solid ${m.c}35`,borderRadius:14,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-              <div style={{background:`${m.c}15`,padding:V('11px 16px','9px 14px'),fontSize:V(15,13),fontWeight:700,color:m.c}}>{m.t}</div>
-              <div style={{padding:V('13px 16px','10px 14px'),flex:1,display:'flex',flexDirection:'column',gap:7}}>
-                <div style={{fontSize:V(13,12),color:W,lineHeight:1.5}}>{m.d}</div>
-                <div style={{fontSize:V(11,10),color:T,lineHeight:1.5}}>+ {m.pro}</div>
-                <div style={{fontSize:V(11,10),color:RD,lineHeight:1.5}}>− {m.con}</div>
-              </div>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Five Forces — Industry Level</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>The structure of the industry decides the size of the profit pool — before any firm makes a move.</p>
+        {MOB ? (
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {boxes.entrants}{boxes.suppliers}{boxes.rivalry}{boxes.buyers}{boxes.substitutes}
+          </div>
+        ) : (
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1.3fr 1fr',gridTemplateRows:'auto auto auto',gap:14,maxWidth:920,margin:'0 auto',width:'100%'}}>
+            <div/>{boxes.entrants}<div/>
+            {boxes.suppliers}{boxes.rivalry}{boxes.buyers}
+            <div/>{boxes.substitutes}<div/>
+          </div>
+        )}
+      </P>
+    </div>
+  );
+};
+
+const TriBox = ({c,t,d}) => (
+  <div style={{background:BG2,border:`1px solid ${c}40`,borderRadius:14,padding:V('16px 22px','12px 14px'),textAlign:'center',minWidth:V(200,0),flex:V('none',1)}}>
+    <div style={{fontSize:V(16,14),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+  </div>
+);
+
+const CompetitiveTriangleSlide = () => (
+  <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <P>
+      <ModuleTag module="Module 3"/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Competitive Triangle</h2>
+      <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>A customer, the firm, and a competitor. Favour goes to whoever offers more perceived value per cost.</p>
+      <div style={{maxWidth:860,margin:'0 auto',width:'100%'}}>
+        <div style={{display:'flex',justifyContent:'center',marginBottom:V(10,8)}}>
+          <TriBox c={AM} t="THE CUSTOMER" d="Compares perceived value vs price across the alternatives"/>
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',margin:V('0 60px 10px','0 4px 8px'),fontSize:V(12,10),color:G,fontStyle:'italic'}}>
+          <div>↗ Perceived value / price A</div>
+          <div>Perceived value / price B ↖</div>
+        </div>
+        <div style={{display:'flex',flexDirection:V('row','column'),gap:V(14,10),alignItems:'stretch'}}>
+          <TriBox c={T} t="FIRM A" d="R&D → Production → Marketing → Sales & Service"/>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <div style={{background:`${RD}12`,border:`1px solid ${RD}35`,borderRadius:100,padding:'8px 18px',fontSize:V(12,11),fontWeight:700,color:RD,whiteSpace:'nowrap'}}>RELATIVE COSTS</div>
+          </div>
+          <TriBox c={BL} t="FIRM B" d="R&D → Production → Marketing → Sales & Service"/>
+        </div>
+        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(18,12),fontStyle:'italic',textAlign:'center'}}>Both firms run the same chain. Advantage = running it for MORE perceived value, or at LOWER relative cost.</p>
+      </div>
+    </P>
+  </div>
+);
+
+const CompetenceRootsSlide = () => {
+  const layers=[
+    {t:'PERFORMANCE',          d:'Market share, profit, growth — the visible result',                 c:T2, w:'52%'},
+    {t:'COMPETITIVE ADVANTAGE',d:'Higher perceived value or lower relative cost than rivals',        c:T,  w:'68%'},
+    {t:'CORE COMPETENCES',     d:'Value chain activities performed better than competitors',          c:BL, w:'84%'},
+    {t:'RESOURCES',            d:'Tangible assets (flexible, short term) + tacit knowledge (intangible, long term)', c:AM, w:'100%'},
+  ];
+  return (
+    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+      <P>
+        <ModuleTag module="Module 4"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Roots of Competitive Advantage</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>Source: adapted from Jüttner and Wehrli (1994) — performance grows from roots competitors can't see.</p>
+        <div style={{display:'flex',flexDirection:'column',gap:V(10,8),alignItems:'center'}}>
+          {layers.map((l,i)=>(
+            <div key={i} style={{width:V(l.w,'100%'),background:BG2,border:`1px solid ${l.c}40`,borderRadius:12,padding:V('13px 20px','11px 14px'),textAlign:'center'}}>
+              <div style={{fontSize:V(14,12),fontWeight:700,color:l.c,letterSpacing:1,marginBottom:4}}>{l.t}</div>
+              <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{l.d}</div>
             </div>
           ))}
+          <div style={{display:'flex',gap:10,marginTop:V(8,4),fontSize:V(12,10),color:`${G}90`,fontStyle:'italic',flexWrap:'wrap',justifyContent:'center'}}>
+            <span>↑ The pyramid is read bottom-up: resources feed competences, competences feed advantage, advantage feeds performance.</span>
+          </div>
         </div>
       </P>
     </div>
   );
 };
 
-const BuyingFunnelSlide = () => {
-  const stages=[
-    {t:'Awareness',          tool:'Mass media',                          c:BL},
-    {t:'Need identification',tool:'Mass media · online',                 c:BL},
-    {t:'Information evaluation', tool:'Direct & personal selling · online marketing', c:AM},
-    {t:'Choice',             tool:'POS · in-store promotion',            c:T},
-    {t:'Transaction',        tool:'POS · online checkout',               c:T2},
+const FourActionsSlide = () => {
+  const acts=[
+    {t:'ELIMINATE',c:RD, q:'Which factors the industry takes for granted should be eliminated?', a:'Airbnb: property ownership · front desks'},
+    {t:'REDUCE',   c:AM, q:'Which factors should be reduced well below the industry standard?',  a:'Airbnb: cost to travelers · real-estate capital'},
+    {t:'RAISE',    c:BL, q:'Which factors should be raised well above the industry standard?',   a:'Airbnb: variety of stays · local authenticity'},
+    {t:'CREATE',   c:T,  q:'Which new factors, never offered by the industry, should be created?',a:'Airbnb: trust layer — reviews · verified hosts · secure payments'},
   ];
   return (
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
-        <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Communication Along the Buying Process</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.5 — each stage of the customer journey answers to a different tool.</p>
-        <div style={{display:'flex',flexDirection:'column',gap:V(10,8),maxWidth:880,margin:'0 auto',width:'100%'}}>
-          {stages.map((s,i)=>(
-            <div key={i} style={{display:'flex',gap:V(14,10),alignItems:'center'}}>
-              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(15,12),fontWeight:900,color:s.c,minWidth:V(190,120)}}>{i+1}. {s.t}</div>
-              <div style={{flex:1,background:BG2,border:`1px solid ${s.c}30`,borderRadius:10,padding:V('10px 16px','9px 12px'),fontSize:V(13,11),color:G}}>{s.tool}</div>
-            </div>
-          ))}
-        </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>The internet runs through every stage — it's the only medium present from first awareness to final transaction.</p>
-      </P>
-    </div>
-  );
-};
-
-const ViralStepsSlide = () => {
-  const steps=[
-    {t:'Create compelling content', c:T,  d:'Something worth sharing: surprising, useful, funny or remarkable'},
-    {t:'Target the right audience', c:BL, d:'Find the communities whose passion matches the content'},
-    {t:'Seed the message',          c:AM, d:'Place it where the first sharers will find it'},
-    {t:'Control & measure results', c:RD, d:'Track spread, engagement and sales — and feed the next wave'},
-  ];
-  return (
-    <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
-      <P>
-        <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Developing a Viral Campaign</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Four steps — the audience does the distribution, but the marketer builds the machine.</p>
-        <div style={{display:'flex',flexDirection:V('row','column'),gap:0,alignItems:'stretch',maxWidth:980,margin:'0 auto',width:'100%'}}>
-          {steps.map((s,i)=>(
-            <React.Fragment key={i}>
-              <div style={{flex:1,background:BG2,padding:V('16px 14px','12px 14px'),border:`1px solid ${s.c}35`,borderRadius:V(i===0?'12px 0 0 12px':i===3?'0 12px 12px 0':'0',i===0?'12px 12px 0 0':i===3?'0 0 12px 12px':'0'),textAlign:'center'}}>
-                <div style={{fontFamily:"'Fraunces',serif",fontSize:V(24,18),fontWeight:900,color:s.c,marginBottom:6}}>{i+1}</div>
-                <div style={{fontSize:V(13,12),fontWeight:700,color:s.c,marginBottom:6}}>{s.t}</div>
-                <div style={{fontSize:V(11,10),color:G,lineHeight:1.5}}>{s.d}</div>
+        <ModuleTag module="Module 5"/>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Four Actions Framework</h2>
+        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
+        <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(16,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
+          {acts.map((a,i)=>(
+            <div key={i} style={{background:BG2,border:`1px solid ${a.c}35`,borderRadius:14,overflow:'hidden'}}>
+              <div style={{background:`${a.c}15`,padding:V('10px 18px','9px 14px'),fontSize:V(14,12),fontWeight:700,color:a.c,letterSpacing:2}}>{a.t}</div>
+              <div style={{padding:V('14px 18px','11px 14px')}}>
+                <div style={{fontSize:V(14,12),color:W,lineHeight:1.55,marginBottom:8}}>{a.q}</div>
+                <div style={{fontSize:V(12,11),color:a.c,fontStyle:'italic'}}>→ {a.a}</div>
               </div>
-              {i<3&&<FlowArrow/>}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </P>
@@ -782,6 +718,30 @@ const QuizSlide = ({data,onFinish}) => {
   );
 };
 
+const PromptSlide = ({data}) => {
+  const c = data.color || T;
+  const [copied,setCopied] = useState(false);
+  const copy = () => {
+    try { navigator.clipboard.writeText(data.prompt).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),1600);}); }
+    catch(e){ setCopied(true); setTimeout(()=>setCopied(false),1600); }
+  };
+  return (
+  <div style={SR({padding:V('0 80px','28px 18px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
+    <div className="bg-art"><BgGlobe opacity={.035}/></div>
+    <P>
+      <ModuleTag module={data.tool} color={c}/>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(38,25),color:W,margin:'0 0 10px',lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:V(17,13.5),lineHeight:1.6,color:G,margin:'0 0 18px',maxWidth:900}}>{data.intro}</p>
+      <div style={{position:'relative',background:'#0a0d12',border:`1px solid ${c}45`,borderLeft:`4px solid ${c}`,borderRadius:10,padding:V('22px 24px','16px 14px'),maxHeight:V('44vh','46vh'),overflowY:'auto'}}>
+        <button onClick={copy} style={{position:'absolute',top:12,right:12,background:c,color:'#08120c',border:'none',borderRadius:7,padding:'7px 15px',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",zIndex:3}}>{copied?'Copied ✓':'Copy'}</button>
+        <pre style={{margin:0,whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:"'Courier New',ui-monospace,monospace",fontSize:V(14.5,11.5),lineHeight:1.62,color:'#d8e4d2',paddingRight:V(64,52)}}>{data.prompt}</pre>
+      </div>
+      {data.output&&<div style={{marginTop:14,fontSize:V(15,12.5),color:c,display:'flex',gap:10,alignItems:'flex-start'}}><div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(c)}</div>{data.output}</div>}
+    </P>
+  </div>
+  );
+};
+
 const ClosingSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V('0 120px','48px 24px'),textAlign:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.06}/></div>
@@ -853,22 +813,24 @@ function App(){
       case 'concept':          return <ConceptSlide data={s}/>;
       case 'case':             return <CaseSlide data={s}/>;
       case 'comparison':       return <ComparisonSlide data={s}/>;
-      case 'comm_process':     return <CommProcessSlide/>;
-      case 'budget_methods':   return <BudgetMethodsSlide/>;
-      case 'buying_funnel':    return <BuyingFunnelSlide/>;
-      case 'viral_steps':      return <ViralStepsSlide/>;
+      case 'porter_diamond':   return <PorterDiamondSlide/>;
+      case 'five_forces':      return <FiveForcesSlide/>;
+      case 'competitive_triangle': return <CompetitiveTriangleSlide/>;
+      case 'competence_roots': return <CompetenceRootsSlide/>;
+      case 'four_actions':     return <FourActionsSlide/>;
       case 'takeaways':        return <TakeawaysSlide data={s}/>;
       case 'discussion':       return <DiscussionSlide data={s}/>;
       case 'exercise':         return <ExerciseSlide key={cur} data={s}/>;
       case 'quiz_intro':       return <QuizIntroSlide data={s} onStart={next}/>;
       case 'quiz':             return <QuizSlide key={cur} data={s} onFinish={()=>{setQuizDone(true);next();}}/>;
       case 'closing':          return <ClosingSlide data={s}/>;
+      case 'prompt':           return <PromptSlide data={s}/>;
       default:                 return <TitleSlide data={s}/>;
     }
   };
 
   // Module color based on current slide
-  const moduleColors = [T,T,T,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,T,T,T,T,T,BL,BL,BL,BL,BL,BL,AM,AM,AM,AM,T,T,T,T,T,T];
+  const moduleColors = [T,T,T,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,T,T,T,T,T,T,BL,BL,BL,BL,BL,AM,AM,AM,AM,AM,AM,T,T,T,T,T,T];
   const accentColor = moduleColors[cur]||T;
 
   return(
@@ -884,12 +846,12 @@ function App(){
         <div style={{display:'flex',alignItems:'center',gap:14}}>
           {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
             <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
-            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 17</div>
+            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Toolkit</div>
           </div>}
           {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
           </button>}
-          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.17</div>}
+          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.4</div>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
           <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>

@@ -302,32 +302,32 @@ const SLIDES = [
   { type:'quiz',
     questions:[
       { q:'The four first principles of marketing strategy are…',
-        opts:['Product, price, place, promotion.','All customers differ, all customers change, all competitors react, all resources are limited.','Segment, target, position, control.','Plan, do, check, act.'],
-        correct:1 },
+        opts:['All customers differ, all customers change, all competitors react, all resources are limited.','Product, price, place, promotion.','Segment, target, position, control.','Plan, do, check, act.'],
+        correct:0 },
       { q:'Marketing strategy is defined as decisions and actions focused on…',
-        opts:['Maximizing quarterly revenue at any cost.','Building a sustainable differential advantage, relative to competitors, in the minds of customers, to create value for stakeholders.','Copying the market leader as fast as possible.','Minimizing the marketing budget.'],
-        correct:1 },
+        opts:['Maximizing quarterly revenue at any cost.','Minimizing the marketing budget.','Copying the market leader as fast as possible.','Building a sustainable differential advantage, relative to competitors, in the minds of customers, to create value for stakeholders.'],
+        correct:3 },
       { q:'What did marketers add to the strategy concept in the 1990s?',
-        opts:['The need for sustainability.','The customer\'s perspective as the decisive unit of analysis.','The objective of enhancing firm performance.','The military origin of strategy.'],
-        correct:1 },
+        opts:['The need for sustainability.','The objective of enhancing firm performance.','The customer\'s perspective as the decisive unit of analysis.','The military origin of strategy.'],
+        correct:2 },
       { q:'MP#1 (all customers differ) explains which long-term trend?',
-        opts:['Mass marketing replacing niche marketing.','The race from mass marketing to niche marketing to one-to-one marketing.','The elimination of product variety.','Customers becoming more similar over time.'],
-        correct:1 },
+        opts:['The race from mass marketing to niche marketing to one-to-one marketing.','Mass marketing replacing niche marketing.','The elimination of product variety.','Customers becoming more similar over time.'],
+        correct:0 },
       { q:'Customer dynamics (MP#2) are driven by…',
-        opts:['Inherent differences between people only.','Lifecycle changes, trigger events (marriage, kids, job change) and industry/market evolution.','Government regulation only.','Random noise that cannot be managed.'],
-        correct:1 },
+        opts:['Inherent differences between people only.','Random noise that cannot be managed.','Government regulation only.','Lifecycle changes, trigger events (marriage, kids, job change) and industry/market evolution.'],
+        correct:3 },
       { q:'The three conditions for a sustainable competitive advantage are…',
         opts:['Cheap, fast, global.','Customers care, the company does it better than competitors, and it is hard to duplicate.','Patented, advertised, discounted.','New, digital, scalable.'],
         correct:1 },
       { q:'BOR strategies stand for…',
-        opts:['Budget, Operations, Revenue.','Brand, Offering, Relationship — the three engines for building SCAs.','Buy, Own, Rent.','Branding, Outsourcing, Retailing.'],
-        correct:1 },
+        opts:['Budget, Operations, Revenue.','Buy, Own, Rent.','Brand, Offering, Relationship — the three engines for building SCAs.','Branding, Outsourcing, Retailing.'],
+        correct:2 },
       { q:'AER strategies refer to…',
-        opts:['Advertising, Email, Retargeting.','Acquisition, Expansion, Retention — managing customers across their lifecycle.','Analysis, Execution, Review.','Assets, Equity, Revenue.'],
-        correct:1 },
+        opts:['Acquisition, Expansion, Retention — managing customers across their lifecycle.','Advertising, Email, Retargeting.','Analysis, Execution, Review.','Assets, Equity, Revenue.'],
+        correct:0 },
       { q:'The outputs of the resource trade-off framework (MP#4) are…',
-        opts:['Positioning statements and future trends.','Marketing metrics, and plans & budgets.','New products and patents.','Mission and vision statements.'],
-        correct:1 },
+        opts:['Positioning statements and future trends.','Mission and vision statements.','New products and patents.','Marketing metrics, and plans & budgets.'],
+        correct:3 },
       { q:'Why does "what works for one firm" often fail at another?',
         opts:['Because managers lack motivation.','Because customers, lifecycle stage, competitive situation and resources all differ between firms.','Because marketing tools are unreliable.','Because strategy is random.'],
         correct:1 },
@@ -906,5 +906,11 @@ function App(){
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
 </script>
+<style>
+html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+#pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+#pmode:hover{background:rgba(127,127,127,.32);}
+</style>
+<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
 </body>
 </html>
