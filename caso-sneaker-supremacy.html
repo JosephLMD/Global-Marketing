@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Case · Sneaker Supremacy: Nike vs Adidas · Global Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── colores. Los siete de las tarjetas están comprobados: todos pasan
+      4.5:1 con texto blanco encima y como texto sobre blanco. ── */
+:root{
+  --tinta:#16181D; --papel:#FFFFFF; --hueso:#F7F7F4; --gris:#5A616B;
+  --linea:#E3E3DE;
+  --c1:#C43B08;  /* empieza aquí   */
+  --c2:#1864AB;  /* la historia    */
+  --c3:#237032;  /* cómo piensan   */
+  --c4:#5F3DC4;  /* los campos     */
+  --c5:#A61E4D;  /* lo que viene   */
+  --c6:#212529;  /* las preguntas  */
+  --c7:#0B7285;  /* la rúbrica     */
+  --nike:#111111; --adi:#1864AB;
+  --sombra:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth; scroll-padding-top:74px}
+body{font-family:'Manrope',system-ui,-apple-system,sans-serif;color:var(--tinta);
+  background:var(--hueso);line-height:1.62;font-size:17px;-webkit-text-size-adjust:100%}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px}
+
+/* ── barra superior ── */
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.bar{max-width:940px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px}
+.bar .tag{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--c1)}
+.bar .tt{font-weight:800;font-size:15px;letter-spacing:-.3px}
+.bar .sp{margin-left:auto;font-size:13px;color:var(--gris);font-weight:600}
+@media(max-width:620px){.bar .sp{display:none}}
+
+/* ── portada ── */
+.hero{background:var(--tinta);color:#fff;padding:64px 0 56px}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;
+  color:#FF8B5E;margin-bottom:16px}
+.hero h1{font-size:clamp(30px,6vw,50px);line-height:1.1;letter-spacing:-1.6px;font-weight:800;
+  margin-bottom:18px}
+.hero p{font-size:clamp(16px,2.3vw,20px);color:#C9CCD3;max-width:60ch;line-height:1.55}
+.hero .meta{margin-top:26px;font-size:13.5px;color:#8A9099}
+.hero .meta a{color:#C9CCD3}
+
+/* ── índice de tarjetas de colores ── */
+.idx{padding:38px 0 10px}
+.idx h2{font-size:14px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--gris);margin-bottom:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:13px}
+.card{display:block;text-decoration:none;color:#fff;border-radius:15px;padding:19px 20px 17px;
+  box-shadow:var(--sombra);transition:transform .13s ease, box-shadow .13s ease;
+  min-height:118px;display:flex;flex-direction:column}
+.card:hover,.card:focus-visible{transform:translateY(-3px);
+  box-shadow:0 3px 8px rgba(0,0,0,.08),0 14px 32px rgba(0,0,0,.14);outline:none}
+.card .n{font-size:11.5px;font-weight:800;letter-spacing:1.5px;opacity:.82;margin-bottom:7px}
+.card .t{font-size:19.5px;font-weight:800;letter-spacing:-.5px;line-height:1.2;margin-bottom:5px}
+.card .d{font-size:13.5px;line-height:1.45;opacity:.9;font-weight:500;margin-top:auto}
+.c1{background:var(--c1)} .c2{background:var(--c2)} .c3{background:var(--c3)}
+.c4{background:var(--c4)} .c5{background:var(--c5)} .c6{background:var(--c6)}
+.c7{background:var(--c7)}
+
+/* ── secciones ── */
+section{padding:44px 0 8px;scroll-margin-top:74px}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.chip{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:#fff;padding:5px 11px;border-radius:100px}
+h2.st{font-size:clamp(24px,4.2vw,34px);letter-spacing:-1px;font-weight:800;line-height:1.15;
+  margin:6px 0 14px}
+.lead{font-size:18.5px;color:#3A4049;max-width:66ch;margin-bottom:18px;line-height:1.6}
+p{margin-bottom:15px;max-width:70ch}
+h3{font-size:20px;font-weight:800;letter-spacing:-.4px;margin:26px 0 9px}
+strong{font-weight:700}
+
+/* ── caja de "palabras que vas a necesitar" ── */
+.voc{background:#fff;border:1px solid var(--linea);border-radius:15px;padding:20px 22px;
+  margin:22px 0;box-shadow:var(--sombra)}
+.voc h4{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--c1);margin-bottom:13px}
+.voc dl{display:grid;grid-template-columns:1fr;gap:11px}
+@media(min-width:680px){.voc dl{grid-template-columns:1fr 1fr;gap:11px 26px}}
+.voc dt{font-weight:800;font-size:15px}
+.voc dd{font-size:14.5px;color:#454C56;line-height:1.5}
+
+/* ── datos grandes ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:17px 18px;
+  box-shadow:var(--sombra)}
+.stat .v{font-size:29px;font-weight:800;letter-spacing:-1.1px;line-height:1.05}
+.stat .l{font-size:13px;color:var(--gris);margin-top:5px;line-height:1.4;font-weight:500}
+
+/* ── línea de tiempo ── */
+.tl{position:relative;margin:24px 0 8px;padding-left:30px}
+.tl::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2.5px;
+  background:linear-gradient(var(--c2),#BBD4EC);border-radius:2px}
+.ev{position:relative;margin-bottom:19px}
+.ev::before{content:'';position:absolute;left:-29px;top:5px;width:12px;height:12px;
+  border-radius:50%;background:var(--c2);border:2.5px solid #fff;
+  box-shadow:0 0 0 2px var(--c2)}
+.ev.nike::before{background:var(--nike);box-shadow:0 0 0 2px var(--nike)}
+.ev .y{font-size:13px;font-weight:800;color:var(--c2);letter-spacing:.4px}
+.ev.nike .y{color:var(--nike)}
+.ev .h{font-weight:800;font-size:16.5px;margin:1px 0 2px;letter-spacing:-.3px}
+.ev .p{font-size:15px;color:#454C56;line-height:1.5;max-width:62ch}
+
+/* ── dos marcas enfrentadas ── */
+.vs{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0}
+@media(min-width:720px){.vs{grid-template-columns:1fr 1fr}}
+.brand{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;
+  box-shadow:var(--sombra)}
+.brand .top{padding:17px 20px;color:#fff}
+.brand.n .top{background:var(--nike)}
+.brand.a .top{background:var(--adi)}
+.brand .top .nm{font-size:25px;font-weight:800;letter-spacing:-.8px}
+.brand .top .sub{font-size:13.5px;opacity:.88;font-weight:600;margin-top:2px}
+.brand .body{padding:17px 20px 19px}
+.brand ul{list-style:none}
+.brand li{font-size:15px;line-height:1.5;padding-left:19px;position:relative;margin-bottom:10px;
+  color:#333A44}
+.brand li::before{content:'';position:absolute;left:0;top:8px;width:7px;height:7px;
+  border-radius:50%;background:var(--linea)}
+.brand.n li::before{background:var(--nike)}
+.brand.a li::before{background:var(--adi)}
+
+/* ── cita ── */
+blockquote{background:#fff;border:1px solid var(--linea);border-left:none;border-radius:14px;
+  padding:19px 22px;margin:22px 0;box-shadow:var(--sombra)}
+blockquote p{font-size:18px;line-height:1.5;font-weight:600;margin-bottom:9px;color:#22262C}
+blockquote cite{font-size:13.5px;color:var(--gris);font-style:normal;font-weight:600}
+
+/* ── campos de batalla ── */
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;margin:20px 0}
+.field{background:#fff;border:1px solid var(--linea);border-radius:15px;padding:18px 19px;
+  box-shadow:var(--sombra)}
+.field .ic{width:36px;height:36px;border-radius:10px;background:var(--c4);display:flex;
+  align-items:center;justify-content:center;margin-bottom:11px}
+.field .ic svg{width:19px;height:19px;stroke:#fff;fill:none;stroke-width:2.1;
+  stroke-linecap:round;stroke-linejoin:round}
+.field h4{font-size:17px;font-weight:800;letter-spacing:-.35px;margin-bottom:6px}
+.field p{font-size:14.5px;color:#454C56;line-height:1.5;margin:0}
+.field .who{margin-top:11px;font-size:13px;font-weight:700;color:var(--c4)}
+
+/* ── preguntas ── */
+.q{background:var(--c6);color:#fff;border-radius:17px;padding:24px 26px;margin:16px 0}
+.q .qn{display:inline-flex;align-items:center;justify-content:center;width:33px;height:33px;
+  border-radius:50%;background:#FF8B5E;color:#16181D;font-weight:800;font-size:17px;
+  margin-bottom:12px}
+.q .qt{font-size:clamp(18px,3vw,23px);font-weight:700;line-height:1.35;margin-bottom:13px;
+  letter-spacing:-.4px}
+.q .qh{font-size:14.5px;color:#C9CCD3;line-height:1.55}
+.q .qh b{color:#FF8B5E;font-weight:700}
+
+/* ── pasos ── */
+.steps{counter-reset:s;margin:20px 0}
+.step{display:flex;gap:15px;margin-bottom:15px;background:#fff;border:1px solid var(--linea);
+  border-radius:14px;padding:16px 18px;box-shadow:var(--sombra)}
+.step .sn{counter-increment:s;flex:none;width:31px;height:31px;border-radius:50%;
+  background:var(--c6);color:#fff;font-weight:800;font-size:15px;display:flex;
+  align-items:center;justify-content:center}
+.step .sn::before{content:counter(s)}
+.step h4{font-size:16.5px;font-weight:800;margin-bottom:3px;letter-spacing:-.3px}
+.step p{font-size:14.5px;color:#454C56;margin:0;line-height:1.5}
+
+/* ── rúbrica ── */
+.rub{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;
+  margin:20px 0;box-shadow:var(--sombra)}
+.rr{display:grid;grid-template-columns:1fr;border-top:1px solid var(--linea)}
+@media(min-width:720px){.rr{grid-template-columns:200px 1fr}}
+.rr:first-child{border-top:none}
+.rr .rl{padding:17px 20px;background:#FAFAF8;border-bottom:1px solid var(--linea)}
+@media(min-width:720px){.rr .rl{border-bottom:none;border-right:1px solid var(--linea)}}
+.rr .pct{font-size:31px;font-weight:800;color:var(--c7);letter-spacing:-1.2px;line-height:1}
+.rr .rn{font-size:16px;font-weight:800;margin-top:3px;letter-spacing:-.3px}
+.rr .rb{padding:17px 20px}
+.rr .rb .desc{font-size:15px;color:#333A44;margin-bottom:12px;line-height:1.5}
+.scale{display:grid;gap:6px}
+.sc{display:flex;gap:10px;font-size:13.5px;line-height:1.45;align-items:baseline}
+.sc .num{flex:none;width:21px;height:21px;border-radius:6px;background:#EEF1F3;
+  font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;
+  color:#333A44}
+.sc.top .num{background:var(--c7);color:#fff}
+.sc .tx{color:#454C56}
+
+/* ── aviso ── */
+.note{background:#FFF6EC;border:1px solid #F5D6B3;border-radius:14px;padding:17px 20px;
+  margin:20px 0;font-size:15px;line-height:1.55;color:#5A3A12}
+.note b{color:#43290A}
+
+/* ── fuentes ── */
+.src{margin:30px 0 0;padding:20px 0 40px;border-top:1px solid var(--linea);
+  font-size:13.5px;color:var(--gris);line-height:1.6}
+.src a{color:var(--c2)}
+.src p{max-width:none}
+
+.top-link{display:inline-block;margin:22px 0 0;font-size:13.5px;font-weight:700;
+  color:var(--gris);text-decoration:none}
+.top-link:hover{color:var(--tinta)}
+
+/* ── peso al lado del título de la pregunta ── */
+.q .qw{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:1.1px;
+  text-transform:uppercase;background:#FF8B5E;color:#16181D;padding:4px 10px;
+  border-radius:100px;vertical-align:middle;margin-left:10px}
+.q .qlist{list-style:none;margin:13px 0 0}
+.q .qlist li{font-size:15.5px;line-height:1.5;color:#D5D8DE;padding-left:20px;
+  position:relative;margin-bottom:8px}
+.q .qlist li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;
+  border-radius:50%;background:#FF8B5E}
+.q .qlist li b{color:#fff}
+
+/* ── las tres partes de la pregunta 2 ── */
+.qparts{display:grid;grid-template-columns:1fr;gap:11px;margin-top:16px}
+@media(min-width:760px){.qparts{grid-template-columns:repeat(3,1fr)}}
+.qpart{background:#2A2E34;border-radius:12px;padding:15px 16px}
+.qpn{font-size:15.5px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
+.qpn span{float:right;font-size:13px;font-weight:800;color:#FF8B5E}
+.qpart p{font-size:14px;color:#C3C7CE;line-height:1.5;margin:0 0 7px;max-width:none}
+.qpart ul{list-style:none;margin:0}
+.qpart li{font-size:13.8px;color:#C3C7CE;line-height:1.45;margin-bottom:5px;padding-left:13px;
+  position:relative}
+.qpart li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;
+  border-radius:50%;background:#6B717A}
+.qpart li b{color:#fff;font-weight:700}
+
+/* ── el diagrama del flujo ── */
+.flow{display:flex;flex-direction:column;align-items:center;gap:5px;margin:22px 0 12px}
+.fstep{background:#fff;border:1.5px solid var(--c6);border-radius:100px;padding:9px 22px;
+  font-size:15px;font-weight:800;letter-spacing:-.2px;text-align:center;
+  box-shadow:var(--sombra)}
+.fstep.last{background:var(--c6);color:#fff}
+.farrow{color:var(--gris);font-size:15px;line-height:1}
+
+/* ── la pregunta clave ── */
+.keyq{background:#FFF6EC;border:1.5px solid #F0C48A;border-radius:16px;padding:20px 23px;
+  margin:22px 0}
+.keyq .kl{font-size:11.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:#8A5A12;margin-bottom:9px}
+.keyq .kt{font-size:19px;font-weight:800;line-height:1.35;color:#43290A;letter-spacing:-.4px;
+  margin-bottom:10px}
+.keyq .kn{font-size:14.5px;line-height:1.55;color:#5A3A12}
+.keyq .kn b{color:#43290A}
+
+/* ── las dos mitades de la nota ── */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 6px}
+.half{background:#fff;border:1px solid var(--linea);border-radius:15px;padding:18px 20px;
+  box-shadow:var(--sombra)}
+.half .hp{font-size:38px;font-weight:800;color:var(--c7);letter-spacing:-1.6px;line-height:1}
+.half .hn{font-size:16.5px;font-weight:800;margin-top:5px;letter-spacing:-.3px}
+.half .hd{font-size:14px;color:var(--gris);margin-top:1px}
+
+/* ── tabla de pesos ── */
+.wt{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--linea);
+  border-radius:15px;overflow:hidden;margin:16px 0;box-shadow:var(--sombra);font-size:15px}
+.wt th{background:#FAFAF8;text-align:left;padding:12px 18px;font-size:12.5px;font-weight:800;
+  letter-spacing:.7px;text-transform:uppercase;color:var(--gris);
+  border-bottom:1px solid var(--linea)}
+.wt th:not(:first-child),.wt td:not(:first-child){text-align:right;width:120px}
+.wt td{padding:12px 18px;border-bottom:1px solid var(--linea)}
+.wt tr:last-child td{border-bottom:none}
+.wt tr.big td{background:#FFF6EC;font-weight:800}
+.wt tr.tot td{font-weight:800;background:#FAFAF8}
+@media(max-width:560px){.wt th:not(:first-child),.wt td:not(:first-child){width:74px}
+  .wt{font-size:13.5px} .wt th,.wt td{padding:10px 12px}}
+
+/* ── enlace de cada hito de la historia ── */
+.ev .lk{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:13px;
+  font-weight:700;color:var(--c2);text-decoration:none;border-bottom:1.5px solid #C5DBEF;
+  padding-bottom:1px}
+.ev .lk:hover{border-bottom-color:var(--c2)}
+.ev.nike .lk{color:#1F2429;border-bottom-color:#CFD3D8}
+.ev.nike .lk:hover{border-bottom-color:#1F2429}
+.ev .lk::after{content:'↗';font-size:11px;opacity:.7}
+
+/* ── sección de recursos ── */
+.res{display:grid;grid-template-columns:1fr;gap:11px;margin:20px 0}
+@media(min-width:680px){.res{grid-template-columns:1fr 1fr}}
+.rcard{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px 18px;
+  box-shadow:var(--sombra);text-decoration:none;color:inherit;display:block;
+  transition:transform .12s ease,box-shadow .12s ease}
+.rcard:hover{transform:translateY(-2px);
+  box-shadow:0 3px 8px rgba(0,0,0,.07),0 12px 26px rgba(0,0,0,.1)}
+.rcard .rb2{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1.1px;
+  text-transform:uppercase;padding:3px 9px;border-radius:100px;margin-bottom:8px}
+.rcard .rb2.nk{background:#E9EAEC;color:#1F2429}
+.rcard .rb2.ad{background:#E3EDF8;color:#12507F}
+.rcard .rb2.bo{background:#F0EAFB;color:#4A2FA0}
+.rcard h4{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px;line-height:1.3}
+.rcard p{font-size:13.5px;color:#525963;line-height:1.45;margin:0;max-width:none}
+.rcard .yr{font-size:12px;color:var(--gris);font-weight:700;margin-top:7px}
+
+@media print{
+  header{position:static} .card{break-inside:avoid} .hero{background:#16181D !important;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff;font-size:11pt} section{padding:18px 0 4px}
+  a{text-decoration:none;color:inherit}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <span class="tag">Activity 1</span>
+    <span class="tt">Nike vs Adidas</span>
+    <span class="sp">Global Marketing · Case for analysis</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="k">Case for analysis</div>
+    <h1>Sneaker supremacy:<br>Nike and Adidas battle for brand love</h1>
+    <p>Two companies have been fighting for almost 60 years over the same customers,
+       with almost the same products. One of them keeps winning. This case is about
+       <b>why</b>, and it is not because of the shoes.</p>
+    <div class="meta">Based on the Marketing Dive article by Natalie Black (Koltun),
+       10 May 2022 · Read the whole thing
+       <a href="https://www.marketingdive.com/news/sneaker-supremacy-nike-adidas-brand-rivalry/621712/"
+          target="_blank" rel="noopener">here</a>.</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ═══ ÍNDICE ═══ -->
+  <div class="idx">
+    <h2>Pick a section</h2>
+    <div class="cards">
+      <a class="card c1" href="#start">
+        <div class="n">01</div><div class="t">Start here</div>
+        <div class="d">What this is and what you have to hand in.</div></a>
+      <a class="card c2" href="#story">
+        <div class="n">02</div><div class="t">The story</div>
+        <div class="d">From two German brothers to a $310 billion market.</div></a>
+      <a class="card c3" href="#think">
+        <div class="n">03</div><div class="t">How each brand thinks</div>
+        <div class="d">The hero versus the lifestyle. Two different bets.</div></a>
+      <a class="card c4" href="#fields">
+        <div class="n">04</div><div class="t">Where they fight</div>
+        <div class="d">Athletes, football, collabs, values, the metaverse.</div></a>
+      <a class="card c5" href="#next">
+        <div class="n">05</div><div class="t">What comes next</div>
+        <div class="d">Gen Z, smaller rivals, and getting local.</div></a>
+      <a class="card c5" href="#deeper" style="background:#7A1638">
+        <div class="n">EXTRA</div><div class="t">Go deeper</div>
+        <div class="d">Real campaigns you can use as evidence.</div></a>
+      <a class="card c6" href="#questions">
+        <div class="n">06</div><div class="t">The delivery</div>
+        <div class="d">The two questions and what to hand in.</div></a>
+      <a class="card c7" href="#rubric">
+        <div class="n">07</div><div class="t">How you are graded</div>
+        <div class="d">The rubric, in full. No surprises.</div></a>
+    </div>
+  </div>
+
+  <!-- ═══ 01 ═══ -->
+  <section id="start">
+    <div class="sh"><span class="chip" style="background:var(--c1)">01 · Start here</span></div>
+    <h2 class="st">Start here</h2>
+    <p class="lead">Nike and Adidas sell very similar things: shoes, shirts, tracksuits.
+      If products were all that mattered, the two companies would be roughly the same size.
+      They are not. That gap was built with marketing, and this case is about how.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="v">$310bn</div><div class="l">Size of the global sporting goods market</div></div>
+      <div class="stat"><div class="v">~60 years</div><div class="l">How long the rivalry has run</div></div>
+      <div class="stat"><div class="v">1924</div><div class="l">Year Adidas's story starts, in Germany</div></div>
+      <div class="stat"><div class="v">1964</div><div class="l">Year Nike's story starts, in Oregon</div></div>
+    </div>
+
+    <div class="voc">
+      <h4>Words you will need</h4>
+      <dl>
+        <dt>Brand love</dt>
+        <dd>When people feel something for a brand, not just buy it. Hard to measure, very hard to copy.</dd>
+        <dt>Positioning</dt>
+        <dd>The place a brand tries to occupy in your head. "The hero." "The cool lifestyle one."</dd>
+        <dt>Endorsement</dt>
+        <dd>Paying an athlete or celebrity to wear and represent your brand.</dd>
+        <dt>Collaboration (collab)</dt>
+        <dd>A limited product made with an outside designer, musician or brand, to borrow their audience.</dd>
+        <dt>Purpose marketing</dt>
+        <dd>Building the brand around a value or a cause, not around the product.</dd>
+        <dt>Benchmark</dt>
+        <dd>Putting two companies side by side on the same criteria, so the comparison is fair.</dd>
+      </dl>
+    </div>
+
+    <h3>What you have to do</h3>
+    <div class="steps">
+      <div class="step"><div class="sn"></div><div>
+        <h4>Read the case</h4>
+        <p>Sections 02 to 05. It is a story, so read it like one. You can open the original
+           article too, but everything you need is here.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Build the Benchmark</h4>
+        <p>Put Nike and Adidas side by side, globally <b>and locally</b>. Use it to find one
+           target audience or market where Adidas has an opportunity, and say why. That is
+           Question 1, worth 50%.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Create the Adidas campaign</h4>
+        <p>From that same opportunity: a campaign name, a brief with five parts, and
+           <b>at least two pieces</b> of promotional material. That is Question 2, the other
+           50%.</p></div></div>
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 02 ═══ -->
+  <section id="story">
+    <div class="sh"><span class="chip" style="background:var(--c2)">02 · The story</span></div>
+    <h2 class="st">The story, in order</h2>
+    <p class="lead">Blue dots are Adidas. Black dots are Nike. Notice how often the important
+      moment is an <b>advert or a partnership</b>, not a new shoe.</p>
+
+    <div class="tl">
+      <div class="ev"><div class="y">1924 · Germany</div>
+        <div class="h">Two brothers start a shoe factory</div>
+        <div class="p">Adi and Rudolf Dassler make some of the first spiked running shoes.
+          Olympic runners Lina Radke and Jesse Owens wear them. Adi's method: meet runners,
+          listen, improve the shoe.</div></div>
+
+      <div class="ev"><div class="y">After a family fight</div>
+        <div class="h">The brothers split: Adidas and Puma are born</div>
+        <div class="p">Adi keeps going under his own name. Rudolf starts what becomes Puma.
+          Adidas leads running shoes for nearly two decades.</div></div>
+
+      <div class="ev nike"><div class="y">Early 1960s · Oregon</div>
+        <div class="h">A student writes a paper</div>
+        <div class="p">Phil Knight, at Stanford business school, argues that cheap, good Japanese
+          running shoes could take the US market from the Germans, the way Japanese cameras
+          already had. He goes home and starts Blue Ribbon Sports with his old track coach,
+          Bill Bowerman.
+          <a class="lk" href="https://hbr.org/1992/07/high-performance-marketing-an-interview-with-nikes-phil-knight" target="_blank" rel="noopener">Phil Knight interviewed in Harvard Business Review</a></div></div>
+
+      <div class="ev nike"><div class="y">Mid-1970s</div>
+        <div class="h">Blue Ribbon Sports becomes Nike</div>
+        <div class="p">New name, the swoosh logo, and the first athlete deal: tennis player
+          Ilie Năstase. Sales are doubling every year. Nike had spotted a gap nobody was
+          serving: there was barely a market for shoes made specifically for running.
+          <a class="lk" href="https://hbr.org/1992/07/high-performance-marketing-an-interview-with-nikes-phil-knight" target="_blank" rel="noopener">Knight on how Nike grew</a></div></div>
+
+      <div class="ev nike"><div class="y">1976 · The turning point</div>
+        <div class="h">"There Is No Finish Line"</div>
+        <div class="p">Nike's first real ad. It barely talks about the shoe. It talks about how
+          running <i>feels</i>. This is the moment Nike stops selling footwear and starts
+          selling an idea, and the whole modern playbook follows from it.
+          <a class="lk" href="https://www.google.com/search?q=nike+there+is+no+finish+line&tbm=isch" target="_blank" rel="noopener">See the original poster</a></div></div>
+
+      <div class="ev"><div class="y">1986</div>
+        <div class="h">Run-D.M.C. record "My Adidas"</div>
+        <div class="p">The Superstar basketball shoe jumps from the court to the street because
+          a hip-hop group wears it. Adidas learns something Nike had not: you do not only need
+          athletes. Culture sells shoes too.
+          <a class="lk" href="https://www.youtube.com/watch?v=vIhNs4Wzfkk" target="_blank" rel="noopener">Listen to "My Adidas"</a>
+          <a class="lk" href="https://www.youtube.com/watch?v=4B_UYYPb-Gk" target="_blank" rel="noopener">And "Walk This Way", the crossover that made them famous</a></div></div>
+
+      <div class="ev nike"><div class="y">1988</div>
+        <div class="h">"Just Do It"</div>
+        <div class="p">Later ranked one of the best taglines of the entire 20th century. With
+          Michael Jordan's Air line behind it, Nike's revenue passes $1.2 billion.
+          <a class="lk" href="https://adage.com/article/special-report-the-advertising-century/ad-age-advertising-century-top-10-slogans/140156" target="_blank" rel="noopener">Ad Age ranks the top slogans of the century</a></div></div>
+
+      <div class="ev"><div class="y">1992</div>
+        <div class="h">Adidas almost dies</div>
+        <div class="p">Record losses, close to bankruptcy. New boss Robert Louis-Dreyfus turns
+          it from a company that sells things into a company that markets things. The 1995
+          slogan says it out loud: "We knew then. We know now."
+          <a class="lk" href="https://www.adidas-group.com/en/about/history/" target="_blank" rel="noopener">Adidas through the 1990s</a></div></div>
+
+      <div class="ev nike"><div class="y">1990s</div>
+        <div class="h">Nike buys attention, and edge</div>
+        <div class="p">With agency Wieden + Kennedy: "I am Not a Role Model" with Charles
+          Barkley, and "If You Let Me Play" about girls in sport. Nike is now a brand with
+          opinions.
+          <a class="lk" href="https://www.youtube.com/watch?v=AQ_XSHpIbZE" target="_blank" rel="noopener">Watch "If You Let Me Play"</a></div></div>
+
+      <div class="ev"><div class="y">2000 · The scoreboard</div>
+        <div class="h">Nike ≈ $9bn. Adidas ≈ $5bn.</div>
+        <div class="p">Both then buy their way into new categories. Nike takes Cole Haan,
+          Bauer Hockey and Converse (2003). Adidas takes Salomon (1997) and then Reebok for
+          $3.8 billion (2006).
+          <a class="lk" href="https://www.retaildive.com/news/reebok-was-meant-to-be-a-nike-killer-how-the-brand-lost-its-no-1-spot-adidas-sale-of-reebok/603733/" target="_blank" rel="noopener">What happened to Reebok after the deal</a></div></div>
+
+      <div class="ev nike"><div class="y">2018</div>
+        <div class="h">"Dream Crazy" with Colin Kaepernick</div>
+        <div class="p">"Believe in something. Even if it means sacrificing everything."
+          Huge controversy, and Nike's brand value rises <b>$6 billion</b>. The lesson people
+          took: a risky stance can pay, if the brand has been consistent about its values.
+          <a class="lk" href="https://www.vox.com/2018/9/4/17818162/nike-kaepernick-controversy-face-of-just-do-it" target="_blank" rel="noopener">What happened when the Kaepernick ad ran</a></div></div>
+
+      <div class="ev"><div class="y">2000 onwards</div>
+        <div class="h">Adidas plays the long sustainability game</div>
+        <div class="p">It starts publishing an annual social and environmental report from 2000, years
+          before most brands. That early move is worth a lot later, when younger buyers start
+          caring.
+          <a class="lk" href="https://www.adidas-group.com/en/sustainability/resource-center/reports" target="_blank" rel="noopener">The whole reporting archive, from 2000 on</a></div></div>
+
+      <div class="ev nike"><div class="y">Late 2021</div>
+        <div class="h">Both jump into the metaverse</div>
+        <div class="p">Nike builds "Nikeland" on Roblox and buys RTFKT, a virtual sneaker studio.
+          Adidas builds in The Sandbox and does an NFT with Bored Ape Yacht Club. Same instinct,
+          different bets.
+          <a class="lk" href="https://www.marketingdive.com/news/nike-courts-next-generation-of-athletes-with-new-roblox-platform-nikeland/610343/" target="_blank" rel="noopener">Marketing Dive on Nikeland</a></div></div>
+
+      <div class="ev nike"><div class="y">2024</div>
+        <div class="h">"Winning Isn't for Everyone"</div>
+        <div class="p">A gritty Olympics campaign narrated by Willem Dafoe, with LeBron James and
+          Serena Williams, about the ruthless streak that separates winners. It was meant to
+          restart Nike after a slump that ended with the chief executive leaving.
+          <a class="lk" href="https://www.marketingdive.com/news/nike-summer-olympics-2024-ad-campaign-willem-dafoe/721973/" target="_blank" rel="noopener">Marketing Dive on the campaign</a></div></div>
+
+      <div class="ev nike"><div class="y">2025</div>
+        <div class="h">"So Win", and the Super Bowl return</div>
+        <div class="p">Nike went back to the Super Bowl after nearly thirty years away, with a
+          spot about women in sport starring Jordan Chiles, Caitlin Clark, Sha'Carri Richardson
+          and the rapper Doechii. It won a Super Clio. Then Nike skipped the following year's
+          game, exactly while women's sport kept growing.
+          <a class="lk" href="https://www.marketingdive.com/news/just-did-it-women-focused-super-bowl-LIX-ads-score-other-marketers-falter/732444/" target="_blank" rel="noopener">Marketing Dive on the Super Bowl spot</a></div></div>
+
+      <div class="ev"><div class="y">2023 to 2026</div>
+        <div class="h">Adidas and Bad Bunny</div>
+        <div class="p">A long partnership with one of the biggest artists in the world, and a
+          clear example of Adidas doing what it has always done: reaching people through culture
+          rather than through sport. It arrives in Colombia too, which is worth thinking about
+          when you pick your target.
+          <a class="lk" href="https://www.adidas.co/badbunny" target="_blank" rel="noopener">Adidas Colombia, Bad Bunny</a></div></div>
+
+      <div class="ev nike"><div class="y">April 2026</div>
+        <div class="h">The Boston Marathon misfire</div>
+        <div class="p">An outdoor ad read "Runners Welcome. Walkers Tolerated." Disability
+          advocates objected, rivals pounced, and Nike pulled it. The brand's own mission says
+          "if you have a body, you are an athlete", so the line contradicted the brand. A useful
+          reminder that tone is part of positioning.
+          <a class="lk" href="https://www.marketingdive.com/news/where-nikes-marketing-comeback-is-stumbling-and-where-it-can-still-win/819788/" target="_blank" rel="noopener">Marketing Dive on where the comeback is stumbling</a></div></div>
+
+      <div class="ev"><div class="y">2026 · World Cup</div>
+        <div class="h">Both brands go all in</div>
+        <div class="p">Adidas released "Backyard Legends" with Timothée Chalamet, Lamine Yamal,
+          Jude Bellingham and Trinity Rodman. Nike answered with "Rip the Script". Nike won the
+          views by roughly ten to one. Adidas won the attribution: people remembered who the
+          sponsor was.
+          <a class="lk" href="https://www.marketingdive.com/news/nike-adidas-take-rivalry-to-world-cup-who-will-win/822288/" target="_blank" rel="noopener">Marketing Dive compares the two campaigns</a></div></div>
+
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 03 ═══ -->
+  <section id="think">
+    <div class="sh"><span class="chip" style="background:var(--c3)">03 · How they think</span></div>
+    <h2 class="st">Two brands, two completely different bets</h2>
+    <p class="lead">This is the heart of the case. Both sell sportswear. Neither is trying to
+      occupy the same space in your head.</p>
+
+    <blockquote>
+      <p>"Both brands deliver a feeling, a specific value that goes beyond the functional
+         benefits of wearing the shoes."</p>
+      <cite>Niels Neudecker, head of brand performance, Kantar</cite>
+    </blockquote>
+
+    <div class="vs">
+      <div class="brand n">
+        <div class="top"><div class="nm">Nike</div><div class="sub">The hero</div></div>
+        <div class="body"><ul>
+          <li><b>Wants to be the hero.</b> To challenge the status quo, which is exactly how an
+              athlete thinks.</li>
+          <li><b>Sells the feeling, not the shoe.</b> That started in 1976 and never stopped.</li>
+          <li><b>Takes public stances.</b> Kaepernick is the clearest example, and it worked.</li>
+          <li><b>Spends big on advertising.</b> Its budget is larger, and it uses it on ads.</li>
+          <li><b>Positions as sportswear:</b> performance first.</li>
+        </ul></div>
+      </div>
+      <div class="brand a">
+        <div class="top"><div class="nm">Adidas</div><div class="sub">The lifestyle</div></div>
+        <div class="body"><ul>
+          <li><b>Not the hero, the lifestyle.</b> Its own mission statement uses that word.</li>
+          <li><b>Lives in culture.</b> Musicians, artists and designers, going back to
+              Run-D.M.C. in 1986.</li>
+          <li><b>Moved early on sustainability:</b> reporting since 2001, long before it was
+              expected.</li>
+          <li><b>Spends on sponsorship</b> rather than ads: teams, tournaments, individual
+              players.</li>
+          <li><b>Positions as streetwear and lifestyle:</b> cool first.</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>Worth noticing.</b> Neither position is "better". They are different answers to the
+      same question: <i>why should someone love us?</i> When you build your campaign in
+      Question 2, you are choosing an answer to that same question, so it has to fit the
+      brand Adidas already is.
+    </div>
+
+    <blockquote>
+      <p>"You have to reinvent yourself but be consistent with your purpose. It's important
+         that you know what you stand for and innovate within this space."</p>
+      <cite>Niels Neudecker, Kantar</cite>
+    </blockquote>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 04 ═══ -->
+  <section id="fields">
+    <div class="sh"><span class="chip" style="background:var(--c4)">04 · The battlegrounds</span></div>
+    <h2 class="st">Five places where they actually fight</h2>
+    <p class="lead">They almost never attack each other directly, with no name-calling, unlike
+      burgers or colas. The fight happens in these five arenas instead.</p>
+
+    <div class="fields">
+      <div class="field">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <h4>Athletes and celebrities</h4>
+        <p>Adidas invented this game: Adi Dassler was fitting Olympians in the 1920s. Nike
+           industrialised it with Jordan. Today Adidas leans on musicians and designers,
+           Nike on athletes.</p>
+        <div class="who">Started by Adidas · scaled by Nike</div>
+      </div>
+      <div class="field">
+        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3l3 4-3 4-3-4z"/><path d="M12 13l3 4-3 4-3-4z"/></svg></div>
+        <h4>Football</h4>
+        <p>Adidas has supplied the official FIFA World Cup match ball since 1970, and sponsors
+           national teams, leagues and clubs. Nike keeps chipping away: an app in 2014, and
+           the US women's league sponsored through 2030.</p>
+        <div class="who">Adidas's fortress</div>
+      </div>
+      <div class="field">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.6-6.2 4.6 2.4-7.4L2 9.4h7.6z"/></svg></div>
+        <h4>Collaborations</h4>
+        <p>Limited drops that borrow someone else's audience. Adidas: Beyoncé, Pharrell
+           Williams, Stella McCartney, Prada, Gucci. Nike: Travis Scott, Supreme, Drake.
+           Both are described as "pretty vicious" here.</p>
+        <div class="who">Genuinely even</div>
+      </div>
+      <div class="field">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-7-10a7 7 0 0114 0c0 5.4-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg></div>
+        <h4>Values and purpose</h4>
+        <p>Nike goes loud on social issues. Adidas goes quiet and long on the environment.
+           Two different ways of saying "we stand for something".</p>
+        <div class="who">Different weapons</div>
+      </div>
+      <div class="field">
+        <div class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+        <h4>Digital and the metaverse</h4>
+        <p>Nike: Nikeland on Roblox, a Snapchat AR lens, and buying RTFKT for virtual sneakers.
+           Adidas: The Sandbox and a Bored Ape NFT. Both moved in the same month of 2021.</p>
+        <div class="who">Too early to call</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>A moment worth remembering.</b> At the 2014 World Cup, Adidas sponsored the tournament
+      <i>and</i> both teams in the final. Nike was not even the sponsor, and still stole the
+      attention with a five-minute animated ad, "The Last Game", which became one of the most
+      shared posts on Facebook. Owning the rights is not the same as winning the moment.
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 05 ═══ -->
+  <section id="next">
+    <div class="sh"><span class="chip" style="background:var(--c5)">05 · What comes next</span></div>
+    <h2 class="st">Where this is heading</h2>
+    <p class="lead">Both companies are enormous. That is starting to be a problem, not only
+      an advantage.</p>
+
+    <blockquote>
+      <p>"While they continue to show up in all the big ways on all the big platforms, they'll
+         need to engage at deeper levels to achieve the intimacy, nuance and localization that
+         are native to the scrappier upstarts."</p>
+      <cite>Jack Bedwani, CEO, New Moon</cite>
+    </blockquote>
+
+    <h3>Three pressures</h3>
+    <p><b>Big is no longer automatically good.</b> The challenge is not to do more or go bigger.
+      It is to show up in a way that feels local and personal, which is the one thing huge
+      global brands find hardest.</p>
+    <p><b>Smaller brands are taking the culture.</b> New Balance and FILA are working with
+      tastemakers in ways that feel fresher, and Gen Z gravitates to resellers and cultural
+      figures rather than to giants.</p>
+    <p><b>Being loud stopped being enough.</b> Even Nike has not repeated the impact of
+      "Dream Crazy". What keeps a brand relevant now is credibility with a specific culture,
+      not volume.</p>
+
+    <blockquote>
+      <p>"You can't remain on top unless you're fighting to stay there. And part of that is
+         keeping your name out there."</p>
+      <cite>Nicholas Smith, author of "Kicks: The Great American Story of Sneakers"</cite>
+    </blockquote>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 05b ═══ -->
+  <section id="deeper">
+    <div class="sh"><span class="chip" style="background:var(--c5)">Go deeper</span></div>
+    <h2 class="st">Campaigns worth looking at</h2>
+    <p class="lead">You do not need all of these. Pick the two or three closest to the
+      opportunity you are chasing, and use them as evidence in your Benchmark.</p>
+    <div class="res">
+      <a class="rcard" href="https://about.nike.com/en/newsroom/releases/winning-isnt-for-everyone-campaign" target="_blank" rel="noopener">
+        <span class="rb2 nk">Nike</span>
+        <h4>Winning Isn’t for Everyone</h4>
+        <p>Global positioning, athletes and emotional storytelling. The campaign that was meant to restart the brand.</p>
+        <div class="yr">2024</div>
+      </a>
+      <a class="rcard" href="https://www.youtube.com/watch?v=KPDQYOXcEf4" target="_blank" rel="noopener">
+        <span class="rb2 nk">Nike</span>
+        <h4>Winning Isn’t for Everyone, the film</h4>
+        <p>Watch the creative execution itself, then ask who it is talking to and who it leaves out.</p>
+        <div class="yr">2024</div>
+      </a>
+      <a class="rcard" href="https://www.marketingdive.com/news/where-nikes-marketing-comeback-is-stumbling-and-where-it-can-still-win/819788/" target="_blank" rel="noopener">
+        <span class="rb2 nk">Nike</span>
+        <h4>So Win, and a stumbling comeback</h4>
+        <p>Women in sport, cultural relevance and target audience. Also the clearest account of what is going wrong.</p>
+        <div class="yr">2025 to 2026</div>
+      </a>
+      <a class="rcard" href="https://www.gq.com/story/best-sneakers-of-2024" target="_blank" rel="noopener">
+        <span class="rb2 nk">Nike</span>
+        <h4>Nike x Bode, Astro Grabber</h4>
+        <p>Sneakers, fashion and collaboration. Useful if your campaign idea leans on a collab.</p>
+        <div class="yr">2024</div>
+      </a>
+      <a class="rcard" href="https://www.adidas.com/us/bad_bunny" target="_blank" rel="noopener">
+        <span class="rb2 ad">Adidas</span>
+        <h4>Adidas x Bad Bunny</h4>
+        <p>Music, Latin culture, sneakers and identity. The clearest case of Adidas winning through culture.</p>
+        <div class="yr">2023 to 2026</div>
+      </a>
+      <a class="rcard" href="https://www.adidas.co/badbunny" target="_blank" rel="noopener">
+        <span class="rb2 ad">Adidas</span>
+        <h4>Bad Bunny in Colombia</h4>
+        <p>The same partnership adapted locally. Question 1 asks for a local view, so start here.</p>
+        <div class="yr">2024 to 2026</div>
+      </a>
+      <a class="rcard" href="https://news.adidas.com/originals/adidas-and-bad-bunny-debut-the-badbo-1.0-in-white-during-super-bowl-lx-halftime-performance/s/27a2267e-9290-4f74-a67b-f7b043a98f89" target="_blank" rel="noopener">
+        <span class="rb2 ad">Adidas</span>
+        <h4>BadBo 1.0, "I’m Everything"</h4>
+        <p>A signature sneaker launched during the Super Bowl LX halftime show. Identity, culture and a global launch.</p>
+        <div class="yr">2026</div>
+      </a>
+      <a class="rcard" href="https://www.gq.com/story/best-sneakers-of-2024" target="_blank" rel="noopener">
+        <span class="rb2 ad">Adidas</span>
+        <h4>Samba and terrace culture</h4>
+        <p>Heritage turned into a fashion revival. Proof that an archive can be a marketing asset.</p>
+        <div class="yr">2023 to 2024</div>
+      </a>
+      <a class="rcard" href="https://elpais.com/icon/2026-05-08/adidas-reune-a-chalamet-bad-bunny-yamal-beckham-y-otras-leyendas-del-futbol-en-la-campana-mas-espectacular-del-ano.html" target="_blank" rel="noopener">
+        <span class="rb2 ad">Adidas</span>
+        <h4>Backyard Legends</h4>
+        <p>The World Cup film with Chalamet, Yamal, Bellingham and Rodman. Nostalgia, football and celebrity.</p>
+        <div class="yr">2026</div>
+      </a>
+      <a class="rcard" href="https://www.marketingdive.com/news/nike-adidas-take-rivalry-to-world-cup-who-will-win/822288/" target="_blank" rel="noopener">
+        <span class="rb2 bo">Both</span>
+        <h4>World Cup 2026, side by side</h4>
+        <p>A direct comparison of the two global strategies at the same moment. The best single read for your benchmark.</p>
+        <div class="yr">2026</div>
+      </a>
+      <a class="rcard" href="https://www.marketingdive.com/news/how-5-brands-won-world-cup-gold-through-marketing-investments/826954/" target="_blank" rel="noopener">
+        <span class="rb2 bo">Both</span>
+        <h4>How five brands won World Cup gold</h4>
+        <p>What worked for the brands that invested in the tournament, and what did not.</p>
+        <div class="yr">2026</div>
+      </a>
+      <a class="rcard" href="https://www.marketingdive.com/news/coke-vs-pepsi-rivalry-brand-marketing-metaverse/621711/" target="_blank" rel="noopener">
+        <span class="rb2 bo">Both</span>
+        <h4>The other three brand rivalries</h4>
+        <p>This case is Part II of a series. Coke vs Pepsi, Burger King vs McDonald’s, and Miller Lite vs Bud Light.</p>
+        <div class="yr">2022</div>
+      </a>
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 06 ═══ -->
+  <section id="questions">
+    <div class="sh"><span class="chip" style="background:var(--c6)">06 · The delivery</span></div>
+    <h2 class="st">What you have to deliver</h2>
+    <p class="lead"><b>Objective.</b> Analyze Nike and Adidas using the Benchmark tool, identify
+      an opportunity for Adidas, and turn that opportunity into a marketing campaign.</p>
+
+    <div class="flow">
+      <div class="fstep">Benchmark</div><div class="farrow">↓</div>
+      <div class="fstep">Identify opportunity</div><div class="farrow">↓</div>
+      <div class="fstep">Select target</div><div class="farrow">↓</div>
+      <div class="fstep">Create Adidas campaign</div><div class="farrow">↓</div>
+      <div class="fstep last">Promotional material</div>
+    </div>
+    <p style="text-align:center;font-size:14.5px;color:var(--gris);margin:-2px auto 22px">
+      Each step feeds the next. That chain is the assignment.</p>
+
+    <div class="q">
+      <div class="qn">1</div>
+      <div class="qt">Benchmark analysis <span class="qw">50% of the grade</span></div>
+      <div class="qh">Using the Benchmark tool, compare Nike vs. Adidas at a
+        <b>global and local level</b>. Your analysis has to let you:</div>
+      <ul class="qlist">
+        <li>Compare the competitiveness of both brands</li>
+        <li>Identify the main differences between Nike and Adidas</li>
+        <li>Identify <b>one</b> target audience or market where Adidas has an opportunity</li>
+        <li>Explain <b>why</b> that target represents an opportunity for Adidas</li>
+      </ul>
+    </div>
+
+    <div class="q">
+      <div class="qn">2</div>
+      <div class="qt">Create the Adidas campaign <span class="qw">50% of the grade</span></div>
+      <div class="qh">Using the target and the opportunity you identified in Question 1, build a
+        campaign for Adidas. It has to show how Adidas can take advantage of that opportunity.</div>
+      <div class="qparts">
+        <div class="qpart"><div class="qpn">Campaign name <span>10%</span></div>
+          <p>A creative, memorable name that connects with your target and the opportunity.</p></div>
+        <div class="qpart"><div class="qpn">Campaign brief <span>20%</span></div>
+          <p>Five things, briefly:</p>
+          <ul>
+            <li><b>Target:</b> who are you talking to?</li>
+            <li><b>Opportunity:</b> what did you identify?</li>
+            <li><b>Objective:</b> what should the campaign achieve?</li>
+            <li><b>Big idea:</b> what is the central idea?</li>
+            <li><b>Key message:</b> what should they remember?</li>
+          </ul></div>
+        <div class="qpart"><div class="qpn">Promotional material <span>20%</span></div>
+          <p><b>At least two pieces.</b> For example: a social media post, a billboard, a digital
+            ad, a video concept, an influencer activation, an event, an experiential activation
+            or an OOH campaign.</p></div>
+      </div>
+    </div>
+
+    <div class="keyq">
+      <div class="kl">The question your whole grade turns on</div>
+      <div class="kt">Did you use the opportunity identified through the Benchmark to create a
+        relevant campaign for Adidas?</div>
+      <div class="kn">This link is worth <b>50% of Question 2</b> on its own, more than the name,
+        the brief and the materials put together. A beautiful campaign that does not come out of
+        your Benchmark loses half of Question 2 before anything else is judged.</div>
+    </div>
+
+    <div class="note">
+      <b>About using AI.</b> Use it to help gather your Benchmark: it is fast at pulling numbers
+      together. But it is confidently wrong quite often, and it will give you a 2023 figure when
+      you asked for this year. So: <b>use it, then check it.</b> Every number needs a source and
+      a date. If you could not verify something, keep it and write <i>unverified</i> next to it.
+      That is honest work, not weak work. Add one line saying which tool you used and what you
+      checked.
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <!-- ═══ 07 ═══ -->
+  <section id="rubric">
+    <div class="sh"><span class="chip" style="background:var(--c7)">07 · The rubric</span></div>
+    <h2 class="st">Exactly how you are graded</h2>
+    <p class="lead">Two halves, worth the same. Read this before you start, not after.</p>
+
+    <div class="split">
+      <div class="half"><div class="hp">50%</div><div class="hn">Question 1</div>
+        <div class="hd">Benchmark analysis</div></div>
+      <div class="half"><div class="hp">50%</div><div class="hn">Question 2</div>
+        <div class="hd">Adidas campaign</div></div>
+    </div>
+
+    <h3>Question 1: how the 50% is scored</h3>
+    <div class="rub">
+      <div class="rr"><div class="rl"><div class="pct">50%</div>
+        <div class="rn">Benchmark analysis</div></div>
+        <div class="rb">
+          <div class="desc">Scored 1 to 5 on how well you used the Benchmark and how well your
+            target is supported by it.</div>
+          <div class="scale">
+            <div class="sc top"><span class="num">5</span><span class="tx">Excellent use of Benchmark, clear comparison, and a highly relevant target/opportunity strongly supported by the data.</span></div>
+            <div class="sc"><span class="num">4</span><span class="tx">Good use of Benchmark, clear comparison, and relevant target with good justification.</span></div>
+            <div class="sc"><span class="num">3</span><span class="tx">Adequate use of Benchmark and reasonable target, but analysis or justification is limited.</span></div>
+            <div class="sc"><span class="num">2</span><span class="tx">Basic or weak use of Benchmark and poorly supported target.</span></div>
+            <div class="sc"><span class="num">1</span><span class="tx">Little or no effective use of Benchmark; target is not supported by the analysis.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Question 2: how the other 50% splits</h3>
+    <table class="wt">
+      <thead><tr><th>Criteria</th><th>Of Q2</th><th>Of final grade</th></tr></thead>
+      <tbody>
+        <tr class="big"><td>Benchmark → Campaign alignment</td><td>50%</td><td>25%</td></tr>
+        <tr><td>Campaign name</td><td>10%</td><td>5%</td></tr>
+        <tr><td>Campaign brief</td><td>20%</td><td>10%</td></tr>
+        <tr><td>Promotional material</td><td>20%</td><td>10%</td></tr>
+        <tr class="tot"><td>Total</td><td>100%</td><td>50%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <b>Where the marks actually are.</b> Half of Question 2 is not the campaign itself. It is
+      whether the campaign came out of your Benchmark. Add that to Question 1 and
+      <b>75% of your whole grade</b> depends on the Benchmark and on using it. Do that part
+      properly and the rest follows.
+    </div>
+    <a class="top-link" href="#start">↑ Back to the sections</a>
+  </section>
+
+  <div class="src">
+    <p><b>Source.</b> This case is a teaching summary of: Natalie Black (Koltun),
+      "Sneaker supremacy: Nike and Adidas battle for brand love", <i>Marketing Dive</i>,
+      10 May 2022.
+      <a href="https://www.marketingdive.com/news/sneaker-supremacy-nike-adidas-brand-rivalry/621712/"
+         target="_blank" rel="noopener">marketingdive.com</a>.
+      Part II of a four-part series on brand rivalries. The $310 billion market size is
+      McKinsey's, quoted in that article. Experts quoted: Niels Neudecker (Kantar),
+      Nicholas Smith (author, "Kicks"), Jack Bedwani (New Moon) and Dustin York
+      (Maryville University).</p>
+    <p style="margin-top:10px">Prepared for Global Marketing, 2026. Nike, Adidas, Puma and all
+      other brand names belong to their owners and are used here for educational commentary only.</p>
+  </div>
+
+</div>
+</body>
+</html>

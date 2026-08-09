@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1500" width="1500" height="1500" role="img" aria-label="Global Marketing Toolkit">
+<title>Global Marketing Toolkit</title>
+<desc>Four decision tools: Benchmark, Customer Lifetime Value, Brand Funnel and Positioning Map.</desc>
+
+<!-- Mismo lienzo cuadrado de 1500x1500 que el trébol, para que las dos marcas
+     de agua ocupen exactamente el mismo hueco en su tarjeta. Trazos gruesos:
+     al 22 % de opacidad los finos desaparecen. -->
+
+<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="52">
+
+  <!-- Benchmark · dos barras que se comparan -->
+  <g stroke="#9de84d">
+    <path d="M188 620 V 372"/>
+    <path d="M330 620 V 232"/>
+    <path d="M120 620 H 398"/>
+  </g>
+
+  <!-- Customer Lifetime Value · la curva que sube y se acumula -->
+  <g stroke="#63b356">
+    <path d="M1102 620 C 1180 620 1214 520 1246 400 C 1274 296 1308 250 1380 244"/>
+    <path d="M1102 620 H 1380"/>
+    <path d="M1102 620 V 300"/>
+  </g>
+
+  <!-- Brand Funnel · el embudo, de mucha gente a poca -->
+  <g stroke="#4a9eed">
+    <path d="M120 900 H 398"/>
+    <path d="M162 1010 H 356"/>
+    <path d="M206 1120 H 312"/>
+    <path d="M259 1120 V 1268"/>
+  </g>
+
+  <!-- Positioning Map · los dos ejes y donde cae la marca -->
+  <g stroke="#f0a500">
+    <path d="M1102 1268 V 900"/>
+    <path d="M1102 1268 H 1436"/>
+  </g>
+  <circle cx="1318" cy="1000" r="54" fill="#f0a500" stroke="none"/>
+  <circle cx="1196" cy="1150" r="34" fill="none" stroke="#f0a500" stroke-width="40"/>
+
+  <!-- El cuadrado que las contiene, para que la marca lea como una sola pieza -->
+  <rect x="72" y="184" width="1356" height="1132" rx="96" stroke="#7a7a72" stroke-width="34" opacity=".55"/>
+
+</g>
+</svg>

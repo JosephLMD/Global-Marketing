@@ -26,24 +26,101 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const T  = "#63b356";   // green accent
-const T2 = "#9de84d";   // bright lime
-const BL = "#4a9eed";   // blue
-const AM = "#f0a500";   // amber
-const RD = "#e05252";   // red
-const BG = "#090b10";
-const BG2= "#0f1318";
-const BG3= "#0d1117";
-const W  = "#f0f0eb";
-const G  = "#7a7a72";
-const BDR= "rgba(255,255,255,.08)";
+let T  = "#63b356";   // green accent
+let T2 = "#9de84d";   // bright lime
+let BL = "#4a9eed";   // blue
+let AM = "#f0a500";   // amber
+let RD = "#e05252";   // red
+let BG = "#090b10";
+let BG2= "#0f1318";
+let BG3= "#0d1117";
+let W  = "#f0f0eb";
+let G  = "#7a7a72";
+let BDR= "rgba(255,255,255,.08)";
 
 // ── RESPONSIVE ──────────────────────────────────────────────────
 // MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
 let MOB = typeof window!=='undefined' && window.innerWidth<=820;
 const V = (d,m) => MOB ? m : d;
+
+/* ═══ MODO PROYECTOR ═══ */
+// Todo lo de aquí abajo sólo actúa cuando PROJ es true. Con PROJ en false el
+// mazo se comporta exactamente igual que antes.
+let PROJ = false;
+const KP = 1.3;                                   // escala tipográfica
+/* ── tamaño por tipo ── */
+// Tipos que aprietan más contenido y por eso venían con letra más chica.
+let TIPO = '';
+const EXTRA_TIPO = {comparison:1.18, case:1.14, diagram:1.15, quiz:1.10};
+// Medido componente a componente: de los 28 esquemas, sólo el Venn de
+// glocalización usa position:absolute con medidas fijas. Los demás son
+// rejillas, flex o SVG: reflujen solos y su letra SÍ debe escalar.
+// El Venn no está aquí porque se amplía con transform en su propia diapositiva.
+const COMPUESTAS = [];
+const KT = () => COMPUESTAS.indexOf(TIPO) > -1 ? 1 : KP * (EXTRA_TIPO[TIPO] || 1);
+const PX  = n => PROJ ? Math.round(n*KT()) : n;       // tamaños sueltos
+const PXV = (d,m) => PROJ ? Math.round(d*KT()) : (MOB ? m : d);
+const FW  = w => PROJ ? Math.min(900, w+100) : w;   // un escalón más de peso
+const INK = () => PROJ ? '#fff' : '#000';           // texto sobre un acento
+const SURF = a => PROJ ? 'rgba(0,0,0,'+Math.min(1,a*2.2).toFixed(3)+')'
+                       : 'rgba(255,255,255,'+a+')';
+const PAL_N = {"T": "#63b356", "T2": "#9de84d", "BL": "#4a9eed", "AM": "#f0a500", "RD": "#e05252", "BG": "#090b10", "BG2": "#0f1318", "BG3": "#0d1117", "W": "#f0f0eb", "G": "#7a7a72", "BDR": "rgba(255,255,255,.08)"};
+const PAL_P = {"T": "#1c7a34", "T2": "#3f7d12", "BL": "#0b57b8", "AM": "#8a5a00", "RD": "#b3261e", "BG": "#ffffff", "BG2": "#f1f4f8", "BG3": "#e8edf3", "W": "#0b0f14", "G": "#3f4a55", "BDR": "rgba(0,0,0,.16)"};
+const AC_MAP = {};
+
+function _rl(h){                                     // luminancia relativa
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var v=[0,2,4].map(function(i){
+    var c=parseInt(h.substr(i,2),16)/255;
+    return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);
+  });
+  return .2126*v[0]+.7152*v[1]+.0722*v[2];
+}
+function _contra(h){ return (1.05)/(_rl(h)+.05); }   // contra blanco
+function _oscurece(h){                               // baja hasta 4,5:1
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  for(var i=0;i<40;i++){
+    var hex='#'+[r,g,b].map(function(x){return ('0'+Math.round(x).toString(16)).slice(-2);}).join('');
+    if(_contra(hex)>=4.5) return hex;
+    r*=.92; g*=.92; b*=.92;
+  }
+  return '#333333';
+}
+function ACC(c){                                      // acento seguro
+  if(!c || !PROJ) return c;
+  var k=String(c).toLowerCase();
+  return AC_MAP[k] || _oscurece(k);
+}
+function aplicaPaleta(){
+  var p = PROJ ? PAL_P : PAL_N;
+  T = p.T;
+  T2 = p.T2;
+  BL = p.BL;
+  AM = p.AM;
+  RD = p.RD;
+  BG = p.BG;
+  BG2 = p.BG2;
+  BG3 = p.BG3;
+  W = p.W;
+  G = p.G;
+  BDR = p.BDR;
+}
+function toggleProyector(){
+  PROJ = !PROJ;
+  document.documentElement.classList.toggle('proyector', PROJ);
+  aplicaPaleta();
+  var b=document.getElementById('pmode');
+  if(b) b.textContent = PROJ ? '\u263e Pantalla' : '\u2600 Proyector';
+  if(window.__rerender) window.__rerender();
+}
+window.toggleProyector = toggleProyector;
+window.__proyectorInfo = function(){ return {PROJ:PROJ, K:KP}; };
+
 // Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
-const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+const SR = (style={}) => ({...style, ...((MOB||PROJ) ? {height:'auto', minHeight:'100%'} : {})});
 
 // ── BACKGROUND ART ──────────────────────────────────────────────
 const BgGlobe = ({opacity=0.03}) => (
@@ -83,7 +160,7 @@ function P({children,style={}}){return <div style={{position:'relative',zIndex:2
 
 const ModuleTag = ({module,color=T}) => (
   <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
-    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    borderRadius:100,padding:'5px 16px',fontSize:PX(12),color,fontWeight:FW(700),letterSpacing:2,
     textTransform:'uppercase',marginBottom:20}}>
     {module}
   </div>
@@ -118,18 +195,18 @@ const SLIDES = [
   { type:'title',
     tag:'Universidad del Rosario · Global Marketing · Toolkit',
     title:'The Global Marketing\nToolkit',
-    subtitle:'Turn marketing into numbers you can defend — and money you can measure.\nFour tools, four ready-to-paste AI prompts.',
+    subtitle:'Turn marketing into numbers you can defend and money you can measure.\nFour tools, four ready-to-paste AI prompts.',
     author:'Universidad del Rosario · Global Marketing' },
 
   { type:'impact',
     title:'Why a Toolkit?',
     stats:[
       {n:'4',   d:'Decision tools to run before spending a single peso: Benchmark, Customer Lifetime Value, Brand Funnel, Positioning Map.', src:'Global Marketing Toolkit'},
-      {n:'$',   d:'Each tool ends in a number — a score, a ranking, a peso value — you can defend to a boss, a client or an investor.', src:'Measure → Money'},
+      {n:'$',   d:'Each tool ends in a number (a score, a ranking, a peso value) you can defend to a boss, a client or an investor.', src:'Measure → Money'},
       {n:'0',   d:'No paid AI required. Every tool ships with a "mother prompt" you paste into any free chatbot to generate the analysis.', src:'Copy · Paste · Run'},
       {n:'5m',  d:'From blank page to an Excel-ready analysis in minutes. The prompt builds the structure; you bring the judgement.', src:'Speed advantage'},
     ],
-    quote:'Marketing that cannot be measured cannot be defended — and what cannot be defended does not get a budget.' },
+    quote:'Marketing that cannot be measured cannot be defended and what cannot be defended does not get a budget.' },
 
   { type:'agenda',
     title:'What\'s in the Toolkit',
@@ -143,27 +220,27 @@ const SLIDES = [
 
   { type:'concept', module:'Toolkit', icon:'trend',
     title:'From Gut Feeling to Numbers',
-    text:'A junior marketer says "our brand feels strong." A professional says "we score 78 of 100 on our benchmark, our best segment is worth $1.2M in lifetime value, and we own the empty space rivals left at high quality / fair price." Same brand — but only one of those sentences gets a budget. Every tool in this kit exists to turn an opinion into a measurable, defendable number.',
+    text:'A junior marketer says "our brand feels strong." A professional says "we score 78 of 100 on our benchmark, our best segment is worth $1.2M in lifetime value, and we own the empty space rivals left at high quality / fair price." Same brand but only one of those sentences gets a budget. Every tool in this kit exists to turn an opinion into a measurable, defendable number.',
     highlight:'A number you can defend beats an adjective you can only feel.' },
 
   // ── TOOL 1 · BENCHMARK ──────────────────────────────────────────────────
-  { type:'module_title', num:1, title:'Tool 1 — The Competitive Benchmark', icon:'target',
-    question:'Exactly how good is your brand versus everyone else — on the things customers actually care about?' },
+  { type:'module_title', num:1, title:'Tool 1: The Competitive Benchmark', icon:'target',
+    question:'Exactly how good is your brand versus everyone else: on the things customers actually care about?' },
 
   { type:'concept', module:'Tool 1 · Benchmark', icon:'layers',
     title:'What a Benchmark Measures',
-    text:'A benchmark scores your brand and every rival on the same attributes, from 1 to 5. Add a "Gold Standard" column where everything is a 5 — the perfect brand — and the gap between you and that 5 becomes your to-do list. Sum each brand\'s scores and you get an instant, defendable ranking of who leads the market and where exactly you lose points.',
+    text:'A benchmark scores your brand and every rival on the same attributes, from 1 to 5. Add a "Gold Standard" column where everything is a 5 (the perfect brand) and the gap between you and that 5 becomes your to-do list. Sum each brand\'s scores and you get an instant, defendable ranking of who leads the market and where exactly you lose points.',
     highlight:'The gap to the Gold Standard is your roadmap; the total score is your scoreboard.' },
 
   { type:'prompt', tool:'Tool 1 · Benchmark', color:T,
-    title:'Mother Prompt — Competitive Benchmark',
+    title:'Mother Prompt: Competitive Benchmark',
     intro:'Paste into any AI and replace the [brackets] with your market. It returns an Excel-ready benchmark with a gold standard, totals, and customer profiles ranked by lifetime value.',
-    prompt:'You are a market research analyst. Build a competitive benchmark for the [CATEGORY / INDUSTRY] market in [COUNTRY].\n\n1. Put 20 evaluation attributes in the first column — choose the 20 that matter most for this category (e.g. price, quality, brand awareness, distribution, customer service, innovation, packaging, digital presence, loyalty).\n2. Compare at least 10 brands that compete in this market. Score every attribute from 1 to 5 (5 = highest).\n3. Add a "Gold Standard" column where every attribute = 5 (the ideal brand).\n4. Apply these audience filters: age [18-24 / 25-34 / 35-44 / 45-54 / 55-64 / 65+], gender [ ], country [ ].\n5. Sum every brand\'s scores in a final row and rank them.\n6. Using the highest-scoring attributes, build at least 3 customer profiles (name, age, what they value most).\n7. For each profile, estimate Customer Lifetime Value = average ticket × purchase frequency (state your assumptions).\n\nReturn everything as an Excel-ready table with clearly labelled rows and columns.',
+    prompt:'You are a market research analyst. Build a competitive benchmark for the [CATEGORY / INDUSTRY] market in [COUNTRY].\n\n1. Put 20 evaluation attributes in the first column: choose the 20 that matter most for this category (e.g. price, quality, brand awareness, distribution, customer service, innovation, packaging, digital presence, loyalty).\n2. Compare at least 10 brands that compete in this market. Score every attribute from 1 to 5 (5 = highest).\n3. Add a "Gold Standard" column where every attribute = 5 (the ideal brand).\n4. Apply these audience filters: age [18-24 / 25-34 / 35-44 / 45-54 / 55-64 / 65+], gender [ ], country [ ].\n5. Sum every brand\'s scores in a final row and rank them.\n6. Using the highest-scoring attributes, build at least 3 customer profiles (name, age, what they value most).\n7. For each profile, estimate Customer Lifetime Value = average ticket × purchase frequency (state your assumptions).\n\nReturn everything as an Excel-ready table with clearly labelled rows and columns.',
     output:'Returns: a 20-attribute scorecard for 10+ brands, a gold-standard column, ranked totals, and 3 CLV-ranked customer profiles.' },
 
   // ── TOOL 2 · CLV ────────────────────────────────────────────────────────
-  { type:'module_title', num:2, title:'Tool 2 — CLV & Segmentation', icon:'users',
-    question:'What is a single customer actually worth — in pesos — over the whole relationship?' },
+  { type:'module_title', num:2, title:'Tool 2: CLV & Segmentation', icon:'users',
+    question:'What is a single customer actually worth (in pesos) over the whole relationship?' },
 
   { type:'concept', module:'Tool 2 · CLV', icon:'trend',
     title:'Turning a Customer into a Number',
@@ -171,7 +248,7 @@ const SLIDES = [
     highlight:'If a loyal client is worth $2M in lifetime value, spending $200k to keep them is obvious, not extravagant.' },
 
   { type:'prompt', tool:'Tool 2 · CLV', color:BL,
-    title:'Mother Prompt — CLV & Segmentation',
+    title:'Mother Prompt: CLV & Segmentation',
     intro:'Feed it your customer data (or a description). It segments your customers, prices each segment in lifetime value, and tells you where to put the budget.',
     prompt:'You are a CRM and segmentation analyst for [BRAND] in [COUNTRY].\n\n1. From this customer information [PASTE OR DESCRIBE YOUR CUSTOMERS], segment customers into 3-5 groups by behaviour and value.\n2. For each segment build a profile: name, demographics, main need, where they buy, what they value most.\n3. Calculate Customer Lifetime Value for each segment: CLV = average ticket × purchase frequency per year × expected years as a customer × gross margin %. Show the maths and state your assumptions.\n4. Rank the segments from most to least valuable.\n5. Recommend where to focus the marketing budget and why.\n\nReturn an Excel-ready table plus a three-line summary for each segment.',
     output:'Returns: 3-5 priced customer segments, the CLV maths for each, a value ranking, and a budget recommendation.' },
@@ -179,36 +256,36 @@ const SLIDES = [
   { type:'exercise', module:'Tool 2 · CLV',
     title:'Exercise · Price the Customer',
     question:'A Juan Valdez regular spends $18,000 per visit, comes about twice a week (~100 visits a year), stays loyal ~6 years, and the café earns a 60% gross margin. Roughly what is their lifetime value?',
-    options:['A) About $108,000 — one year of visits.','B) About $648,000 — ticket × frequency × years × margin.','C) Impossible to calculate without their salary.'],
+    options:['A) About $108,000: one year of visits.','B) About $648,000: ticket × frequency × years × margin.','C) Impossible to calculate without their salary.'],
     correct:1,
-    explanation:'Option B. $18,000 × 100 × 6 × 0.60 ≈ $648,000. That single number tells you how hard it is worth fighting to keep this customer — and how much a loyalty app or free-coffee card can sensibly cost.' },
+    explanation:'Option B. $18,000 × 100 × 6 × 0.60 ≈ $648,000. That single number tells you how hard it is worth fighting to keep this customer and how much a loyalty app or free-coffee card can sensibly cost.' },
 
   // ── TOOL 3 · BRAND FUNNEL ───────────────────────────────────────────────
-  { type:'module_title', num:3, title:'Tool 3 — The Brand Funnel', icon:'map',
+  { type:'module_title', num:3, title:'Tool 3: The Brand Funnel', icon:'map',
     question:'Where exactly are you losing people on the way from "never heard of you" to "buys you again"?' },
 
   { type:'concept', module:'Tool 3 · Funnel', icon:'layers',
     title:'Every Stage Gets a Number',
-    text:'The brand funnel turns vague goals into measurable objectives at four stages: Awareness (do they know you?), Consideration (are you on the shortlist?), Conversion (do they buy?) and Loyalty (do they come back and refer?). Attach one metric and one realistic target to each stage and "grow the brand" becomes four specific, trackable jobs — each tied to a tactic and a number.',
+    text:'The brand funnel turns vague goals into measurable objectives at four stages: Awareness (do they know you?), Consideration (are you on the shortlist?), Conversion (do they buy?) and Loyalty (do they come back and refer?). Attach one metric and one realistic target to each stage and "grow the brand" becomes four specific, trackable jobs, each tied to a tactic and a number.',
     highlight:'"Improve marketing" is not a plan. "Lift repeat purchase from 20% to 28% this quarter" is.' },
 
   { type:'prompt', tool:'Tool 3 · Funnel', color:AM,
-    title:'Mother Prompt — Brand Funnel',
+    title:'Mother Prompt: Brand Funnel',
     intro:'It maps your brand across the four funnel stages with a metric, a free way to measure it, a tactic and a target for each.',
-    prompt:'You are a marketing strategist for [BRAND] in [COUNTRY]. Target audience: [DESCRIBE].\n\nMap the brand funnel with a measurable objective for each stage:\n1. Awareness — metric (reach, impressions, aided/unaided recall) + a realistic monthly target.\n2. Consideration — metric (site visits, time on page, leads) + target.\n3. Conversion — metric (conversion rate, sales, average ticket) + target.\n4. Loyalty / Advocacy — metric (repeat rate, NPS, referrals) + target.\n\nFor every stage give: the objective, the metric, how to measure it with free tools, and one concrete tactic to improve it.\n\nReturn a table: Stage | Objective | Metric | How to measure | Tactic | Target.',
+    prompt:'You are a marketing strategist for [BRAND] in [COUNTRY]. Target audience: [DESCRIBE].\n\nMap the brand funnel with a measurable objective for each stage:\n1. Awareness, metric (reach, impressions, aided/unaided recall) + a realistic monthly target.\n2. Consideration, metric (site visits, time on page, leads) + target.\n3. Conversion, metric (conversion rate, sales, average ticket) + target.\n4. Loyalty / Advocacy, metric (repeat rate, NPS, referrals) + target.\n\nFor every stage give: the objective, the metric, how to measure it with free tools, and one concrete tactic to improve it.\n\nReturn a table: Stage | Objective | Metric | How to measure | Tactic | Target.',
     output:'Returns: a four-stage funnel table with objective, metric, free measurement method, tactic and target per stage.' },
 
   // ── TOOL 4 · POSITIONING ────────────────────────────────────────────────
-  { type:'module_title', num:4, title:'Tool 4 — The Positioning Map', icon:'trend',
-    question:'On the two things customers care about most, where do you sit — and what space did everyone leave empty?' },
+  { type:'module_title', num:4, title:'Tool 4: The Positioning Map', icon:'trend',
+    question:'On the two things customers care about most, where do you sit and what space did everyone leave empty?' },
 
   { type:'concept', module:'Tool 4 · Positioning', icon:'map',
     title:'Finding the White Space',
-    text:'A positioning (perceptual) map plots your brand and rivals on the two attributes customers care about most — say price versus quality, or traditional versus modern. Put everyone on the same grid and the clusters and the empty corners jump out. That empty corner — the white space no rival owns — is often the cheapest, clearest position to claim.',
+    text:'A positioning (perceptual) map plots your brand and rivals on the two attributes customers care about most: say price versus quality, or traditional versus modern. Put everyone on the same grid and the clusters and the empty corners jump out. That empty corner (the white space no rival owns) is often the cheapest, clearest position to claim.',
     highlight:'You rarely win by crowding where rivals already are. You win by owning the corner they left open.' },
 
   { type:'prompt', tool:'Tool 4 · Positioning', color:RD,
-    title:'Mother Prompt — Positioning Map',
+    title:'Mother Prompt: Positioning Map',
     intro:'It picks the two axes that matter, scores you and your rivals on both, finds the white space, and tells you how to chart it.',
     prompt:'You are a brand strategist. Build a positioning (perceptual) map for [BRAND] in the [CATEGORY] market in [COUNTRY].\n\n1. Choose the 2 attributes customers in this category care about most (e.g. price vs quality, traditional vs modern) and justify the choice.\n2. Place [BRAND] and at least 8 competitors on the two axes, scoring each from 1 to 10 on both attributes.\n3. Output the coordinates as a table: Brand | Axis X score | Axis Y score.\n4. Identify the empty spaces (white space) on the map and recommend the single most attractive position [BRAND] could own, with the reasoning.\n5. Explain how to plot it as a scatter chart in Excel or Google Sheets.',
     output:'Returns: chosen axes, a coordinate table for your brand + 8 rivals, the white-space recommendation, and how to chart it.' },
@@ -219,7 +296,7 @@ const SLIDES = [
 
   { type:'concept', module:'Toolkit', icon:'layers',
     title:'How to Run a Mother Prompt',
-    text:'Open any free AI assistant. Copy a mother prompt, replace every [BRACKET] with your real brand, country and audience, and send it. Read the result critically — the AI gives you the structure and a first draft of the numbers; you supply the judgement and verify the figures before anyone sees them. Ask it to "put this in an Excel-ready table" and paste the result straight into a spreadsheet.',
+    text:'Open any free AI assistant. Copy a mother prompt, replace every [BRACKET] with your real brand, country and audience, and send it. Read the result critically: the AI gives you the structure and a first draft of the numbers; you supply the judgement and verify the figures before anyone sees them. Ask it to "put this in an Excel-ready table" and paste the result straight into a spreadsheet.',
     highlight:'The prompt builds the skeleton in seconds. Your job is the judgement: check the numbers, keep what is true, fix what is not.' },
 
   { type:'comparison',
@@ -239,19 +316,19 @@ const SLIDES = [
     ]}},
 
   { type:'takeaways',
-    title:'Toolkit — What You Now Carry',
+    title:'Toolkit: What You Now Carry',
     items:[
       {icon:'target', c:T,  t:'Benchmark',      d:'Score your brand vs 10+ rivals against a Gold Standard of 5s. The gap is your roadmap, the total is your scoreboard.'},
-      {icon:'trend',  c:BL, t:'CLV',            d:'Ticket × frequency × years × margin turns a customer into a peso figure — and sets how much you can spend to keep them.'},
+      {icon:'trend',  c:BL, t:'CLV',            d:'Ticket × frequency × years × margin turns a customer into a peso figure and sets how much you can spend to keep them.'},
       {icon:'map',    c:AM, t:'Brand Funnel',   d:'Awareness → consideration → conversion → loyalty, each with a metric and a target. "Grow the brand" becomes four jobs.'},
       {icon:'shuffle',c:RD, t:'Positioning',    d:'Plot rivals on the two axes customers care about and claim the white space nobody owns.'},
-      {icon:'cpu',    c:T2, t:'Mother Prompts', d:'Each tool ships with a copy-paste prompt for any free AI — it drafts, you verify.'},
+      {icon:'cpu',    c:T2, t:'Mother Prompts', d:'Each tool ships with a copy-paste prompt for any free AI: it drafts, you verify.'},
     ]},
 
   { type:'closing',
     title:'Go Measure Something',
     subtitle:'Pick one brand you know. Run one mother prompt tonight.\nBring a number to the next conversation instead of an opinion.',
-    quote:'"Half the money I spend on advertising is wasted; the trouble is I don\'t know which half." — John Wanamaker. These tools are how you finally find out.' },
+    quote:'"Half the money I spend on advertising is wasted; the trouble is I don\'t know which half.": John Wanamaker. These tools are how you finally find out.' },
 ];
 
 
@@ -261,10 +338,10 @@ const TitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.4}}>
-      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
-      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
-      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+      <div style={{fontSize:PXV(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:FW(700),marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:PX(13),color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
     </P>
     {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
       <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
@@ -276,19 +353,19 @@ const ImpactSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.03}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
         {data.stats.map((s,i)=>(
           <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,30),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
             <div>
-              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
-              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+              <div style={{fontSize:PXV(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:PX(12),color:`${G}80`}}>{s.src}</div>
             </div>
           </div>
         ))}
       </div>
-      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:PXV(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
       </div>
     </P>
@@ -298,13 +375,13 @@ const ImpactSlide = ({data}) => (
 const AgendaSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
         {data.modules.map(m=>(
           <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
-            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
-            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
-            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+            <div style={{fontSize:PXV(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:FW(900)}}>0{m.num}</div>
+            <h3 style={{fontSize:PXV(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:PXV(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
           </div>
         ))}
       </div>
@@ -316,11 +393,11 @@ const ModuleTitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.5}}>
-      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:PX(13),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
         MODULE {data.num}
       </div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
-      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:PXV(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
         {data.question}
       </div>
@@ -333,10 +410,10 @@ const ConceptSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.035}/></div>
     <P style={{flex:1.5}}>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
-      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:PXV(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
       {data.highlight&&(
-        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:PXV(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
           <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
         </div>
       )}
@@ -354,16 +431,16 @@ const CaseSlide = ({data}) => (
     </P>}
     <P style={{flex:1.8}}>
       <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
       <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
-        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+        <div style={{fontSize:PX(11),color:RD,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.problem}</p>
       </div>
       <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
-        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+        <div style={{fontSize:PX(11),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.solution}</p>
       </div>
-      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+      <div style={{fontSize:PXV(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
         <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
       </div>
     </P>
@@ -374,18 +451,18 @@ const ComparisonSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
         {[data.left,data.right].map((side,si)=>(
           <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
-            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:PX(15),fontWeight:FW(700),color:side.color,borderBottom:`1px solid ${side.color}20`}}>
               {side.label}
             </div>
             <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
               {side.items.map((item,i)=>(
-                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
-                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                <div key={i} style={{display:'grid',gridTemplateColumns:V(PX(104)+'px 1fr','84px 1fr'),columnGap:12,alignItems:'baseline'}}>
+                  <div style={{fontSize:PX(12),fontWeight:FW(700),color:side.color}}>{item.k}</div>
+                  <div style={{fontSize:PXV(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
                 </div>
               ))}
             </div>
@@ -398,8 +475,8 @@ const ComparisonSlide = ({data}) => (
 
 const DBox = ({c,t,d,dashed}) => (
   <div style={{background:BG2,border:`1px ${dashed?'dashed':'solid'} ${c}40`,borderRadius:12,padding:V('14px 18px','11px 13px'),flex:1}}>
-    <div style={{fontSize:V(15,13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(13,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:PXV(15,13),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(13,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -407,8 +484,8 @@ const PorterDiamondSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 1"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Diamond — National Competitiveness</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Porter (1990) — The Competitive Advantage of Nations</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Porter's Diamond — National Competitiveness</h2>
+      <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Porter (1990) — The Competitive Advantage of Nations</p>
       <div style={{display:'flex',flexDirection:'column',gap:V(12,10),maxWidth:880,margin:'0 auto',width:'100%'}}>
         <DBox c={T} t="Firm Strategy, Structure & Rivalry" d="How companies are created, organized and managed — and the intensity of domestic rivalry that trains them for global battle"/>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(12,10)}}>
@@ -427,8 +504,8 @@ const PorterDiamondSlide = () => (
 
 const FFBox = ({c,t,d,center}) => (
   <div style={{background:center?`${c}10`:BG2,border:`${center?2:1}px solid ${c}${center?'':'35'}`,borderRadius:12,padding:V('14px 16px','12px 14px'),textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-    <div style={{fontSize:V(center?17:15,center?15:13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:V(center?17:15,center?15:13),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -444,8 +521,8 @@ const FiveForcesSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 2"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Five Forces — Industry Level</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>The structure of the industry decides the size of the profit pool — before any firm makes a move.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Porter's Five Forces — Industry Level</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>The structure of the industry decides the size of the profit pool — before any firm makes a move.</p>
         {MOB ? (
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {boxes.entrants}{boxes.suppliers}{boxes.rivalry}{boxes.buyers}{boxes.substitutes}
@@ -464,8 +541,8 @@ const FiveForcesSlide = () => {
 
 const TriBox = ({c,t,d}) => (
   <div style={{background:BG2,border:`1px solid ${c}40`,borderRadius:14,padding:V('16px 22px','12px 14px'),textAlign:'center',minWidth:V(200,0),flex:V('none',1)}}>
-    <div style={{fontSize:V(16,14),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:PXV(16,14),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -473,24 +550,24 @@ const CompetitiveTriangleSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 3"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Competitive Triangle</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>A customer, the firm, and a competitor. Favour goes to whoever offers more perceived value per cost.</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Competitive Triangle</h2>
+      <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(24,16)}}>A customer, the firm, and a competitor. Favour goes to whoever offers more perceived value per cost.</p>
       <div style={{maxWidth:860,margin:'0 auto',width:'100%'}}>
         <div style={{display:'flex',justifyContent:'center',marginBottom:V(10,8)}}>
           <TriBox c={AM} t="THE CUSTOMER" d="Compares perceived value vs price across the alternatives"/>
         </div>
-        <div style={{display:'flex',justifyContent:'space-between',margin:V('0 60px 10px','0 4px 8px'),fontSize:V(12,10),color:G,fontStyle:'italic'}}>
+        <div style={{display:'flex',justifyContent:'space-between',margin:V('0 60px 10px','0 4px 8px'),fontSize:PXV(12,10),color:G,fontStyle:'italic'}}>
           <div>↗ Perceived value / price A</div>
           <div>Perceived value / price B ↖</div>
         </div>
         <div style={{display:'flex',flexDirection:V('row','column'),gap:V(14,10),alignItems:'stretch'}}>
           <TriBox c={T} t="FIRM A" d="R&D → Production → Marketing → Sales & Service"/>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            <div style={{background:`${RD}12`,border:`1px solid ${RD}35`,borderRadius:100,padding:'8px 18px',fontSize:V(12,11),fontWeight:700,color:RD,whiteSpace:'nowrap'}}>RELATIVE COSTS</div>
+            <div style={{background:`${RD}12`,border:`1px solid ${RD}35`,borderRadius:100,padding:'8px 18px',fontSize:PXV(12,11),fontWeight:FW(700),color:RD,whiteSpace:'nowrap'}}>RELATIVE COSTS</div>
           </div>
           <TriBox c={BL} t="FIRM B" d="R&D → Production → Marketing → Sales & Service"/>
         </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(18,12),fontStyle:'italic',textAlign:'center'}}>Both firms run the same chain. Advantage = running it for MORE perceived value, or at LOWER relative cost.</p>
+        <p style={{color:`${G}90`,fontSize:PXV(13,11),marginTop:V(18,12),fontStyle:'italic',textAlign:'center'}}>Both firms run the same chain. Advantage = running it for MORE perceived value, or at LOWER relative cost.</p>
       </div>
     </P>
   </div>
@@ -507,16 +584,16 @@ const CompetenceRootsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Roots of Competitive Advantage</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>Source: adapted from Jüttner and Wehrli (1994) — performance grows from roots competitors can't see.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Roots of Competitive Advantage</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(24,16)}}>Source: adapted from Jüttner and Wehrli (1994) — performance grows from roots competitors can't see.</p>
         <div style={{display:'flex',flexDirection:'column',gap:V(10,8),alignItems:'center'}}>
           {layers.map((l,i)=>(
             <div key={i} style={{width:V(l.w,'100%'),background:BG2,border:`1px solid ${l.c}40`,borderRadius:12,padding:V('13px 20px','11px 14px'),textAlign:'center'}}>
-              <div style={{fontSize:V(14,12),fontWeight:700,color:l.c,letterSpacing:1,marginBottom:4}}>{l.t}</div>
-              <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{l.d}</div>
+              <div style={{fontSize:PXV(14,12),fontWeight:FW(700),color:l.c,letterSpacing:1,marginBottom:4}}>{l.t}</div>
+              <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{l.d}</div>
             </div>
           ))}
-          <div style={{display:'flex',gap:10,marginTop:V(8,4),fontSize:V(12,10),color:`${G}90`,fontStyle:'italic',flexWrap:'wrap',justifyContent:'center'}}>
+          <div style={{display:'flex',gap:10,marginTop:V(8,4),fontSize:PXV(12,10),color:`${G}90`,fontStyle:'italic',flexWrap:'wrap',justifyContent:'center'}}>
             <span>↑ The pyramid is read bottom-up: resources feed competences, competences feed advantage, advantage feeds performance.</span>
           </div>
         </div>
@@ -536,15 +613,15 @@ const FourActionsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 5"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Four Actions Framework</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Four Actions Framework</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(16,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
           {acts.map((a,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${a.c}35`,borderRadius:14,overflow:'hidden'}}>
-              <div style={{background:`${a.c}15`,padding:V('10px 18px','9px 14px'),fontSize:V(14,12),fontWeight:700,color:a.c,letterSpacing:2}}>{a.t}</div>
+              <div style={{background:`${a.c}15`,padding:V('10px 18px','9px 14px'),fontSize:PXV(14,12),fontWeight:FW(700),color:a.c,letterSpacing:2}}>{a.t}</div>
               <div style={{padding:V('14px 18px','11px 14px')}}>
-                <div style={{fontSize:V(14,12),color:W,lineHeight:1.55,marginBottom:8}}>{a.q}</div>
-                <div style={{fontSize:V(12,11),color:a.c,fontStyle:'italic'}}>→ {a.a}</div>
+                <div style={{fontSize:PXV(14,12),color:W,lineHeight:1.55,marginBottom:8}}>{a.q}</div>
+                <div style={{fontSize:PXV(12,11),color:a.c,fontStyle:'italic'}}>→ {a.a}</div>
               </div>
             </div>
           ))}
@@ -557,14 +634,14 @@ const TakeawaysSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.04}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
         {data.items.map((item,i)=>(
           <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
             <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
-              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+              <div style={{fontSize:PXV(17,15),fontWeight:FW(700),color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:PXV(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
             </div>
           </div>
         ))}
@@ -576,21 +653,21 @@ const TakeawaysSlide = ({data}) => (
 const DiscussionSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
         {data.questions.map((q,i)=>(
           <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
-            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:PXV(19,15),lineHeight:1.6,color:W}}>{q}</div>
           </div>
         ))}
       </div>
       {data.resource && (
         <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
           <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
-          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+          <div style={{fontSize:PXV(16,14),color:G,lineHeight:1.5}}>
             {data.resource.label}{' '}
-            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:FW(700),textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
           </div>
         </div>
       )}
@@ -604,22 +681,22 @@ const ExerciseSlide = ({data}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
       <P>
         <ModuleTag module={data.module}/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
-        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:PXV(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
         <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
           {data.options.map((opt,i)=>(
-            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:PXV(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
               {opt}
             </div>
           ))}
         </div>
         <div style={{textAlign:'center'}}>
           {!revealed?(
-            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:INK(),border:'none',padding:'15px 42px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
               Reveal Answer
             </button>
           ):(
-            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:PXV(17,14),lineHeight:1.6,textAlign:'left'}}>
               <strong>Explanation:</strong> {data.explanation}
             </div>
           )}
@@ -634,9 +711,9 @@ const QuizIntroSlide = ({data,onStart}) => (
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{textAlign:'center'}}>
       <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
-      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
-      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:INK(),border:'none',padding:'18px 56px',fontSize:PX(20),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
         Start Assessment →
       </button>
     </P>
@@ -664,17 +741,17 @@ const QuizSlide = ({data,onFinish}) => {
     return(
       <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
         <P style={{textAlign:'center'}}>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
-          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:PX(18),color:G,marginBottom:36}}>{pct}% correct answers</div>
           <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
             {data.questions.map((q,i)=>(
-              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:PXV(16,14),color:answers[i]===q.correct?T:RD,fontWeight:FW(700)}}>
                 {answers[i]===q.correct?'✓':'✗'}
               </div>
             ))}
           </div>
-          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={onFinish} style={{background:T,color:INK(),border:'none',padding:'14px 40px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             Continue →
           </button>
         </P>
@@ -688,12 +765,12 @@ const QuizSlide = ({data,onFinish}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
-          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{fontSize:PX(12),color:G,fontWeight:FW(700),letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
           <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
           </div>
         </div>
-        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
         <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
           {q.opts.map((opt,i)=>{
             let bg=BG2,border=`1px solid ${BDR}`,color=W;
@@ -702,14 +779,14 @@ const QuizSlide = ({data,onFinish}) => {
               else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
             }
             return(
-              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:PXV(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
                 {opt}
               </div>
             );
           })}
         </div>
         {answered&&(
-          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={next} style={{background:T,color:INK(),border:'none',padding:'13px 34px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             {current<data.questions.length-1?'Next Question →':'See Results →'}
           </button>
         )}
@@ -730,10 +807,10 @@ const PromptSlide = ({data}) => {
     <div className="bg-art"><BgGlobe opacity={.035}/></div>
     <P>
       <ModuleTag module={data.tool} color={c}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(38,25),color:W,margin:'0 0 10px',lineHeight:1.1}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(38,25),color:W,margin:'0 0 10px',lineHeight:1.1}}>{data.title}</h2>
       <p style={{fontSize:V(17,13.5),lineHeight:1.6,color:G,margin:'0 0 18px',maxWidth:900}}>{data.intro}</p>
       <div style={{position:'relative',background:'#0a0d12',border:`1px solid ${c}45`,borderLeft:`4px solid ${c}`,borderRadius:10,padding:V('22px 24px','16px 14px'),maxHeight:V('44vh','46vh'),overflowY:'auto'}}>
-        <button onClick={copy} style={{position:'absolute',top:12,right:12,background:c,color:'#08120c',border:'none',borderRadius:7,padding:'7px 15px',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",zIndex:3}}>{copied?'Copied ✓':'Copy'}</button>
+        <button onClick={copy} style={{position:'absolute',top:12,right:12,background:c,color:'#08120c',border:'none',borderRadius:7,padding:'7px 15px',fontSize:PX(13),fontWeight:FW(700),cursor:'pointer',fontFamily:"'DM Sans',sans-serif",zIndex:3}}>{copied?'Copied ✓':'Copy'}</button>
         <pre style={{margin:0,whiteSpace:'pre-wrap',wordBreak:'break-word',fontFamily:"'Courier New',ui-monospace,monospace",fontSize:V(14.5,11.5),lineHeight:1.62,color:'#d8e4d2',paddingRight:V(64,52)}}>{data.prompt}</pre>
       </div>
       {data.output&&<div style={{marginTop:14,fontSize:V(15,12.5),color:c,display:'flex',gap:10,alignItems:'flex-start'}}><div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(c)}</div>{data.output}</div>}
@@ -747,12 +824,12 @@ const ClosingSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.06}/></div>
     <P>
       <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
-      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:PXV(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
       <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
-        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+        <div style={{fontSize:PXV(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
       </div>
-      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+      <div style={{marginTop:V(40,28),fontSize:PXV(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
     </P>
   </div>
 );
@@ -805,6 +882,8 @@ function App(){
   },[next,prev,s.type]);
 
   const renderSlide=()=>{
+    TIPO = s.type;
+    try{ var d=document.documentElement; d.dataset.tipo = s.type; d.dataset.compuesta = (COMPUESTAS.indexOf(s.type)>-1 ? '1' : '0');}catch(e){}
     switch(s.type){
       case 'title':            return <TitleSlide data={s}/>;
       case 'impact':           return <ImpactSlide data={s}/>;
@@ -838,29 +917,29 @@ function App(){
       <div className="bg-grid"/>
       <div className="bg-glow"/>
       <div className="bg-glow-left"/>
-      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+      <div key={cur} className={`slide-enter${(MOB||PROJ)?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:(MOB||PROJ)?'auto':'hidden'}}>
         {renderSlide()}
       </div>
       {/* FOOTER NAV */}
       <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
         <div style={{display:'flex',alignItems:'center',gap:14}}>
           {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
-            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
-            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Toolkit</div>
+            <div style={{fontSize:PX(12),color:T,fontWeight:FW(700),letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:PX(11),color:`${G}70`,letterSpacing:1}}>Global Marketing · Toolkit</div>
           </div>}
           {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
           </button>}
-          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.4</div>}
+          {MOB&&<div style={{fontSize:PX(10),color:T,fontWeight:FW(700),letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.4</div>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
-          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>←</button>
           <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
           </div>
-          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>→</button>
         </div>
-        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+        <div style={{fontSize:PXV(14,12),color:G,fontWeight:FW(600),fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
       </div>
     </div>
   );
@@ -868,12 +947,288 @@ function App(){
 
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
+window.__rerender = () => root.render(<App/>);
 </script>
 <style>
-html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+html.proyector,html.proyector body{background:#fff;color:#0b0f14}
+html.proyector .bg-grid,html.proyector .bg-glow,html.proyector .bg-glow-left,html.proyector .bg-art{display:none}
+html.proyector #pmode{background:#0b0f14;color:#fff;border-color:#0b0f14}
+/* La diapositiva se desplaza por DENTRO; la barra de navegación no se va de
+   pantalla. El centrado va con margin:auto y NO con justify-content: dentro de
+   una caja con scroll, justify-content:center recorta el principio del
+   contenido y lo deja inalcanzable. */
+html.proyector .slide-enter{display:flex;flex-direction:column}
+html.proyector .slide-enter>*{margin:auto;width:100%;max-width:1560px}
 #pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #pmode:hover{background:rgba(127,127,127,.32);}
 </style>
-<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<button id="pmode" onclick="toggleProyector()" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<script>
+/* ── arreglos proyector ── */
+// React monta un nodo nuevo con className "slide-enter" cada vez que cambia la
+// diapositiva (lleva key={cur}); los re-render dentro de la misma diapositiva
+// reutilizan el nodo, así que esto NO se dispara al pulsar "Reveal answer".
+(function(){
+  var raiz = document.getElementById('root');
+  if (!raiz || !window.MutationObserver) return;
+  function arriba(){
+    window.scrollTo(0, 0);
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    var s = raiz.querySelector('.slide-enter');
+    if (s) s.scrollTop = 0;
+  }
+  new MutationObserver(function(muts){
+    for (var i = 0; i < muts.length; i++) {
+      var add = muts[i].addedNodes;
+      for (var j = 0; j < add.length; j++) {
+        var n = add[j];
+        if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+          arriba();
+          requestAnimationFrame(arriba);   // por si la animación de entrada mueve algo
+          return;
+        }
+      }
+    }
+  }).observe(raiz, {childList: true, subtree: true});
+})();
+</script>
+<style>
+#vz{position:fixed;inset:0;z-index:100000;background:rgba(8,10,14,.97);display:none;
+  touch-action:none;overscroll-behavior:contain}
+#vz.on{display:block}
+html.proyector #vz{background:rgba(232,237,243,.985)}
+#vz .lienzo svg{background:#fff;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.45);padding:10px}
+html.proyector #vz .lienzo svg{box-shadow:0 10px 40px rgba(0,0,0,.22);border:1px solid #C9D4E0}
+#vz .cerrar{background:#0072CE !important;border-color:#0072CE !important;color:#fff !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#vz .lienzo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  transform-origin:50% 50%;will-change:transform}
+#vz .lienzo svg{max-width:96vw;max-height:88vh;width:auto;height:auto}
+#vz .cerrar{position:fixed;top:14px;right:14px;z-index:2;background:rgba(127,127,127,.22);
+  border:1px solid rgba(127,127,127,.5);color:#fff;font:700 13px/1 system-ui,sans-serif;
+  padding:11px 15px;border-radius:9px;cursor:pointer}
+html.proyector #vz .cerrar{color:#0b0f14}
+#vz .pista{position:fixed;left:0;right:0;bottom:16px;text-align:center;
+  font:600 12px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.62);pointer-events:none}
+html.proyector #vz .pista{color:rgba(0,0,0,.55)}
+.zoomable{cursor:zoom-in}
+.tocar{position:absolute;right:8px;bottom:8px;background:rgba(127,127,127,.2);
+  border:1px solid rgba(127,127,127,.42);border-radius:7px;padding:5px 9px;
+  font:700 10px/1 system-ui,sans-serif;color:inherit;opacity:.75;pointer-events:none}
+#hintmodo{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;
+  background:#0072CE;color:#fff;border-radius:12px;padding:13px 15px;
+  font:600 13px/1.45 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#hintmodo b{display:block;font-size:14px;margin-bottom:2px}
+#hintmodo .x{position:absolute;top:8px;right:11px;font-size:17px;opacity:.75;cursor:pointer}
+</style>
+<div id="vz"><div class="lienzo"></div>
+  <button class="cerrar" onclick="window.__vzCerrar()">Cerrar ✕</button>
+  <div class="pista">Pellizca para acercar · aleja del todo para volver al encuadre</div>
+</div>
+<script>
+/* ── visor y memoria de modo ── */
+(function(){
+  var CLAVE = 'curso-modo';
+
+  /* ── 1 · recordar el modo entre capítulos ─────────────────────────── */
+  function aplicaGuardado(){
+    var q = null;
+    try { q = localStorage.getItem(CLAVE); } catch(e){}
+    if (q !== 'claro') return;
+    var t = setInterval(function(){
+      if (!window.toggleProyector) return;
+      clearInterval(t);
+      if (!document.documentElement.classList.contains('proyector')) window.toggleProyector();
+    }, 60);
+    setTimeout(function(){ clearInterval(t); }, 6000);
+  }
+  aplicaGuardado();
+
+  var btn = document.getElementById('pmode');
+  if (btn) btn.addEventListener('click', function(){
+    setTimeout(function(){
+      try {
+        localStorage.setItem(CLAVE,
+          document.documentElement.classList.contains('proyector') ? 'claro' : 'oscuro');
+      } catch(e){}
+      var h = document.getElementById('hintmodo');
+      if (h) h.style.display = 'none';
+    }, 30);
+  });
+
+  /* aviso la primera vez, sólo en pantalla pequeña */
+  function pista(){
+    if (window.innerWidth > 820) return;
+    var visto = null;
+    try { visto = localStorage.getItem(CLAVE); } catch(e){}
+    if (visto) return;
+    var d = document.createElement('div');
+    d.id = 'hintmodo';
+    d.innerHTML = '<span class="x">&times;</span>' +
+      '<b>¿Tu profe proyecta en fondo claro?</b>' +
+      'Toca el botón <b style="display:inline">☀ Proyector</b> arriba a la derecha ' +
+      'y verás exactamente lo mismo que está en la pantalla del salón.';
+    document.body.appendChild(d);
+    d.style.display = 'block';
+    d.querySelector('.x').onclick = function(){
+      d.style.display = 'none';
+      try { localStorage.setItem(CLAVE, 'oscuro'); } catch(e){}
+    };
+    setTimeout(function(){ if (d) d.style.display = 'none'; }, 14000);
+  }
+  window.addEventListener('load', function(){ setTimeout(pista, 1200); });
+
+  /* ── 2 · visor de diagramas a pantalla completa ───────────────────── */
+  var vz = document.getElementById('vz'), lienzo = vz.querySelector('.lienzo');
+  var esc = 1, x = 0, y = 0, d0 = 0, esc0 = 1, px = 0, py = 0, arrastrando = false;
+
+  function pinta(){ lienzo.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + esc + ')'; }
+  function encuadre(){ esc = 1; x = 0; y = 0; pinta(); }
+
+  function decorativo(el){
+    /* el arte de fondo va casi transparente y sin recibir clics */
+    for (var i = 0, n = el; i < 4 && n && n !== document.body; i++, n = n.parentElement){
+      var cs = getComputedStyle(n);
+      if (parseFloat(cs.opacity) < 0.3) return true;
+      if (cs.pointerEvents === 'none') return true;
+      var cl = String(n.className && n.className.baseVal !== undefined
+                      ? n.className.baseVal : (n.className || ''));
+      if (/bg-(art|grid|glow)/.test(cl)) return true;
+    }
+    return false;
+  }
+  function grande(svg){
+    var vb = (svg.getAttribute('viewBox') || '').split(/[ ,]+/);
+    if (vb.length < 4) return false;
+    if (!(+vb[2] >= 200 && +vb[3] >= 120)) return false;   // fuera los iconos de 24×24
+    return !decorativo(svg);                                // fuera el arte de fondo
+  }
+
+  window.__vzAbrir = function(svg){
+    lienzo.innerHTML = '';
+    var c = svg.cloneNode(true);
+    c.removeAttribute('style');
+    c.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    lienzo.appendChild(c);
+    encuadre();
+    vz.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  };
+  window.__vzCerrar = function(){
+    vz.classList.remove('on');
+    lienzo.innerHTML = '';
+    document.body.style.overflow = '';
+  };
+
+  /* abrir por delegación: sobrevive a cada re-render de React */
+  function pantallaChica(){
+    return window.innerWidth <= 820 ||
+           (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  }
+  document.addEventListener('click', function(e){
+    if (vz.classList.contains('on')) return;
+    if (!pantallaChica()) return;      /* en proyector el esquema ya se ve grande:
+                                          abrirlo taparía la proyección entera */
+    var svg = e.target.closest ? e.target.closest('svg') : null;
+    if (!svg || !grande(svg)) return;
+    if (svg.closest('#vz')) return;
+    e.preventDefault();
+    window.__vzAbrir(svg);
+  }, true);
+
+  /* marcar los diagramas como ampliables */
+  function marcar(){
+    document.querySelectorAll('#root svg').forEach(function(s){
+      if (!grande(s) || s.classList.contains('zoomable')) return;
+      s.classList.add('zoomable');
+      var p = s.parentNode;
+      if (p && pantallaChica() && !p.querySelector('.tocar')) {
+        var cs = getComputedStyle(p);
+        if (cs.position === 'static') p.style.position = 'relative';
+        var b = document.createElement('span');
+        b.className = 'tocar'; b.textContent = 'Toca para ampliar';
+        p.appendChild(b);
+      }
+    });
+  }
+  var raiz = document.getElementById('root');
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(){ marcar(); }).observe(raiz, {childList:true, subtree:true});
+  }
+  window.addEventListener('load', function(){ setTimeout(marcar, 500); });
+
+  /* ── gestos ────────────────────────────────────────────────────────── */
+  function dist(t){
+    var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  vz.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2){ d0 = dist(e.touches); esc0 = esc; }
+    else if (e.touches.length === 1 && esc > 1){
+      arrastrando = true; px = e.touches[0].clientX - x; py = e.touches[0].clientY - y;
+    }
+  }, {passive:true});
+  vz.addEventListener('touchmove', function(e){
+    if (e.touches.length === 2 && d0){
+      e.preventDefault();
+      esc = Math.min(6, Math.max(0.6, esc0 * (dist(e.touches) / d0)));
+      if (esc <= 1.02) { encuadre(); } else { pinta(); }
+    } else if (arrastrando && e.touches.length === 1){
+      e.preventDefault();
+      x = e.touches[0].clientX - px; y = e.touches[0].clientY - py; pinta();
+    }
+  }, {passive:false});
+  vz.addEventListener('touchend', function(e){
+    if (e.touches.length === 0){
+      arrastrando = false; d0 = 0;
+      /* alejar del todo = volver al encuadre original */
+      if (esc <= 1.02) encuadre();
+    }
+  }, {passive:true});
+
+  /* rueda del ratón, para el portátil */
+  vz.addEventListener('wheel', function(e){
+    if (!vz.classList.contains('on')) return;
+    e.preventDefault();
+    esc = Math.min(6, Math.max(0.6, esc * (e.deltaY < 0 ? 1.12 : 0.89)));
+    if (esc <= 1.02) encuadre(); else pinta();
+  }, {passive:false});
+
+  vz.addEventListener('dblclick', function(){ esc > 1.02 ? encuadre() : (esc = 2, pinta()); });
+
+  /* .lienzo cubre toda la pantalla, así que comparar con e.target===vz nunca
+     funcionaba. Cierra cualquier toque que NO caiga sobre el dibujo. */
+  vz.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('svg')) return;
+    if (e.target.closest && e.target.closest('.cerrar')) return;
+    window.__vzCerrar();
+  });
+
+  /* las flechas y Escape cierran, en vez de quedar atrapadas detrás del visor */
+  document.addEventListener('keydown', function(e){
+    if (!vz.classList.contains('on')) return;
+    if (e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === ' ' || e.key === 'PageUp' || e.key === 'PageDown') {
+      window.__vzCerrar();
+    }
+  }, true);
+
+  /* si por lo que sea cambia la diapositiva, el visor no se queda encima */
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++) {
+        var add = muts[i].addedNodes;
+        for (var j = 0; j < add.length; j++) {
+          var n = add[j];
+          if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+            if (vz.classList.contains('on')) window.__vzCerrar();
+            return;
+          }
+        }
+      }
+    }).observe(raiz, {childList: true, subtree: true});
+  }
+})();
+</script>
 </body>
 </html>

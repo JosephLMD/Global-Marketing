@@ -26,24 +26,101 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const T  = "#63b356";   // green accent
-const T2 = "#9de84d";   // bright lime
-const BL = "#4a9eed";   // blue
-const AM = "#f0a500";   // amber
-const RD = "#e05252";   // red
-const BG = "#090b10";
-const BG2= "#0f1318";
-const BG3= "#0d1117";
-const W  = "#f0f0eb";
-const G  = "#7a7a72";
-const BDR= "rgba(255,255,255,.08)";
+let T  = "#63b356";   // green accent
+let T2 = "#9de84d";   // bright lime
+let BL = "#4a9eed";   // blue
+let AM = "#f0a500";   // amber
+let RD = "#e05252";   // red
+let BG = "#090b10";
+let BG2= "#0f1318";
+let BG3= "#0d1117";
+let W  = "#f0f0eb";
+let G  = "#7a7a72";
+let BDR= "rgba(255,255,255,.08)";
 
 // ── RESPONSIVE ──────────────────────────────────────────────────
 // MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
 let MOB = typeof window!=='undefined' && window.innerWidth<=820;
 const V = (d,m) => MOB ? m : d;
+
+/* ═══ MODO PROYECTOR ═══ */
+// Todo lo de aquí abajo sólo actúa cuando PROJ es true. Con PROJ en false el
+// mazo se comporta exactamente igual que antes.
+let PROJ = false;
+const KP = 1.3;                                   // escala tipográfica
+/* ── tamaño por tipo ── */
+// Tipos que aprietan más contenido y por eso venían con letra más chica.
+let TIPO = '';
+const EXTRA_TIPO = {comparison:1.18, case:1.14, diagram:1.15, quiz:1.10};
+// Medido componente a componente: de los 28 esquemas, sólo el Venn de
+// glocalización usa position:absolute con medidas fijas. Los demás son
+// rejillas, flex o SVG: reflujen solos y su letra SÍ debe escalar.
+// El Venn no está aquí porque se amplía con transform en su propia diapositiva.
+const COMPUESTAS = [];
+const KT = () => COMPUESTAS.indexOf(TIPO) > -1 ? 1 : KP * (EXTRA_TIPO[TIPO] || 1);
+const PX  = n => PROJ ? Math.round(n*KT()) : n;       // tamaños sueltos
+const PXV = (d,m) => PROJ ? Math.round(d*KT()) : (MOB ? m : d);
+const FW  = w => PROJ ? Math.min(900, w+100) : w;   // un escalón más de peso
+const INK = () => PROJ ? '#fff' : '#000';           // texto sobre un acento
+const SURF = a => PROJ ? 'rgba(0,0,0,'+Math.min(1,a*2.2).toFixed(3)+')'
+                       : 'rgba(255,255,255,'+a+')';
+const PAL_N = {"T": "#63b356", "T2": "#9de84d", "BL": "#4a9eed", "AM": "#f0a500", "RD": "#e05252", "BG": "#090b10", "BG2": "#0f1318", "BG3": "#0d1117", "W": "#f0f0eb", "G": "#7a7a72", "BDR": "rgba(255,255,255,.08)"};
+const PAL_P = {"T": "#1c7a34", "T2": "#3f7d12", "BL": "#0b57b8", "AM": "#8a5a00", "RD": "#b3261e", "BG": "#ffffff", "BG2": "#f1f4f8", "BG3": "#e8edf3", "W": "#0b0f14", "G": "#3f4a55", "BDR": "rgba(0,0,0,.16)"};
+const AC_MAP = {};
+
+function _rl(h){                                     // luminancia relativa
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var v=[0,2,4].map(function(i){
+    var c=parseInt(h.substr(i,2),16)/255;
+    return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);
+  });
+  return .2126*v[0]+.7152*v[1]+.0722*v[2];
+}
+function _contra(h){ return (1.05)/(_rl(h)+.05); }   // contra blanco
+function _oscurece(h){                               // baja hasta 4,5:1
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  for(var i=0;i<40;i++){
+    var hex='#'+[r,g,b].map(function(x){return ('0'+Math.round(x).toString(16)).slice(-2);}).join('');
+    if(_contra(hex)>=4.5) return hex;
+    r*=.92; g*=.92; b*=.92;
+  }
+  return '#333333';
+}
+function ACC(c){                                      // acento seguro
+  if(!c || !PROJ) return c;
+  var k=String(c).toLowerCase();
+  return AC_MAP[k] || _oscurece(k);
+}
+function aplicaPaleta(){
+  var p = PROJ ? PAL_P : PAL_N;
+  T = p.T;
+  T2 = p.T2;
+  BL = p.BL;
+  AM = p.AM;
+  RD = p.RD;
+  BG = p.BG;
+  BG2 = p.BG2;
+  BG3 = p.BG3;
+  W = p.W;
+  G = p.G;
+  BDR = p.BDR;
+}
+function toggleProyector(){
+  PROJ = !PROJ;
+  document.documentElement.classList.toggle('proyector', PROJ);
+  aplicaPaleta();
+  var b=document.getElementById('pmode');
+  if(b) b.textContent = PROJ ? '\u263e Pantalla' : '\u2600 Proyector';
+  if(window.__rerender) window.__rerender();
+}
+window.toggleProyector = toggleProyector;
+window.__proyectorInfo = function(){ return {PROJ:PROJ, K:KP}; };
+
 // Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
-const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+const SR = (style={}) => ({...style, ...((MOB||PROJ) ? {height:'auto', minHeight:'100%'} : {})});
 
 // ── BACKGROUND ART ──────────────────────────────────────────────
 const BgGlobe = ({opacity=0.03}) => (
@@ -83,7 +160,7 @@ function P({children,style={}}){return <div style={{position:'relative',zIndex:2
 
 const ModuleTag = ({module,color=T}) => (
   <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
-    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    borderRadius:100,padding:'5px 16px',fontSize:PX(12),color,fontWeight:FW(700),letterSpacing:2,
     textTransform:'uppercase',marginBottom:20}}>
     {module}
   </div>
@@ -120,17 +197,17 @@ const SLIDES = [
     tag:'Universidad del Rosario · Global Marketing · Chapter 16',
     title:'Distribution\nDecisions',
     subtitle:'The best product at the best price is worthless\nif it never reaches the shelf. This is how it gets there.',
-    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+    author:'Based on Hollensen, S.: Global Marketing, 5th Edition' },
 
   { type:'impact',
     title:'Why Distribution Decisions Matter',
     stats:[
-      {n:'3',   d:'Strategies for market coverage: intensive, selective, exclusive — channel width is a strategic choice, not an accident.', src:'Hollensen, Fig. 16.3'},
+      {n:'3',   d:'Strategies for market coverage: intensive, selective, exclusive, channel width is a strategic choice, not an accident.', src:'Hollensen, Fig. 16.3'},
       {n:'5',   d:'Functions intermediaries perform: inventory, demand generation, physical distribution, after-sales service, credit.', src:'Hollensen, Ch. 16'},
-      {n:'4',   d:'Main transportation modes — road, water, air, rail — each trading cost against speed and reach.', src:'Hollensen, Ch. 16'},
-      {n:'~40%', d:'Share of a banana\'s UK retail value kept by the retailer — while the plantation worker keeps about 2%.', src:'Banana Split Model · Vorley (2003), approx.'},
+      {n:'4',   d:'Main transportation modes (road, water, air, rail) each trading cost against speed and reach.', src:'Hollensen, Ch. 16'},
+      {n:'~40%', d:'Share of a banana\'s UK retail value kept by the retailer: while the plantation worker keeps about 2%.', src:'Banana Split Model · Vorley (2003), approx.'},
     ],
-    quote:'Products don\'t travel by themselves. Every border crossing is negotiated by someone — who keeps a piece.' },
+    quote:'Products don\'t travel by themselves. Every border crossing is negotiated by someone: who keeps a piece.' },
 
   { type:'agenda',
     title:'What We Cover Today',
@@ -154,15 +231,15 @@ const SLIDES = [
 
   { type:'concept', module:'Module 1', icon:'users',
     title:'What Intermediaries Actually Do',
-    text:'Before cutting out the middleman, know what you\'d be taking on yourself. Intermediaries carry inventory, generate demand through their own selling, handle physical distribution, provide after-sales service, and extend credit to customers. Eliminate the intermediary and the functions remain — someone still has to perform and finance them.',
+    text:'Before cutting out the middleman, know what you\'d be taking on yourself. Intermediaries carry inventory, generate demand through their own selling, handle physical distribution, provide after-sales service, and extend credit to customers. Eliminate the intermediary and the functions remain: someone still has to perform and finance them.',
     highlight:'You can eliminate the middleman, but never the middleman\'s work.' },
 
   { type:'exercise', module:'Module 1',
     title:'Exercise 1 · Cut the Middleman?',
     question:'A Colombian fruit exporter is furious that its European importer "just takes 20%". It plans to sell direct to supermarkets instead. What does the chapter warn?',
-    options:['A) Nothing — direct sales are always more profitable.','B) The importer\'s functions (inventory, demand generation, credit, service) don\'t disappear — the exporter must now perform and finance them itself.','C) European law forbids selling directly to supermarkets.'],
+    options:['A) Nothing: direct sales are always more profitable.','B) The importer\'s functions (inventory, demand generation, credit, service) don\'t disappear: the exporter must now perform and finance them itself.','C) European law forbids selling directly to supermarkets.'],
     correct:1,
-    explanation:'Option B. The 20% pays for inventory risk, selling effort, logistics and credit. Direct distribution can be smart — but only when the firm can perform those functions better or cheaper than the intermediary did.' },
+    explanation:'Option B. The 20% pays for inventory risk, selling effort, logistics and credit. Direct distribution can be smart but only when the firm can perform those functions better or cheaper than the intermediary did.' },
 
   // ── MODULE 2 ────────────────────────────────────────────────────────────
   { type:'module_title', num:2, title:'Coverage, Integration & Managing Distributors', icon:'target',
@@ -172,24 +249,24 @@ const SLIDES = [
 
   { type:'concept', module:'Module 2', icon:'link',
     title:'Vertical & Horizontal Integration',
-    text:'Vertical integration means seeking control of channel members at different levels of the channel — a manufacturer buying its distributor, or opening its own stores. Horizontal integration means seeking control of members at the same level — merging with or acquiring competitors. Both trade flexibility and capital for control.',
+    text:'Vertical integration means seeking control of channel members at different levels of the channel: a manufacturer buying its distributor, or opening its own stores. Horizontal integration means seeking control of members at the same level: merging with or acquiring competitors. Both trade flexibility and capital for control.',
     highlight:'ZARA is vertical integration in action: design, production, logistics and stores under one roof.' },
 
   { type:'concept', module:'Module 2', icon:'users',
     title:'Managing International Distributors',
-    text:'The guidelines: select distributors — don\'t let them select you. Look for partners capable of developing markets, treat them as long-term partners, support entry with money, managers and proven marketing ideas. Maintain control over marketing strategy, require detailed market and financial performance data, and build links among national distributors early.',
+    text:'The guidelines: select distributors, don\'t let them select you. Look for partners capable of developing markets, treat them as long-term partners, support entry with money, managers and proven marketing ideas. Maintain control over marketing strategy, require detailed market and financial performance data, and build links among national distributors early.',
     highlight:'The most common channel mistake: signing whoever knocks first, then wondering why the market never developed.' },
 
   { type:'exercise', module:'Module 2',
     title:'Exercise 2 · Pick the Width',
-    question:'A premium Swiss watch brand enters Colombia. Which coverage strategy fits — and why?',
-    options:['A) Intensive — sell in every supermarket and pharmacy for maximum availability.','B) Exclusive — one authorized dealer in Bogotá, protecting prestige, price control and service quality.','C) Selective at most — but ideally as many outlets as possible to grow fast.'],
+    question:'A premium Swiss watch brand enters Colombia. Which coverage strategy fits and why?',
+    options:['A) Intensive: sell in every supermarket and pharmacy for maximum availability.','B) Exclusive: one authorized dealer in Bogotá, protecting prestige, price control and service quality.','C) Selective at most but ideally as many outlets as possible to grow fast.'],
     correct:1,
-    explanation:'Option B. Luxury positioning demands scarcity, controlled presentation and impeccable service — the textbook conditions for exclusive distribution. Intensive coverage suits convenience goods like soft drinks, not prestige goods.' },
+    explanation:'Option B. Luxury positioning demands scarcity, controlled presentation and impeccable service: the textbook conditions for exclusive distribution. Intensive coverage suits convenience goods like soft drinks, not prestige goods.' },
 
   // ── MODULE 3 ────────────────────────────────────────────────────────────
   { type:'module_title', num:3, title:'Logistics: Moving the Goods', icon:'box',
-    question:'Logistics is invisible when it works — and fatal when it doesn\'t.' },
+    question:'Logistics is invisible when it works and fatal when it doesn\'t.' },
 
   { type:'concept', module:'Module 3', icon:'flag',
     title:'The Export Procedure & Its Documents',
@@ -200,13 +277,13 @@ const SLIDES = [
 
   { type:'concept', module:'Module 3', icon:'refresh',
     title:'Freight Forwarders, Inventory & Warehousing',
-    text:'Freight forwarders coordinate transport services, prepare and process transport documents, and provide expert advice — which is why most exporters use them. Inventory levels balance order cycle time against customer service levels. Warehousing decisions follow where customers are located, the pattern of existing and future demand, and the service level required.',
+    text:'Freight forwarders coordinate transport services, prepare and process transport documents, and provide expert advice: which is why most exporters use them. Inventory levels balance order cycle time against customer service levels. Warehousing decisions follow where customers are located, the pattern of existing and future demand, and the service level required.',
     highlight:'Bosch-Siemens consolidated European distribution into few central warehouses: fewer stocks, faster total service.' },
 
   { type:'exercise', module:'Module 3',
     title:'Exercise 3 · Choose the Mode',
-    question:'A Medellín flower exporter ships fresh-cut roses to Miami for Valentine\'s Day. Which transport mode — and which factor decides?',
-    options:['A) Water — lowest cost per ton always wins.','B) Air — the product\'s perishable nature and the shipment\'s time-critical value outweigh the higher cost.','C) Road — trucks can drive from Medellín to Miami.'],
+    question:'A Medellín flower exporter ships fresh-cut roses to Miami for Valentine\'s Day. Which transport mode and which factor decides?',
+    options:['A) Water: lowest cost per ton always wins.','B) Air: the product\'s perishable nature and the shipment\'s time-critical value outweigh the higher cost.','C) Road: trucks can drive from Medellín to Miami.'],
     correct:1,
     explanation:'Option B. Mode choice weighs cost, distance, nature of the product, frequency, value and availability. For perishable, high-value, deadline-bound roses, air freight is the only mode that delivers them alive. Colombia\'s flower industry was literally built on it.' },
 
@@ -216,20 +293,20 @@ const SLIDES = [
 
   { type:'concept', module:'Module 4', icon:'wifi',
     title:'Internet Distribution Strategies',
-    text:'Four strategic options for the online channel: present only product information on the internet; leave internet business to resellers; reserve internet business for the manufacturer only; or open internet business to everybody. Each option redraws the line between you and your channel partners — and channel conflict lives exactly on that line.',
+    text:'Four strategic options for the online channel: present only product information on the internet; leave internet business to resellers; reserve internet business for the manufacturer only; or open internet business to everybody. Each option redraws the line between you and your channel partners and channel conflict lives exactly on that line.',
     highlight:'Going direct online while your retailers stock your product is the fastest way to start a channel war.' },
 
   { type:'concept', module:'Module 4', icon:'zap',
     title:'Channel Power & Trade Marketing',
-    text:'Channel power is the ability of a channel member to control marketing variables of any other member at a different level. Power has shifted downstream: concentrated retail chains dictate terms to manufacturers. The response is trade marketing — treating the retailer as a customer in its own right, with dedicated account teams, category management and tailored programmes.',
-    highlight:'When five retail chains control most of a country\'s shelf space, the shelf — not the brand — becomes the scarce resource.' },
+    text:'Channel power is the ability of a channel member to control marketing variables of any other member at a different level. Power has shifted downstream: concentrated retail chains dictate terms to manufacturers. The response is trade marketing, treating the retailer as a customer in its own right, with dedicated account teams, category management and tailored programmes.',
+    highlight:'When five retail chains control most of a country\'s shelf space, the shelf (not the brand) becomes the scarce resource.' },
 
   { type:'banana_split' },
 
   { type:'exercise', module:'Module 4',
     title:'Exercise 4 · Read the Split',
     question:'In the Banana Split model, the plantation worker keeps ~2% of retail value while the retailer keeps ~40%. What does this distribution of value reflect?',
-    options:['A) Retailers have higher costs than anyone else in the chain.','B) Channel power — actors closest to the consumer, with concentrated control of access to shelves, capture the largest share of value.','C) A legal requirement in the UK grocery market.'],
+    options:['A) Retailers have higher costs than anyone else in the chain.','B) Channel power: actors closest to the consumer, with concentrated control of access to shelves, capture the largest share of value.','C) A legal requirement in the UK grocery market.'],
     correct:1,
     explanation:'Option B. The split mirrors bargaining power, not effort or cost. Concentrated retail gatekeepers control access to consumers, so they capture value; fragmented growers at the chain\'s start capture least. The model is a power map disguised as a price tag.' },
 
@@ -239,37 +316,37 @@ const SLIDES = [
 
   { type:'concept', module:'Module 5', icon:'alert',
     title:'Grey Marketing (Parallel Importing)',
-    text:'Grey marketing is the importing and selling of products through market distribution channels that are not authorized by the manufacturer. The goods are genuine — that\'s what makes it grey, not black. It thrives wherever the manufacturer\'s own price differences between countries exceed the cost of moving goods between them.',
+    text:'Grey marketing is the importing and selling of products through market distribution channels that are not authorized by the manufacturer. The goods are genuine: that\'s what makes it grey, not black. It thrives wherever the manufacturer\'s own price differences between countries exceed the cost of moving goods between them.',
     highlight:'Grey markets are self-inflicted: they arbitrage the price gaps the manufacturer itself created.' },
 
   { type:'concept', module:'Module 5', icon:'target',
     title:'Strategies to Reduce Grey Marketing',
-    text:'Three families of response: seek legal redress (trademark and contract enforcement — slow and uneven across countries); change the marketing mix — product strategy (differentiate versions per market), pricing strategy (narrow the cross-country gaps that feed arbitrage), and warranty strategy (valid only through authorized channels, raising the grey product\'s real cost).',
+    text:'Three families of response: seek legal redress (trademark and contract enforcement, slow and uneven across countries); change the marketing mix, product strategy (differentiate versions per market), pricing strategy (narrow the cross-country gaps that feed arbitrage), and warranty strategy (valid only through authorized channels, raising the grey product\'s real cost).',
     highlight:'The warranty lever is quiet but powerful: a grey import without service coverage is a different, riskier product.' },
 
   { type:'case', module:'Module 5', icon:'award',
-    title:'Case: De Beers — Controlling a Global Channel',
-    problem:'Diamonds are small, valuable, identical-looking and easy to move — the perfect grey market product. Uncontrolled flows could collapse prices and the entire scarcity narrative the industry rests on.',
-    solution:'De Beers built one of history\'s tightest distribution systems: rough diamonds flowed through its central selling organization to a small circle of authorized sightholders, with allocation and conduct rules down the chain. Channel control wasn\'t a tactic — it was the business model itself.',
+    title:'Case: De Beers, Controlling a Global Channel',
+    problem:'Diamonds are small, valuable, identical-looking and easy to move: the perfect grey market product. Uncontrolled flows could collapse prices and the entire scarcity narrative the industry rests on.',
+    solution:'De Beers built one of history\'s tightest distribution systems: rough diamonds flowed through its central selling organization to a small circle of authorized sightholders, with allocation and conduct rules down the chain. Channel control wasn\'t a tactic, it was the business model itself.',
     lesson:'When the product is easy to arbitrage, control of the channel is control of the price.' },
 
   { type:'exercise', module:'Module 5',
     title:'Exercise 5 · Stop the Leak',
     question:'A camera maker finds its Hong Kong stock resold in Germany 25% below local list price. Which response does the chapter recommend FIRST examining?',
-    options:['A) Suing the German resellers immediately — legal redress is fastest.','B) Its own pricing strategy — narrowing the Hong Kong–Germany price gap that makes the arbitrage profitable.','C) Stopping all sales in Hong Kong.'],
+    options:['A) Suing the German resellers immediately: legal redress is fastest.','B) Its own pricing strategy: narrowing the Hong Kong–Germany price gap that makes the arbitrage profitable.','C) Stopping all sales in Hong Kong.'],
     correct:1,
-    explanation:'Option B. Legal action is slow and patchy across borders; abandoning markets sacrifices revenue. The root cause is the price differential — shrink it (or differentiate the product/warranty by market) and the grey channel\'s margin evaporates.' },
+    explanation:'Option B. Legal action is slow and patchy across borders; abandoning markets sacrifices revenue. The root cause is the price differential: shrink it (or differentiate the product/warranty by market) and the grey channel\'s margin evaporates.' },
 
   // ── MODULE 6 ────────────────────────────────────────────────────────────
   { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
-    question:'From factory gate to foreign basket — can you map the journey?' },
+    question:'From factory gate to foreign basket: can you map the journey?' },
 
   { type:'takeaways',
-    title:'Chapter 16 — What You Now Know',
+    title:'Chapter 16: What You Now Know',
     items:[
       {icon:'map',    c:T,  t:'Channel Structure',  d:'Length, width and parallel channels follow customers, product, competition, law and the control–cost trade-off.'},
-      {icon:'target', c:BL, t:'Coverage',           d:'Intensive for convenience, selective for shopping goods, exclusive for prestige — width is positioning.'},
-      {icon:'box',    c:AM, t:'Logistics',          d:'Modes, documents, forwarders and warehouses — invisible when right, fatal when wrong.'},
+      {icon:'target', c:BL, t:'Coverage',           d:'Intensive for convenience, selective for shopping goods, exclusive for prestige: width is positioning.'},
+      {icon:'box',    c:AM, t:'Logistics',          d:'Modes, documents, forwarders and warehouses: invisible when right, fatal when wrong.'},
       {icon:'zap',    c:T2, t:'Channel Power',      d:'Concentrated retail captures the value (Banana Split). Trade marketing treats the retailer as a customer.'},
       {icon:'shuffle',c:RD, t:'Grey Markets',       d:'Parallel imports arbitrage your own price gaps. Fix the gaps, differentiate versions, weaponize the warranty.'},
     ]},
@@ -279,10 +356,10 @@ const SLIDES = [
     questions:[
       'What are the factors that affect the length, width and number of marketing channels?',
       'When would it be feasible and advisable for a global company to centralize the coordination of its foreign market distribution systems? When would decentralization be more appropriate?',
-      'Do grey marketers serve useful marketing functions — for consumers and manufacturers?',
+      'Do grey marketers serve useful marketing functions: for consumers and manufacturers?',
       'Discuss the implications for the international marketer of the trend towards cross-border retailing.',
     ],
-    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+    resource:{label:'Research resource: back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
 
   { type:'quiz_intro',
     title:'Final Assessment',
@@ -300,7 +377,7 @@ const SLIDES = [
         opts:['Seeking control of channel members at the same level (competitors).','Seeking control of channel members at different levels of the channel.','Selling through as many outlets as possible.','Merging with companies in unrelated industries.'],
         correct:1 },
       { q:'According to the distributor guidelines, a firm should…',
-        opts:['Select distributors itself, looking for partners capable of developing markets, and treat them as long-term partners.','Let enthusiastic distributors select the firm — motivation matters most.','Change distributors every year to keep them competitive.','Avoid sharing any marketing strategy with distributors.'],
+        opts:['Select distributors itself, looking for partners capable of developing markets, and treat them as long-term partners.','Let enthusiastic distributors select the firm: motivation matters most.','Change distributors every year to keep them competitive.','Avoid sharing any marketing strategy with distributors.'],
         correct:0 },
       { q:'Which document set belongs to TRANSPORTATION documents?',
         opts:['Letter of credit and consular invoice.','Commercial invoice only.','Export declaration and certificate of origin.','Bill of lading, dock receipt and insurance certificate.'],
@@ -324,7 +401,7 @@ const SLIDES = [
 
   { type:'closing',
     title:'See You Next Class',
-    subtitle:'Chapter 17: Communication Decisions\nHow global brands talk — advertising, promotion and the rest of the communication mix.',
+    subtitle:'Chapter 17: Communication Decisions\nHow global brands talk, advertising, promotion and the rest of the communication mix.',
     quote:'"The shelf is the moment of truth: everything before it is promise, everything after it is experience."' },
 ];
 
@@ -334,10 +411,10 @@ const TitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.4}}>
-      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
-      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
-      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+      <div style={{fontSize:PXV(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:FW(700),marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:PX(13),color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
     </P>
     {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
       <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
@@ -349,19 +426,19 @@ const ImpactSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.03}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
         {data.stats.map((s,i)=>(
           <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,30),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
             <div>
-              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
-              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+              <div style={{fontSize:PXV(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:PX(12),color:`${G}80`}}>{s.src}</div>
             </div>
           </div>
         ))}
       </div>
-      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:PXV(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
       </div>
     </P>
@@ -371,13 +448,13 @@ const ImpactSlide = ({data}) => (
 const AgendaSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
         {data.modules.map(m=>(
           <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
-            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
-            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
-            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+            <div style={{fontSize:PXV(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:FW(900)}}>0{m.num}</div>
+            <h3 style={{fontSize:PXV(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:PXV(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
           </div>
         ))}
       </div>
@@ -389,11 +466,11 @@ const ModuleTitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.5}}>
-      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:PX(13),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
         MODULE {data.num}
       </div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
-      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:PXV(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
         {data.question}
       </div>
@@ -406,10 +483,10 @@ const ConceptSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.035}/></div>
     <P style={{flex:1.5}}>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
-      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:PXV(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
       {data.highlight&&(
-        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:PXV(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
           <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
         </div>
       )}
@@ -427,16 +504,16 @@ const CaseSlide = ({data}) => (
     </P>}
     <P style={{flex:1.8}}>
       <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
       <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
-        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+        <div style={{fontSize:PX(11),color:RD,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.problem}</p>
       </div>
       <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
-        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+        <div style={{fontSize:PX(11),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.solution}</p>
       </div>
-      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+      <div style={{fontSize:PXV(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
         <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
       </div>
     </P>
@@ -447,18 +524,18 @@ const ComparisonSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
         {[data.left,data.right].map((side,si)=>(
           <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
-            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:PX(15),fontWeight:FW(700),color:side.color,borderBottom:`1px solid ${side.color}20`}}>
               {side.label}
             </div>
             <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
               {side.items.map((item,i)=>(
-                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
-                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                <div key={i} style={{display:'grid',gridTemplateColumns:V(PX(104)+'px 1fr','84px 1fr'),columnGap:12,alignItems:'baseline'}}>
+                  <div style={{fontSize:PX(12),fontWeight:FW(700),color:side.color}}>{item.k}</div>
+                  <div style={{fontSize:PXV(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
                 </div>
               ))}
             </div>
@@ -479,19 +556,19 @@ const CoverageWidthsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 2"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Three Strategies for Market Coverage</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Lewison (1996) — channel width follows the product’s positioning, not the manufacturer’s ambition.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Three Strategies for Market Coverage</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Lewison (1996) — channel width follows the product’s positioning, not the manufacturer’s ambition.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(14,10),maxWidth:980,margin:'0 auto',width:'100%'}}>
           {covs.map((s,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${s.c}35`,borderRadius:14,overflow:'hidden',display:'flex',flexDirection:'column'}}>
               <div style={{background:`${s.c}15`,padding:V('11px 16px','9px 14px')}}>
-                <div style={{fontSize:V(16,14),fontWeight:700,color:s.c,marginBottom:3}}>{s.t}</div>
-                <div style={{fontSize:V(10,9),fontWeight:700,letterSpacing:1.5,color:`${s.c}90`}}>{s.tag}</div>
+                <div style={{fontSize:PXV(16,14),fontWeight:FW(700),color:s.c,marginBottom:3}}>{s.t}</div>
+                <div style={{fontSize:PXV(10,9),fontWeight:FW(700),letterSpacing:1.5,color:`${s.c}90`}}>{s.tag}</div>
               </div>
               <div style={{padding:V('13px 16px','10px 14px'),flex:1,display:'flex',flexDirection:'column',gap:7}}>
-                <div style={{fontSize:V(13,12),color:W,lineHeight:1.55}}>{s.d}</div>
-                <div style={{fontSize:V(12,11),color:s.c,fontStyle:'italic'}}>→ {s.ex}</div>
-                <div style={{fontSize:V(11,10),color:G,lineHeight:1.45}}>Trade-off: {s.tr}</div>
+                <div style={{fontSize:PXV(13,12),color:W,lineHeight:1.55}}>{s.d}</div>
+                <div style={{fontSize:PXV(12,11),color:s.c,fontStyle:'italic'}}>→ {s.ex}</div>
+                <div style={{fontSize:PXV(11,10),color:G,lineHeight:1.45}}>Trade-off: {s.tr}</div>
               </div>
             </div>
           ))}
@@ -512,17 +589,17 @@ const TransportModesSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 3"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Four Main Transportation Modes</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Decision factors: cost · distance · nature of the product · frequency · value of shipment · availability.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Four Main Transportation Modes</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Decision factors: cost · distance · nature of the product · frequency · value of shipment · availability.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(14,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
           {modes.map((m,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${m.c}35`,borderRadius:14,padding:V('15px 18px','12px 14px'),display:'flex',gap:V(14,10),alignItems:'center'}}>
-              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(20,16),fontWeight:900,color:m.c,minWidth:V(70,54)}}>{m.t}</div>
-              <div style={{fontSize:V(13,11),color:G,lineHeight:1.55}}>{m.d}</div>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(20,16),fontWeight:FW(900),color:m.c,minWidth:V(70,54)}}>{m.t}</div>
+              <div style={{fontSize:PXV(13,11),color:G,lineHeight:1.55}}>{m.d}</div>
             </div>
           ))}
         </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>Most international shipments are multimodal: truck to port, ship across, truck again — coordinated by freight forwarders.</p>
+        <p style={{color:`${G}90`,fontSize:PXV(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>Most international shipments are multimodal: truck to port, ship across, truck again — coordinated by freight forwarders.</p>
       </P>
     </div>
   );
@@ -540,20 +617,20 @@ const BananaSplitSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Banana Split Model</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Approximate shares of a banana’s UK retail value kept by each chain actor — adapted from Vorley (2003).</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Banana Split Model</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Approximate shares of a banana’s UK retail value kept by each chain actor — adapted from Vorley (2003).</p>
         <div style={{display:'flex',flexDirection:'column',gap:V(10,8),maxWidth:880,margin:'0 auto',width:'100%'}}>
           {actors.map((a,i)=>(
             <div key={i} style={{display:'flex',gap:V(14,10),alignItems:'center'}}>
-              <div style={{fontSize:V(13,11),color:W,minWidth:V(150,108),fontWeight:600}}>{a.t}</div>
+              <div style={{fontSize:PXV(13,11),color:W,minWidth:V(150,108),fontWeight:FW(600)}}>{a.t}</div>
               <div style={{flex:1,height:V(26,20),background:BG3,borderRadius:6,overflow:'hidden'}}>
                 <div style={{height:'100%',width:`${Math.max(a.p,3)}%`,background:`${a.c}50`,borderRight:`3px solid ${a.c}`,display:'flex',alignItems:'center'}}/>
               </div>
-              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(17,14),fontWeight:900,color:a.c,minWidth:V(52,40),textAlign:'right'}}>~{a.p}%</div>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(17,14),fontWeight:FW(900),color:a.c,minWidth:V(52,40),textAlign:'right'}}>~{a.p}%</div>
             </div>
           ))}
         </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>The value split mirrors channel power: closest to the consumer, biggest slice. The grower’s sweat is the cheapest input in the chain.</p>
+        <p style={{color:`${G}90`,fontSize:PXV(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>The value split mirrors channel power: closest to the consumer, biggest slice. The grower’s sweat is the cheapest input in the chain.</p>
       </P>
     </div>
   );
@@ -562,14 +639,14 @@ const TakeawaysSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.04}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
         {data.items.map((item,i)=>(
           <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
             <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
-              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+              <div style={{fontSize:PXV(17,15),fontWeight:FW(700),color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:PXV(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
             </div>
           </div>
         ))}
@@ -581,21 +658,21 @@ const TakeawaysSlide = ({data}) => (
 const DiscussionSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
         {data.questions.map((q,i)=>(
           <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
-            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:PXV(19,15),lineHeight:1.6,color:W}}>{q}</div>
           </div>
         ))}
       </div>
       {data.resource && (
         <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
           <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
-          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+          <div style={{fontSize:PXV(16,14),color:G,lineHeight:1.5}}>
             {data.resource.label}{' '}
-            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:FW(700),textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
           </div>
         </div>
       )}
@@ -609,22 +686,22 @@ const ExerciseSlide = ({data}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
       <P>
         <ModuleTag module={data.module}/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
-        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:PXV(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
         <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
           {data.options.map((opt,i)=>(
-            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:PXV(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
               {opt}
             </div>
           ))}
         </div>
         <div style={{textAlign:'center'}}>
           {!revealed?(
-            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:INK(),border:'none',padding:'15px 42px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
               Reveal Answer
             </button>
           ):(
-            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:PXV(17,14),lineHeight:1.6,textAlign:'left'}}>
               <strong>Explanation:</strong> {data.explanation}
             </div>
           )}
@@ -639,9 +716,9 @@ const QuizIntroSlide = ({data,onStart}) => (
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{textAlign:'center'}}>
       <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
-      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
-      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:INK(),border:'none',padding:'18px 56px',fontSize:PX(20),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
         Start Assessment →
       </button>
     </P>
@@ -669,17 +746,17 @@ const QuizSlide = ({data,onFinish}) => {
     return(
       <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
         <P style={{textAlign:'center'}}>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
-          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:PX(18),color:G,marginBottom:36}}>{pct}% correct answers</div>
           <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
             {data.questions.map((q,i)=>(
-              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:PXV(16,14),color:answers[i]===q.correct?T:RD,fontWeight:FW(700)}}>
                 {answers[i]===q.correct?'✓':'✗'}
               </div>
             ))}
           </div>
-          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={onFinish} style={{background:T,color:INK(),border:'none',padding:'14px 40px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             Continue →
           </button>
         </P>
@@ -693,12 +770,12 @@ const QuizSlide = ({data,onFinish}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
-          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{fontSize:PX(12),color:G,fontWeight:FW(700),letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
           <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
           </div>
         </div>
-        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
         <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
           {q.opts.map((opt,i)=>{
             let bg=BG2,border=`1px solid ${BDR}`,color=W;
@@ -707,14 +784,14 @@ const QuizSlide = ({data,onFinish}) => {
               else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
             }
             return(
-              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:PXV(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
                 {opt}
               </div>
             );
           })}
         </div>
         {answered&&(
-          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={next} style={{background:T,color:INK(),border:'none',padding:'13px 34px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             {current<data.questions.length-1?'Next Question →':'See Results →'}
           </button>
         )}
@@ -728,12 +805,12 @@ const ClosingSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.06}/></div>
     <P>
       <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
-      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:PXV(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
       <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
-        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+        <div style={{fontSize:PXV(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
       </div>
-      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+      <div style={{marginTop:V(40,28),fontSize:PXV(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
     </P>
   </div>
 );
@@ -786,6 +863,8 @@ function App(){
   },[next,prev,s.type]);
 
   const renderSlide=()=>{
+    TIPO = s.type;
+    try{ var d=document.documentElement; d.dataset.tipo = s.type; d.dataset.compuesta = (COMPUESTAS.indexOf(s.type)>-1 ? '1' : '0');}catch(e){}
     switch(s.type){
       case 'title':            return <TitleSlide data={s}/>;
       case 'impact':           return <ImpactSlide data={s}/>;
@@ -816,29 +895,29 @@ function App(){
       <div className="bg-grid"/>
       <div className="bg-glow"/>
       <div className="bg-glow-left"/>
-      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+      <div key={cur} className={`slide-enter${(MOB||PROJ)?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:(MOB||PROJ)?'auto':'hidden'}}>
         {renderSlide()}
       </div>
       {/* FOOTER NAV */}
       <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
         <div style={{display:'flex',alignItems:'center',gap:14}}>
           {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
-            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
-            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 16</div>
+            <div style={{fontSize:PX(12),color:T,fontWeight:FW(700),letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:PX(11),color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 16</div>
           </div>}
           {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
           </button>}
-          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.16</div>}
+          {MOB&&<div style={{fontSize:PX(10),color:T,fontWeight:FW(700),letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.16</div>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
-          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>←</button>
           <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
           </div>
-          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>→</button>
         </div>
-        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+        <div style={{fontSize:PXV(14,12),color:G,fontWeight:FW(600),fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
       </div>
     </div>
   );
@@ -846,12 +925,288 @@ function App(){
 
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
+window.__rerender = () => root.render(<App/>);
 </script>
 <style>
-html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+html.proyector,html.proyector body{background:#fff;color:#0b0f14}
+html.proyector .bg-grid,html.proyector .bg-glow,html.proyector .bg-glow-left,html.proyector .bg-art{display:none}
+html.proyector #pmode{background:#0b0f14;color:#fff;border-color:#0b0f14}
+/* La diapositiva se desplaza por DENTRO; la barra de navegación no se va de
+   pantalla. El centrado va con margin:auto y NO con justify-content: dentro de
+   una caja con scroll, justify-content:center recorta el principio del
+   contenido y lo deja inalcanzable. */
+html.proyector .slide-enter{display:flex;flex-direction:column}
+html.proyector .slide-enter>*{margin:auto;width:100%;max-width:1560px}
 #pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #pmode:hover{background:rgba(127,127,127,.32);}
 </style>
-<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<button id="pmode" onclick="toggleProyector()" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<script>
+/* ── arreglos proyector ── */
+// React monta un nodo nuevo con className "slide-enter" cada vez que cambia la
+// diapositiva (lleva key={cur}); los re-render dentro de la misma diapositiva
+// reutilizan el nodo, así que esto NO se dispara al pulsar "Reveal answer".
+(function(){
+  var raiz = document.getElementById('root');
+  if (!raiz || !window.MutationObserver) return;
+  function arriba(){
+    window.scrollTo(0, 0);
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    var s = raiz.querySelector('.slide-enter');
+    if (s) s.scrollTop = 0;
+  }
+  new MutationObserver(function(muts){
+    for (var i = 0; i < muts.length; i++) {
+      var add = muts[i].addedNodes;
+      for (var j = 0; j < add.length; j++) {
+        var n = add[j];
+        if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+          arriba();
+          requestAnimationFrame(arriba);   // por si la animación de entrada mueve algo
+          return;
+        }
+      }
+    }
+  }).observe(raiz, {childList: true, subtree: true});
+})();
+</script>
+<style>
+#vz{position:fixed;inset:0;z-index:100000;background:rgba(8,10,14,.97);display:none;
+  touch-action:none;overscroll-behavior:contain}
+#vz.on{display:block}
+html.proyector #vz{background:rgba(232,237,243,.985)}
+#vz .lienzo svg{background:#fff;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.45);padding:10px}
+html.proyector #vz .lienzo svg{box-shadow:0 10px 40px rgba(0,0,0,.22);border:1px solid #C9D4E0}
+#vz .cerrar{background:#0072CE !important;border-color:#0072CE !important;color:#fff !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#vz .lienzo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  transform-origin:50% 50%;will-change:transform}
+#vz .lienzo svg{max-width:96vw;max-height:88vh;width:auto;height:auto}
+#vz .cerrar{position:fixed;top:14px;right:14px;z-index:2;background:rgba(127,127,127,.22);
+  border:1px solid rgba(127,127,127,.5);color:#fff;font:700 13px/1 system-ui,sans-serif;
+  padding:11px 15px;border-radius:9px;cursor:pointer}
+html.proyector #vz .cerrar{color:#0b0f14}
+#vz .pista{position:fixed;left:0;right:0;bottom:16px;text-align:center;
+  font:600 12px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.62);pointer-events:none}
+html.proyector #vz .pista{color:rgba(0,0,0,.55)}
+.zoomable{cursor:zoom-in}
+.tocar{position:absolute;right:8px;bottom:8px;background:rgba(127,127,127,.2);
+  border:1px solid rgba(127,127,127,.42);border-radius:7px;padding:5px 9px;
+  font:700 10px/1 system-ui,sans-serif;color:inherit;opacity:.75;pointer-events:none}
+#hintmodo{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;
+  background:#0072CE;color:#fff;border-radius:12px;padding:13px 15px;
+  font:600 13px/1.45 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#hintmodo b{display:block;font-size:14px;margin-bottom:2px}
+#hintmodo .x{position:absolute;top:8px;right:11px;font-size:17px;opacity:.75;cursor:pointer}
+</style>
+<div id="vz"><div class="lienzo"></div>
+  <button class="cerrar" onclick="window.__vzCerrar()">Cerrar ✕</button>
+  <div class="pista">Pellizca para acercar · aleja del todo para volver al encuadre</div>
+</div>
+<script>
+/* ── visor y memoria de modo ── */
+(function(){
+  var CLAVE = 'curso-modo';
+
+  /* ── 1 · recordar el modo entre capítulos ─────────────────────────── */
+  function aplicaGuardado(){
+    var q = null;
+    try { q = localStorage.getItem(CLAVE); } catch(e){}
+    if (q !== 'claro') return;
+    var t = setInterval(function(){
+      if (!window.toggleProyector) return;
+      clearInterval(t);
+      if (!document.documentElement.classList.contains('proyector')) window.toggleProyector();
+    }, 60);
+    setTimeout(function(){ clearInterval(t); }, 6000);
+  }
+  aplicaGuardado();
+
+  var btn = document.getElementById('pmode');
+  if (btn) btn.addEventListener('click', function(){
+    setTimeout(function(){
+      try {
+        localStorage.setItem(CLAVE,
+          document.documentElement.classList.contains('proyector') ? 'claro' : 'oscuro');
+      } catch(e){}
+      var h = document.getElementById('hintmodo');
+      if (h) h.style.display = 'none';
+    }, 30);
+  });
+
+  /* aviso la primera vez, sólo en pantalla pequeña */
+  function pista(){
+    if (window.innerWidth > 820) return;
+    var visto = null;
+    try { visto = localStorage.getItem(CLAVE); } catch(e){}
+    if (visto) return;
+    var d = document.createElement('div');
+    d.id = 'hintmodo';
+    d.innerHTML = '<span class="x">&times;</span>' +
+      '<b>¿Tu profe proyecta en fondo claro?</b>' +
+      'Toca el botón <b style="display:inline">☀ Proyector</b> arriba a la derecha ' +
+      'y verás exactamente lo mismo que está en la pantalla del salón.';
+    document.body.appendChild(d);
+    d.style.display = 'block';
+    d.querySelector('.x').onclick = function(){
+      d.style.display = 'none';
+      try { localStorage.setItem(CLAVE, 'oscuro'); } catch(e){}
+    };
+    setTimeout(function(){ if (d) d.style.display = 'none'; }, 14000);
+  }
+  window.addEventListener('load', function(){ setTimeout(pista, 1200); });
+
+  /* ── 2 · visor de diagramas a pantalla completa ───────────────────── */
+  var vz = document.getElementById('vz'), lienzo = vz.querySelector('.lienzo');
+  var esc = 1, x = 0, y = 0, d0 = 0, esc0 = 1, px = 0, py = 0, arrastrando = false;
+
+  function pinta(){ lienzo.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + esc + ')'; }
+  function encuadre(){ esc = 1; x = 0; y = 0; pinta(); }
+
+  function decorativo(el){
+    /* el arte de fondo va casi transparente y sin recibir clics */
+    for (var i = 0, n = el; i < 4 && n && n !== document.body; i++, n = n.parentElement){
+      var cs = getComputedStyle(n);
+      if (parseFloat(cs.opacity) < 0.3) return true;
+      if (cs.pointerEvents === 'none') return true;
+      var cl = String(n.className && n.className.baseVal !== undefined
+                      ? n.className.baseVal : (n.className || ''));
+      if (/bg-(art|grid|glow)/.test(cl)) return true;
+    }
+    return false;
+  }
+  function grande(svg){
+    var vb = (svg.getAttribute('viewBox') || '').split(/[ ,]+/);
+    if (vb.length < 4) return false;
+    if (!(+vb[2] >= 200 && +vb[3] >= 120)) return false;   // fuera los iconos de 24×24
+    return !decorativo(svg);                                // fuera el arte de fondo
+  }
+
+  window.__vzAbrir = function(svg){
+    lienzo.innerHTML = '';
+    var c = svg.cloneNode(true);
+    c.removeAttribute('style');
+    c.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    lienzo.appendChild(c);
+    encuadre();
+    vz.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  };
+  window.__vzCerrar = function(){
+    vz.classList.remove('on');
+    lienzo.innerHTML = '';
+    document.body.style.overflow = '';
+  };
+
+  /* abrir por delegación: sobrevive a cada re-render de React */
+  function pantallaChica(){
+    return window.innerWidth <= 820 ||
+           (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  }
+  document.addEventListener('click', function(e){
+    if (vz.classList.contains('on')) return;
+    if (!pantallaChica()) return;      /* en proyector el esquema ya se ve grande:
+                                          abrirlo taparía la proyección entera */
+    var svg = e.target.closest ? e.target.closest('svg') : null;
+    if (!svg || !grande(svg)) return;
+    if (svg.closest('#vz')) return;
+    e.preventDefault();
+    window.__vzAbrir(svg);
+  }, true);
+
+  /* marcar los diagramas como ampliables */
+  function marcar(){
+    document.querySelectorAll('#root svg').forEach(function(s){
+      if (!grande(s) || s.classList.contains('zoomable')) return;
+      s.classList.add('zoomable');
+      var p = s.parentNode;
+      if (p && pantallaChica() && !p.querySelector('.tocar')) {
+        var cs = getComputedStyle(p);
+        if (cs.position === 'static') p.style.position = 'relative';
+        var b = document.createElement('span');
+        b.className = 'tocar'; b.textContent = 'Toca para ampliar';
+        p.appendChild(b);
+      }
+    });
+  }
+  var raiz = document.getElementById('root');
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(){ marcar(); }).observe(raiz, {childList:true, subtree:true});
+  }
+  window.addEventListener('load', function(){ setTimeout(marcar, 500); });
+
+  /* ── gestos ────────────────────────────────────────────────────────── */
+  function dist(t){
+    var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  vz.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2){ d0 = dist(e.touches); esc0 = esc; }
+    else if (e.touches.length === 1 && esc > 1){
+      arrastrando = true; px = e.touches[0].clientX - x; py = e.touches[0].clientY - y;
+    }
+  }, {passive:true});
+  vz.addEventListener('touchmove', function(e){
+    if (e.touches.length === 2 && d0){
+      e.preventDefault();
+      esc = Math.min(6, Math.max(0.6, esc0 * (dist(e.touches) / d0)));
+      if (esc <= 1.02) { encuadre(); } else { pinta(); }
+    } else if (arrastrando && e.touches.length === 1){
+      e.preventDefault();
+      x = e.touches[0].clientX - px; y = e.touches[0].clientY - py; pinta();
+    }
+  }, {passive:false});
+  vz.addEventListener('touchend', function(e){
+    if (e.touches.length === 0){
+      arrastrando = false; d0 = 0;
+      /* alejar del todo = volver al encuadre original */
+      if (esc <= 1.02) encuadre();
+    }
+  }, {passive:true});
+
+  /* rueda del ratón, para el portátil */
+  vz.addEventListener('wheel', function(e){
+    if (!vz.classList.contains('on')) return;
+    e.preventDefault();
+    esc = Math.min(6, Math.max(0.6, esc * (e.deltaY < 0 ? 1.12 : 0.89)));
+    if (esc <= 1.02) encuadre(); else pinta();
+  }, {passive:false});
+
+  vz.addEventListener('dblclick', function(){ esc > 1.02 ? encuadre() : (esc = 2, pinta()); });
+
+  /* .lienzo cubre toda la pantalla, así que comparar con e.target===vz nunca
+     funcionaba. Cierra cualquier toque que NO caiga sobre el dibujo. */
+  vz.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('svg')) return;
+    if (e.target.closest && e.target.closest('.cerrar')) return;
+    window.__vzCerrar();
+  });
+
+  /* las flechas y Escape cierran, en vez de quedar atrapadas detrás del visor */
+  document.addEventListener('keydown', function(e){
+    if (!vz.classList.contains('on')) return;
+    if (e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === ' ' || e.key === 'PageUp' || e.key === 'PageDown') {
+      window.__vzCerrar();
+    }
+  }, true);
+
+  /* si por lo que sea cambia la diapositiva, el visor no se queda encima */
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++) {
+        var add = muts[i].addedNodes;
+        for (var j = 0; j < add.length; j++) {
+          var n = add[j];
+          if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+            if (vz.classList.contains('on')) window.__vzCerrar();
+            return;
+          }
+        }
+      }
+    }).observe(raiz, {childList: true, subtree: true});
+  }
+})();
+</script>
 </body>
 </html>
