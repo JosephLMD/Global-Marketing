@@ -26,24 +26,101 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const T  = "#63b356";   // green accent
-const T2 = "#9de84d";   // bright lime
-const BL = "#4a9eed";   // blue
-const AM = "#f0a500";   // amber
-const RD = "#e05252";   // red
-const BG = "#090b10";
-const BG2= "#0f1318";
-const BG3= "#0d1117";
-const W  = "#f0f0eb";
-const G  = "#7a7a72";
-const BDR= "rgba(255,255,255,.08)";
+let T  = "#63b356";   // green accent
+let T2 = "#9de84d";   // bright lime
+let BL = "#4a9eed";   // blue
+let AM = "#f0a500";   // amber
+let RD = "#e05252";   // red
+let BG = "#090b10";
+let BG2= "#0f1318";
+let BG3= "#0d1117";
+let W  = "#f0f0eb";
+let G  = "#7a7a72";
+let BDR= "rgba(255,255,255,.08)";
 
 // ── RESPONSIVE ──────────────────────────────────────────────────
 // MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
 let MOB = typeof window!=='undefined' && window.innerWidth<=820;
 const V = (d,m) => MOB ? m : d;
+
+/* ═══ MODO PROYECTOR ═══ */
+// Todo lo de aquí abajo sólo actúa cuando PROJ es true. Con PROJ en false el
+// mazo se comporta exactamente igual que antes.
+let PROJ = false;
+const KP = 1.3;                                   // escala tipográfica
+/* ── tamaño por tipo ── */
+// Tipos que aprietan más contenido y por eso venían con letra más chica.
+let TIPO = '';
+const EXTRA_TIPO = {comparison:1.18, case:1.14, diagram:1.15, quiz:1.10};
+// Medido componente a componente: de los 28 esquemas, sólo el Venn de
+// glocalización usa position:absolute con medidas fijas. Los demás son
+// rejillas, flex o SVG: reflujen solos y su letra SÍ debe escalar.
+// El Venn no está aquí porque se amplía con transform en su propia diapositiva.
+const COMPUESTAS = [];
+const KT = () => COMPUESTAS.indexOf(TIPO) > -1 ? 1 : KP * (EXTRA_TIPO[TIPO] || 1);
+const PX  = n => PROJ ? Math.round(n*KT()) : n;       // tamaños sueltos
+const PXV = (d,m) => PROJ ? Math.round(d*KT()) : (MOB ? m : d);
+const FW  = w => PROJ ? Math.min(900, w+100) : w;   // un escalón más de peso
+const INK = () => PROJ ? '#fff' : '#000';           // texto sobre un acento
+const SURF = a => PROJ ? 'rgba(0,0,0,'+Math.min(1,a*2.2).toFixed(3)+')'
+                       : 'rgba(255,255,255,'+a+')';
+const PAL_N = {"T": "#63b356", "T2": "#9de84d", "BL": "#4a9eed", "AM": "#f0a500", "RD": "#e05252", "BG": "#090b10", "BG2": "#0f1318", "BG3": "#0d1117", "W": "#f0f0eb", "G": "#7a7a72", "BDR": "rgba(255,255,255,.08)"};
+const PAL_P = {"T": "#1c7a34", "T2": "#3f7d12", "BL": "#0b57b8", "AM": "#8a5a00", "RD": "#b3261e", "BG": "#ffffff", "BG2": "#f1f4f8", "BG3": "#e8edf3", "W": "#0b0f14", "G": "#3f4a55", "BDR": "rgba(0,0,0,.16)"};
+const AC_MAP = {};
+
+function _rl(h){                                     // luminancia relativa
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var v=[0,2,4].map(function(i){
+    var c=parseInt(h.substr(i,2),16)/255;
+    return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);
+  });
+  return .2126*v[0]+.7152*v[1]+.0722*v[2];
+}
+function _contra(h){ return (1.05)/(_rl(h)+.05); }   // contra blanco
+function _oscurece(h){                               // baja hasta 4,5:1
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  for(var i=0;i<40;i++){
+    var hex='#'+[r,g,b].map(function(x){return ('0'+Math.round(x).toString(16)).slice(-2);}).join('');
+    if(_contra(hex)>=4.5) return hex;
+    r*=.92; g*=.92; b*=.92;
+  }
+  return '#333333';
+}
+function ACC(c){                                      // acento seguro
+  if(!c || !PROJ) return c;
+  var k=String(c).toLowerCase();
+  return AC_MAP[k] || _oscurece(k);
+}
+function aplicaPaleta(){
+  var p = PROJ ? PAL_P : PAL_N;
+  T = p.T;
+  T2 = p.T2;
+  BL = p.BL;
+  AM = p.AM;
+  RD = p.RD;
+  BG = p.BG;
+  BG2 = p.BG2;
+  BG3 = p.BG3;
+  W = p.W;
+  G = p.G;
+  BDR = p.BDR;
+}
+function toggleProyector(){
+  PROJ = !PROJ;
+  document.documentElement.classList.toggle('proyector', PROJ);
+  aplicaPaleta();
+  var b=document.getElementById('pmode');
+  if(b) b.textContent = PROJ ? '\u263e Pantalla' : '\u2600 Proyector';
+  if(window.__rerender) window.__rerender();
+}
+window.toggleProyector = toggleProyector;
+window.__proyectorInfo = function(){ return {PROJ:PROJ, K:KP}; };
+
 // Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
-const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+const SR = (style={}) => ({...style, ...((MOB||PROJ) ? {height:'auto', minHeight:'100%'} : {})});
 
 // ── BACKGROUND ART ──────────────────────────────────────────────
 const BgGlobe = ({opacity=0.03}) => (
@@ -83,7 +160,7 @@ function P({children,style={}}){return <div style={{position:'relative',zIndex:2
 
 const ModuleTag = ({module,color=T}) => (
   <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
-    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    borderRadius:100,padding:'5px 16px',fontSize:PX(12),color,fontWeight:FW(700),letterSpacing:2,
     textTransform:'uppercase',marginBottom:20}}>
     {module}
   </div>
@@ -119,18 +196,18 @@ const SLIDES = [
   { type:'title',
     tag:'Universidad del Rosario · Global Marketing · Chapter 17',
     title:'Communication\nDecisions',
-    subtitle:'A great product whispering in a noisy world loses to a good one that knows how to talk.\nAdvertising, promotion, PR, personal selling — and the viral layer on top.',
-    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+    subtitle:'A great product whispering in a noisy world loses to a good one that knows how to talk.\nAdvertising, promotion, PR, personal selling and the viral layer on top.',
+    author:'Based on Hollensen, S.: Global Marketing, 5th Edition' },
 
   { type:'impact',
     title:'Why Communication Decisions Matter',
     stats:[
       {n:'6',  d:'Major international advertising decisions: objectives, budget, message, media, agency, evaluation.', src:'Hollensen, Fig. 17.3'},
-      {n:'3',  d:'Classic budgeting methods — percentage of sales, competitive parity, objective & task — and only one starts from goals.', src:'Hollensen, Ch. 17'},
+      {n:'3',  d:'Classic budgeting methods: percentage of sales, competitive parity, objective & task and only one starts from goals.', src:'Hollensen, Ch. 17'},
       {n:'2',  d:'Numbers that rule media planning: reach × frequency = gross rating points (GRPs).', src:'Media planning'},
       {n:'4',  d:'Steps of a viral campaign: compelling content, right audience, seeding, measurement.', src:'Hollensen, Ch. 17'},
     ],
-    quote:'In international markets the message crosses more than borders — it crosses languages, cultures and filters. Noise is guaranteed; clarity is engineered.' },
+    quote:'In international markets the message crosses more than borders: it crosses languages, cultures and filters. Noise is guaranteed; clarity is engineered.' },
 
   { type:'agenda',
     title:'What We Cover Today',
@@ -150,14 +227,14 @@ const SLIDES = [
   { type:'comm_process' },
 
   { type:'concept', module:'Module 1', icon:'refresh',
-    title:'Noise — and the Shift to Buyer Initiative',
-    text:'Noise is everything that distorts the message between encoding and decoding — and international communication multiplies it: language, cultural references, regulation, media habits, competing signals. Meanwhile the initiative has shifted from seller to buyer: customers now search, compare and start the conversation themselves, especially online.',
+    title:'Noise and the Shift to Buyer Initiative',
+    text:'Noise is everything that distorts the message between encoding and decoding and international communication multiplies it: language, cultural references, regulation, media habits, competing signals. Meanwhile the initiative has shifted from seller to buyer: customers now search, compare and start the conversation themselves, especially online.',
     highlight:'Domestic communication assumes a shared field of experience. International communication has to build one first.' },
 
   { type:'exercise', module:'Module 1',
     title:'Exercise 1 · Find the Noise',
     question:'A Colombian brand launches its proven slogan in Germany, translated literally. Sales people report confusion: the wordplay doesn\'t exist in German, and the humorous tone reads as unserious for the category. Where did the message break?',
-    options:['A) The media plan — they chose the wrong TV channels.','B) Encoding/decoding — the message was encoded in one cultural field of experience and decoded in another, generating noise.','C) The budget — they simply spent too little.'],
+    options:['A) The media plan: they chose the wrong TV channels.','B) Encoding/decoding: the message was encoded in one cultural field of experience and decoded in another, generating noise.','C) The budget: they simply spent too little.'],
     correct:1,
     explanation:'Option B. The channel delivered the message fine; the meaning died in translation between fields of experience. That\'s why global campaigns test decoding in every market before launch, not after.' },
 
@@ -167,14 +244,14 @@ const SLIDES = [
 
   { type:'concept', module:'Module 2', icon:'layers',
     title:'The Decision Sequence',
-    text:'International advertising runs through six linked decisions: objectives setting (what the campaign must achieve per market), budget decisions (how much), message decisions (what to say — the creative strategy), media decisions (where and how often), agency selection (who executes), and advertising evaluation (did it work). Each decision constrains the next.',
-    highlight:'Objectives first, budget second — firms that reverse the order buy media before knowing what it must accomplish.' },
+    text:'International advertising runs through six linked decisions: objectives setting (what the campaign must achieve per market), budget decisions (how much), message decisions (what to say, the creative strategy), media decisions (where and how often), agency selection (who executes), and advertising evaluation (did it work). Each decision constrains the next.',
+    highlight:'Objectives first, budget second: firms that reverse the order buy media before knowing what it must accomplish.' },
 
   { type:'budget_methods' },
 
   { type:'concept', module:'Module 2', icon:'chart',
     title:'Media Decisions: Reach, Frequency & GRPs',
-    text:'Reach is the portion of the target market exposed to at least one ad in a period. Frequency is the average number of times each potential customer sees it. Reach × frequency = gross rating points (GRPs) — the currency of media buying. Add momentum and the media mix across the main types: television, radio, newspapers, magazines, cinema, outdoor.',
+    text:'Reach is the portion of the target market exposed to at least one ad in a period. Frequency is the average number of times each potential customer sees it. Reach × frequency = gross rating points (GRPs): the currency of media buying. Add momentum and the media mix across the main types: television, radio, newspapers, magazines, cinema, outdoor.',
     highlight:'Same GRPs, different campaigns: wide-and-shallow (high reach) builds awareness; narrow-and-deep (high frequency) builds memory.' },
 
   { type:'comparison',
@@ -196,7 +273,7 @@ const SLIDES = [
   { type:'exercise', module:'Module 2',
     title:'Exercise 2 · Pick the Budget Method',
     question:'A firm enters three new Asian markets where it has zero sales history, with specific goals: 40% brand awareness in year one and 500 retail listings. Which budgeting method fits?',
-    options:['A) Percentage of sales — allocate 5% of sales like in the home market.','B) Objective and task — define the objectives, cost the tasks needed to attain them, and budget that amount.','C) Competitive parity — copy whatever the biggest rival spends.'],
+    options:['A) Percentage of sales: allocate 5% of sales like in the home market.','B) Objective and task: define the objectives, cost the tasks needed to attain them, and budget that amount.','C) Competitive parity: copy whatever the biggest rival spends.'],
     correct:1,
     explanation:'Option B. Percentage of sales fails with zero sales history (and ignores goals); parity copies rivals whose objectives differ from yours. Objective and task is the only method that starts from what the campaign must achieve.' },
 
@@ -206,7 +283,7 @@ const SLIDES = [
 
   { type:'concept', module:'Module 3', icon:'globe',
     title:'Public Relations',
-    text:'PR manages the firm\'s relationships with all its publics, not just customers. Methods: event sponsorship, prizes at events, press releases, announcements, lobbying. Targets: employees, shareholders, suppliers, customers, the general public, governments and financial markets. PR earns credibility that paid media can\'t buy — and manages the crises advertising can\'t touch.',
+    text:'PR manages the firm\'s relationships with all its publics, not just customers. Methods: event sponsorship, prizes at events, press releases, announcements, lobbying. Targets: employees, shareholders, suppliers, customers, the general public, governments and financial markets. PR earns credibility that paid media can\'t buy and manages the crises advertising can\'t touch.',
     highlight:'Advertising is what you say about yourself; PR shapes what others say about you.' },
 
   { type:'concept', module:'Module 3', icon:'zap',
@@ -216,13 +293,13 @@ const SLIDES = [
 
   { type:'concept', module:'Module 3', icon:'users',
     title:'Direct Marketing & Personal Selling',
-    text:'International direct marketing grows on mailing technology, escalating costs of other promotion, better lists, IT and interactive media — and it combines powerfully with personal selling: the database warms the lead, the salesperson closes it. Assessing a sales force: is the selling effort structured for coverage? Right people? Strong guidance? Adequate support? Does compensation motivate?',
-    highlight:'In B2B export markets, the salesperson often IS the brand — selection and training are communication decisions.' },
+    text:'International direct marketing grows on mailing technology, escalating costs of other promotion, better lists, IT and interactive media and it combines powerfully with personal selling: the database warms the lead, the salesperson closes it. Assessing a sales force: is the selling effort structured for coverage? Right people? Strong guidance? Adequate support? Does compensation motivate?',
+    highlight:'In B2B export markets, the salesperson often IS the brand: selection and training are communication decisions.' },
 
   { type:'exercise', module:'Module 3',
     title:'Exercise 3 · Match the Tool',
-    question:'A food brand entering Brazil needs supermarket shoppers to taste its product once — research shows trial converts 30% of tasters into buyers. Which tool fits the objective?',
-    options:['A) A six-month image advertising campaign on national TV.','B) Sales promotion — in-store sampling, a classic short-term effort aimed at product trial.','C) A press release to financial newspapers.'],
+    question:'A food brand entering Brazil needs supermarket shoppers to taste its product once: research shows trial converts 30% of tasters into buyers. Which tool fits the objective?',
+    options:['A) A six-month image advertising campaign on national TV.','B) Sales promotion: in-store sampling, a classic short-term effort aimed at product trial.','C) A press release to financial newspapers.'],
     correct:1,
     explanation:'Option B. The objective is specific, behavioural and short-term: trial. That\'s the textbook definition of sales promotion\'s job. Advertising builds the brand after the first taste convinces.' },
 
@@ -235,42 +312,42 @@ const SLIDES = [
   { type:'concept', module:'Module 4', icon:'shuffle',
     title:'Viral Marketing',
     text:'Viral marketing exploits existing social networks to produce exponential increases in brand awareness through online word-of-mouth. Advantages: inexpensive, active and participatory, effectively targeted through peer-to-peer networks. Disadvantages: requires technologically compatible formats, filtering programs may block it, and it must be effortless to pass along.',
-    highlight:'Viral isn\'t a channel you buy — it\'s a behaviour you earn. The audience is the medium.' },
+    highlight:'Viral isn\'t a channel you buy: it\'s a behaviour you earn. The audience is the medium.' },
 
   { type:'viral_steps' },
 
   { type:'case', module:'Module 4', icon:'award',
-    title:'Case: Dollar Shave Club — "Our Blades Are Great"',
+    title:'Case: Dollar Shave Club, "Our Blades Are Great"',
     problem:'Dollar Shave Club was an unknown US startup selling cheap razors by subscription, with a marketing budget far too small to outspend Gillette and the established razor giants.',
-    solution:'In 2012 the founder shot one deadpan comedy video for a few thousand dollars. Compelling content (step 1), aimed at young men tired of overpriced razors (step 2), seeded on YouTube and shared organically (step 3), with sign-ups tracked obsessively (step 4). Millions of views and tens of thousands of orders in days followed — and the brand was later bought by Unilever for around $1 billion.',
+    solution:'In 2012 the founder shot one deadpan comedy video for a few thousand dollars. Compelling content (step 1), aimed at young men tired of overpriced razors (step 2), seeded on YouTube and shared organically (step 3), with sign-ups tracked obsessively (step 4). Millions of views and tens of thousands of orders in days followed and the brand was later bought by Unilever for around $1 billion.',
     lesson:'A piece of content worth sharing beats a media plan you can\'t afford.' },
 
   { type:'exercise', module:'Module 4',
     title:'Exercise 4 · Why Did It Spread?',
     question:'Two campaigns launch the same week. A: a beautifully produced brand video with no surprise. B: a rougher video where the product does something nobody expected, easy to share with one tap. B explodes, A dies. Which viral principle decided it?',
-    options:['A) Production budget — polish always wins online.','B) Compelling content plus ease of passing along — surprise gives a reason to share, friction kills the chain.','C) Luck — virality is pure randomness.'],
+    options:['A) Production budget: polish always wins online.','B) Compelling content plus ease of passing along: surprise gives a reason to share, friction kills the chain.','C) Luck: virality is pure randomness.'],
     correct:1,
     explanation:'Option B. Step 1 (compelling content) is the engine and "must be easy" is the transmission. Polish without surprise gives nobody a reason to press share; friction breaks the peer-to-peer chain that viral depends on.' },
 
   // ── MODULE 5 ────────────────────────────────────────────────────────────
   { type:'module_title', num:5, title:'Standardize or Adapt the Message?', icon:'globe',
-    question:'One voice for the whole planet — efficiency dream or cultural blindness?' },
+    question:'One voice for the whole planet: efficiency dream or cultural blindness?' },
 
   { type:'concept', module:'Module 5', icon:'layers',
     title:'Standardized International Advertising',
     text:'Benefits: enormous cost economies, one consistent brand image worldwide, simpler coordination and faster rollouts. Drawbacks: cultural differences in humour, symbols and values; advertising regulations that vary by country; media availability differences; and local competitors free to speak the local language of emotion. Most global advertisers land in between: standardized strategy, locally adapted execution.',
-    highlight:'Standardize the idea, adapt the expression — the campaign\'s soul travels, its accent changes.' },
+    highlight:'Standardize the idea, adapt the expression: the campaign\'s soul travels, its accent changes.' },
 
   { type:'case', module:'Module 5', icon:'award',
-    title:'Case: Productos Ramo — Decades Without Shouting',
+    title:'Case: Productos Ramo, Decades Without Shouting',
     problem:'Ramo, the Colombian maker of Chocoramo and Ponqué Ramo, has competed for decades against multinational snack giants that outspend it on advertising many times over. Conventional logic says a modest local brand with almost no ad budget should fade away.',
-    solution:'Ramo barely advertises. Heritage, an almost unchanged recipe, nostalgia and word-of-mouth across generations do the talking — children grow into parents who buy the same Chocoramo for their own kids. The brand became a piece of Colombian identity, and that emotional loyalty kept demand alive without big media spend.',
-    lesson:'Communication strategy isn\'t about spending the most — it\'s about choosing which conversations your brand can own.' },
+    solution:'Ramo barely advertises. Heritage, an almost unchanged recipe, nostalgia and word-of-mouth across generations do the talking: children grow into parents who buy the same Chocoramo for their own kids. The brand became a piece of Colombian identity, and that emotional loyalty kept demand alive without big media spend.',
+    lesson:'Communication strategy isn\'t about spending the most: it\'s about choosing which conversations your brand can own.' },
 
   { type:'exercise', module:'Module 5',
     title:'Exercise 5 · The Standardization Call',
     question:'A beer brand\'s global campaign is built on beach humour and bikinis. Legal review flags several markets where alcohol advertising is restricted and the imagery is culturally unacceptable. What does the chapter suggest?',
-    options:['A) Run it anyway — a global campaign must be identical everywhere or it isn\'t global.','B) Keep the strategic platform but adapt execution per market — regulation and culture are hard constraints on standardization.','C) Cancel international advertising entirely.'],
+    options:['A) Run it anyway: a global campaign must be identical everywhere or it isn\'t global.','B) Keep the strategic platform but adapt execution per market: regulation and culture are hard constraints on standardization.','C) Cancel international advertising entirely.'],
     correct:1,
     explanation:'Option B. Advertising regulations and cultural values are exactly the environmental constraints that limit full standardization. Global advertisers keep the positioning constant and rebuild the execution wherever law or culture demands it.' },
 
@@ -279,12 +356,12 @@ const SLIDES = [
     question:'Last check: can the message survive the journey from your head to theirs?' },
 
   { type:'takeaways',
-    title:'Chapter 17 — What You Now Know',
+    title:'Chapter 17: What You Now Know',
     items:[
       {icon:'wifi',   c:T,  t:'The Process',        d:'Encoding → media → decoding, with noise multiplied by culture. The buyer now starts the conversation.'},
-      {icon:'target', c:BL, t:'Advertising Decisions', d:'Objectives, budget, message, media, agency, evaluation — in that order. Objective & task beats habit-based budgets.'},
+      {icon:'target', c:BL, t:'Advertising Decisions', d:'Objectives, budget, message, media, agency, evaluation: in that order. Objective & task beats habit-based budgets.'},
       {icon:'chart',  c:AM, t:'Media Math',         d:'Reach × frequency = GRPs. Wide builds awareness, deep builds memory.'},
-      {icon:'shuffle',c:T2, t:'Viral & Digital',    d:'Compelling content, right audience, seeding, measurement — the audience is the medium.'},
+      {icon:'shuffle',c:T2, t:'Viral & Digital',    d:'Compelling content, right audience, seeding, measurement: the audience is the medium.'},
       {icon:'globe',  c:RD, t:'Standardize vs Adapt', d:'Standardize the idea, adapt the expression. Regulation and culture set the limits.'},
     ]},
 
@@ -296,7 +373,7 @@ const SLIDES = [
       'Evaluate the "percentage of sales" approach to setting advertising budgets in foreign markets.',
       'Explain how personal selling may differ overseas from how it is used in the home market.',
     ],
-    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+    resource:{label:'Research resource: back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
 
   { type:'quiz_intro',
     title:'Final Assessment',
@@ -308,7 +385,7 @@ const SLIDES = [
         opts:['Objectives, budget, message, media, agency selection, evaluation.','Product, price, place, promotion, people, process.','Reach, frequency, GRPs, momentum, mix, timing.','Encoding, decoding, noise, feedback, channel, source.'],
         correct:0 },
       { q:'The percentage of sales budgeting method…',
-        opts:['Starts from objectives and costs the tasks to achieve them.','Guarantees maximum spending during declining sales.','Duplicates competitors\' spending.','Allocates a fixed proportion of sales to advertising — easy to justify, but based on history and blind to goals.'],
+        opts:['Starts from objectives and costs the tasks to achieve them.','Guarantees maximum spending during declining sales.','Duplicates competitors\' spending.','Allocates a fixed proportion of sales to advertising: easy to justify, but based on history and blind to goals.'],
         correct:3 },
       { q:'Competitive parity budgeting means…',
         opts:['Spending whatever is left after costs.','Matching last year\'s budget plus inflation.','Duplicating the amounts spent on advertising by major rivals.','Setting budget by government guidelines.'],
@@ -337,9 +414,9 @@ const SLIDES = [
     ]},
 
   { type:'closing',
-    title:'End of the Journey — For Now',
+    title:'End of the Journey: For Now',
     subtitle:'You\'ve covered the full arc: competitiveness, product, price, place and promotion.\nNext stop: applying all of it to real markets.',
-    quote:'"The aim of marketing is to know and understand the customer so well the product or service fits him and sells itself." — Peter Drucker' },
+    quote:'"The aim of marketing is to know and understand the customer so well the product or service fits him and sells itself.": Peter Drucker' },
 ];
 
 // ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
@@ -348,10 +425,10 @@ const TitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.4}}>
-      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
-      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
-      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+      <div style={{fontSize:PXV(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:FW(700),marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:PX(13),color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
     </P>
     {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
       <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
@@ -363,19 +440,19 @@ const ImpactSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.03}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
         {data.stats.map((s,i)=>(
           <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,30),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
             <div>
-              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
-              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+              <div style={{fontSize:PXV(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:PX(12),color:`${G}80`}}>{s.src}</div>
             </div>
           </div>
         ))}
       </div>
-      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:PXV(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
       </div>
     </P>
@@ -385,13 +462,13 @@ const ImpactSlide = ({data}) => (
 const AgendaSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
         {data.modules.map(m=>(
           <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
-            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
-            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
-            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+            <div style={{fontSize:PXV(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:FW(900)}}>0{m.num}</div>
+            <h3 style={{fontSize:PXV(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:PXV(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
           </div>
         ))}
       </div>
@@ -403,11 +480,11 @@ const ModuleTitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.5}}>
-      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:PX(13),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
         MODULE {data.num}
       </div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
-      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:PXV(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
         {data.question}
       </div>
@@ -420,10 +497,10 @@ const ConceptSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.035}/></div>
     <P style={{flex:1.5}}>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
-      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:PXV(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
       {data.highlight&&(
-        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:PXV(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
           <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
         </div>
       )}
@@ -441,16 +518,16 @@ const CaseSlide = ({data}) => (
     </P>}
     <P style={{flex:1.8}}>
       <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
       <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
-        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+        <div style={{fontSize:PX(11),color:RD,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.problem}</p>
       </div>
       <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
-        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+        <div style={{fontSize:PX(11),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.solution}</p>
       </div>
-      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+      <div style={{fontSize:PXV(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
         <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
       </div>
     </P>
@@ -461,18 +538,18 @@ const ComparisonSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
         {[data.left,data.right].map((side,si)=>(
           <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
-            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:PX(15),fontWeight:FW(700),color:side.color,borderBottom:`1px solid ${side.color}20`}}>
               {side.label}
             </div>
             <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
               {side.items.map((item,i)=>(
-                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
-                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                <div key={i} style={{display:'grid',gridTemplateColumns:V(PX(104)+'px 1fr','84px 1fr'),columnGap:12,alignItems:'baseline'}}>
+                  <div style={{fontSize:PX(12),fontWeight:FW(700),color:side.color}}>{item.k}</div>
+                  <div style={{fontSize:PXV(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
                 </div>
               ))}
             </div>
@@ -485,8 +562,8 @@ const ComparisonSlide = ({data}) => (
 
 const FlowBox = ({c,t,d}) => (
   <div style={{flex:1,background:BG2,padding:V('14px 14px','12px 14px'),border:`1px solid ${c}35`,borderRadius:12,textAlign:'center'}}>
-    <div style={{fontSize:V(14,13),fontWeight:700,color:c,marginBottom:6}}>{t}</div>
-    <div style={{fontSize:V(11,10),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:PXV(14,13),fontWeight:FW(700),color:c,marginBottom:6}}>{t}</div>
+    <div style={{fontSize:PXV(11,10),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -504,8 +581,8 @@ const CommProcessSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 1"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The International Communication Process</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.2 — every arrow is a place where meaning can leak.</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The International Communication Process</h2>
+      <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.2 — every arrow is a place where meaning can leak.</p>
       <div style={{display:'flex',flexDirection:V('row','column'),gap:V(8,8),alignItems:'stretch',maxWidth:980,margin:'0 auto',width:'100%'}}>
         <FlowBox c={T}  t="Sender" d="Firm + its field of experience"/>
         <FlowArrow/>
@@ -519,12 +596,12 @@ const CommProcessSlide = () => (
       </div>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(14,10),marginTop:V(18,12),maxWidth:980,margin:V('18px auto 0','12px auto 0')}}>
         <div style={{background:`${RD}08`,border:`1px solid ${RD}30`,borderRadius:10,padding:V('12px 16px','10px 14px')}}>
-          <div style={{fontSize:V(12,11),fontWeight:700,color:RD,marginBottom:4}}>NOISE — EVERYWHERE</div>
-          <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>Language, culture, regulation, competing messages — international communication multiplies every source of distortion.</div>
+          <div style={{fontSize:PXV(12,11),fontWeight:FW(700),color:RD,marginBottom:4}}>NOISE — EVERYWHERE</div>
+          <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>Language, culture, regulation, competing messages — international communication multiplies every source of distortion.</div>
         </div>
         <div style={{background:`${T}08`,border:`1px solid ${T}30`,borderRadius:10,padding:V('12px 16px','10px 14px')}}>
-          <div style={{fontSize:V(12,11),fontWeight:700,color:T,marginBottom:4}}>FEEDBACK — THE RETURN PATH</div>
-          <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>Sales, research, engagement: the only way to know what was actually decoded on the other side.</div>
+          <div style={{fontSize:PXV(12,11),fontWeight:FW(700),color:T,marginBottom:4}}>FEEDBACK — THE RETURN PATH</div>
+          <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>Sales, research, engagement: the only way to know what was actually decoded on the other side.</div>
         </div>
       </div>
     </P>
@@ -541,16 +618,16 @@ const BudgetMethodsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 2"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Setting the Advertising Budget</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Three classic methods — only one of them starts from what the campaign must achieve.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Setting the Advertising Budget</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Three classic methods — only one of them starts from what the campaign must achieve.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr 1fr','1fr'),gap:V(14,10),maxWidth:980,margin:'0 auto',width:'100%'}}>
           {methods.map((m,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${m.c}35`,borderRadius:14,overflow:'hidden',display:'flex',flexDirection:'column'}}>
-              <div style={{background:`${m.c}15`,padding:V('11px 16px','9px 14px'),fontSize:V(15,13),fontWeight:700,color:m.c}}>{m.t}</div>
+              <div style={{background:`${m.c}15`,padding:V('11px 16px','9px 14px'),fontSize:PXV(15,13),fontWeight:FW(700),color:m.c}}>{m.t}</div>
               <div style={{padding:V('13px 16px','10px 14px'),flex:1,display:'flex',flexDirection:'column',gap:7}}>
-                <div style={{fontSize:V(13,12),color:W,lineHeight:1.5}}>{m.d}</div>
-                <div style={{fontSize:V(11,10),color:T,lineHeight:1.5}}>+ {m.pro}</div>
-                <div style={{fontSize:V(11,10),color:RD,lineHeight:1.5}}>− {m.con}</div>
+                <div style={{fontSize:PXV(13,12),color:W,lineHeight:1.5}}>{m.d}</div>
+                <div style={{fontSize:PXV(11,10),color:T,lineHeight:1.5}}>+ {m.pro}</div>
+                <div style={{fontSize:PXV(11,10),color:RD,lineHeight:1.5}}>− {m.con}</div>
               </div>
             </div>
           ))}
@@ -572,17 +649,17 @@ const BuyingFunnelSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Communication Along the Buying Process</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.5 — each stage of the customer journey answers to a different tool.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Communication Along the Buying Process</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Hollensen, Fig. 17.5 — each stage of the customer journey answers to a different tool.</p>
         <div style={{display:'flex',flexDirection:'column',gap:V(10,8),maxWidth:880,margin:'0 auto',width:'100%'}}>
           {stages.map((s,i)=>(
             <div key={i} style={{display:'flex',gap:V(14,10),alignItems:'center'}}>
-              <div style={{fontFamily:"'Fraunces',serif",fontSize:V(15,12),fontWeight:900,color:s.c,minWidth:V(190,120)}}>{i+1}. {s.t}</div>
-              <div style={{flex:1,background:BG2,border:`1px solid ${s.c}30`,borderRadius:10,padding:V('10px 16px','9px 12px'),fontSize:V(13,11),color:G}}>{s.tool}</div>
+              <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(15,12),fontWeight:FW(900),color:s.c,minWidth:V(190,120)}}>{i+1}. {s.t}</div>
+              <div style={{flex:1,background:BG2,border:`1px solid ${s.c}30`,borderRadius:10,padding:V('10px 16px','9px 12px'),fontSize:PXV(13,11),color:G}}>{s.tool}</div>
             </div>
           ))}
         </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>The internet runs through every stage — it's the only medium present from first awareness to final transaction.</p>
+        <p style={{color:`${G}90`,fontSize:PXV(13,11),marginTop:V(16,12),fontStyle:'italic',textAlign:'center'}}>The internet runs through every stage — it's the only medium present from first awareness to final transaction.</p>
       </P>
     </div>
   );
@@ -599,15 +676,15 @@ const ViralStepsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Developing a Viral Campaign</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Four steps — the audience does the distribution, but the marketer builds the machine.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Developing a Viral Campaign</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Four steps — the audience does the distribution, but the marketer builds the machine.</p>
         <div style={{display:'flex',flexDirection:V('row','column'),gap:0,alignItems:'stretch',maxWidth:980,margin:'0 auto',width:'100%'}}>
           {steps.map((s,i)=>(
             <React.Fragment key={i}>
               <div style={{flex:1,background:BG2,padding:V('16px 14px','12px 14px'),border:`1px solid ${s.c}35`,borderRadius:V(i===0?'12px 0 0 12px':i===3?'0 12px 12px 0':'0',i===0?'12px 12px 0 0':i===3?'0 0 12px 12px':'0'),textAlign:'center'}}>
-                <div style={{fontFamily:"'Fraunces',serif",fontSize:V(24,18),fontWeight:900,color:s.c,marginBottom:6}}>{i+1}</div>
-                <div style={{fontSize:V(13,12),fontWeight:700,color:s.c,marginBottom:6}}>{s.t}</div>
-                <div style={{fontSize:V(11,10),color:G,lineHeight:1.5}}>{s.d}</div>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(24,18),fontWeight:FW(900),color:s.c,marginBottom:6}}>{i+1}</div>
+                <div style={{fontSize:PXV(13,12),fontWeight:FW(700),color:s.c,marginBottom:6}}>{s.t}</div>
+                <div style={{fontSize:PXV(11,10),color:G,lineHeight:1.5}}>{s.d}</div>
               </div>
               {i<3&&<FlowArrow/>}
             </React.Fragment>
@@ -621,14 +698,14 @@ const TakeawaysSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.04}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
         {data.items.map((item,i)=>(
           <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
             <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
-              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+              <div style={{fontSize:PXV(17,15),fontWeight:FW(700),color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:PXV(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
             </div>
           </div>
         ))}
@@ -640,21 +717,21 @@ const TakeawaysSlide = ({data}) => (
 const DiscussionSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
         {data.questions.map((q,i)=>(
           <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
-            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:PXV(19,15),lineHeight:1.6,color:W}}>{q}</div>
           </div>
         ))}
       </div>
       {data.resource && (
         <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
           <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
-          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+          <div style={{fontSize:PXV(16,14),color:G,lineHeight:1.5}}>
             {data.resource.label}{' '}
-            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:FW(700),textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
           </div>
         </div>
       )}
@@ -668,22 +745,22 @@ const ExerciseSlide = ({data}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
       <P>
         <ModuleTag module={data.module}/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
-        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:PXV(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
         <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
           {data.options.map((opt,i)=>(
-            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:PXV(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
               {opt}
             </div>
           ))}
         </div>
         <div style={{textAlign:'center'}}>
           {!revealed?(
-            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:INK(),border:'none',padding:'15px 42px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
               Reveal Answer
             </button>
           ):(
-            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:PXV(17,14),lineHeight:1.6,textAlign:'left'}}>
               <strong>Explanation:</strong> {data.explanation}
             </div>
           )}
@@ -698,9 +775,9 @@ const QuizIntroSlide = ({data,onStart}) => (
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{textAlign:'center'}}>
       <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
-      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
-      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:INK(),border:'none',padding:'18px 56px',fontSize:PX(20),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
         Start Assessment →
       </button>
     </P>
@@ -728,17 +805,17 @@ const QuizSlide = ({data,onFinish}) => {
     return(
       <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
         <P style={{textAlign:'center'}}>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
-          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:PX(18),color:G,marginBottom:36}}>{pct}% correct answers</div>
           <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
             {data.questions.map((q,i)=>(
-              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:PXV(16,14),color:answers[i]===q.correct?T:RD,fontWeight:FW(700)}}>
                 {answers[i]===q.correct?'✓':'✗'}
               </div>
             ))}
           </div>
-          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={onFinish} style={{background:T,color:INK(),border:'none',padding:'14px 40px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             Continue →
           </button>
         </P>
@@ -752,12 +829,12 @@ const QuizSlide = ({data,onFinish}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
-          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{fontSize:PX(12),color:G,fontWeight:FW(700),letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
           <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
           </div>
         </div>
-        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
         <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
           {q.opts.map((opt,i)=>{
             let bg=BG2,border=`1px solid ${BDR}`,color=W;
@@ -766,14 +843,14 @@ const QuizSlide = ({data,onFinish}) => {
               else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
             }
             return(
-              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:PXV(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
                 {opt}
               </div>
             );
           })}
         </div>
         {answered&&(
-          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={next} style={{background:T,color:INK(),border:'none',padding:'13px 34px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             {current<data.questions.length-1?'Next Question →':'See Results →'}
           </button>
         )}
@@ -787,12 +864,12 @@ const ClosingSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.06}/></div>
     <P>
       <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
-      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:PXV(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
       <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
-        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+        <div style={{fontSize:PXV(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
       </div>
-      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+      <div style={{marginTop:V(40,28),fontSize:PXV(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
     </P>
   </div>
 );
@@ -845,6 +922,8 @@ function App(){
   },[next,prev,s.type]);
 
   const renderSlide=()=>{
+    TIPO = s.type;
+    try{ var d=document.documentElement; d.dataset.tipo = s.type; d.dataset.compuesta = (COMPUESTAS.indexOf(s.type)>-1 ? '1' : '0');}catch(e){}
     switch(s.type){
       case 'title':            return <TitleSlide data={s}/>;
       case 'impact':           return <ImpactSlide data={s}/>;
@@ -876,29 +955,29 @@ function App(){
       <div className="bg-grid"/>
       <div className="bg-glow"/>
       <div className="bg-glow-left"/>
-      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+      <div key={cur} className={`slide-enter${(MOB||PROJ)?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:(MOB||PROJ)?'auto':'hidden'}}>
         {renderSlide()}
       </div>
       {/* FOOTER NAV */}
       <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
         <div style={{display:'flex',alignItems:'center',gap:14}}>
           {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
-            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
-            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 17</div>
+            <div style={{fontSize:PX(12),color:T,fontWeight:FW(700),letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:PX(11),color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 17</div>
           </div>}
           {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
           </button>}
-          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.17</div>}
+          {MOB&&<div style={{fontSize:PX(10),color:T,fontWeight:FW(700),letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.17</div>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
-          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>←</button>
           <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
           </div>
-          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>→</button>
         </div>
-        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+        <div style={{fontSize:PXV(14,12),color:G,fontWeight:FW(600),fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
       </div>
     </div>
   );
@@ -906,12 +985,288 @@ function App(){
 
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
+window.__rerender = () => root.render(<App/>);
 </script>
 <style>
-html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+html.proyector,html.proyector body{background:#fff;color:#0b0f14}
+html.proyector .bg-grid,html.proyector .bg-glow,html.proyector .bg-glow-left,html.proyector .bg-art{display:none}
+html.proyector #pmode{background:#0b0f14;color:#fff;border-color:#0b0f14}
+/* La diapositiva se desplaza por DENTRO; la barra de navegación no se va de
+   pantalla. El centrado va con margin:auto y NO con justify-content: dentro de
+   una caja con scroll, justify-content:center recorta el principio del
+   contenido y lo deja inalcanzable. */
+html.proyector .slide-enter{display:flex;flex-direction:column}
+html.proyector .slide-enter>*{margin:auto;width:100%;max-width:1560px}
 #pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #pmode:hover{background:rgba(127,127,127,.32);}
 </style>
-<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<button id="pmode" onclick="toggleProyector()" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<script>
+/* ── arreglos proyector ── */
+// React monta un nodo nuevo con className "slide-enter" cada vez que cambia la
+// diapositiva (lleva key={cur}); los re-render dentro de la misma diapositiva
+// reutilizan el nodo, así que esto NO se dispara al pulsar "Reveal answer".
+(function(){
+  var raiz = document.getElementById('root');
+  if (!raiz || !window.MutationObserver) return;
+  function arriba(){
+    window.scrollTo(0, 0);
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    var s = raiz.querySelector('.slide-enter');
+    if (s) s.scrollTop = 0;
+  }
+  new MutationObserver(function(muts){
+    for (var i = 0; i < muts.length; i++) {
+      var add = muts[i].addedNodes;
+      for (var j = 0; j < add.length; j++) {
+        var n = add[j];
+        if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+          arriba();
+          requestAnimationFrame(arriba);   // por si la animación de entrada mueve algo
+          return;
+        }
+      }
+    }
+  }).observe(raiz, {childList: true, subtree: true});
+})();
+</script>
+<style>
+#vz{position:fixed;inset:0;z-index:100000;background:rgba(8,10,14,.97);display:none;
+  touch-action:none;overscroll-behavior:contain}
+#vz.on{display:block}
+html.proyector #vz{background:rgba(232,237,243,.985)}
+#vz .lienzo svg{background:#fff;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.45);padding:10px}
+html.proyector #vz .lienzo svg{box-shadow:0 10px 40px rgba(0,0,0,.22);border:1px solid #C9D4E0}
+#vz .cerrar{background:#0072CE !important;border-color:#0072CE !important;color:#fff !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#vz .lienzo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  transform-origin:50% 50%;will-change:transform}
+#vz .lienzo svg{max-width:96vw;max-height:88vh;width:auto;height:auto}
+#vz .cerrar{position:fixed;top:14px;right:14px;z-index:2;background:rgba(127,127,127,.22);
+  border:1px solid rgba(127,127,127,.5);color:#fff;font:700 13px/1 system-ui,sans-serif;
+  padding:11px 15px;border-radius:9px;cursor:pointer}
+html.proyector #vz .cerrar{color:#0b0f14}
+#vz .pista{position:fixed;left:0;right:0;bottom:16px;text-align:center;
+  font:600 12px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.62);pointer-events:none}
+html.proyector #vz .pista{color:rgba(0,0,0,.55)}
+.zoomable{cursor:zoom-in}
+.tocar{position:absolute;right:8px;bottom:8px;background:rgba(127,127,127,.2);
+  border:1px solid rgba(127,127,127,.42);border-radius:7px;padding:5px 9px;
+  font:700 10px/1 system-ui,sans-serif;color:inherit;opacity:.75;pointer-events:none}
+#hintmodo{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;
+  background:#0072CE;color:#fff;border-radius:12px;padding:13px 15px;
+  font:600 13px/1.45 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#hintmodo b{display:block;font-size:14px;margin-bottom:2px}
+#hintmodo .x{position:absolute;top:8px;right:11px;font-size:17px;opacity:.75;cursor:pointer}
+</style>
+<div id="vz"><div class="lienzo"></div>
+  <button class="cerrar" onclick="window.__vzCerrar()">Cerrar ✕</button>
+  <div class="pista">Pellizca para acercar · aleja del todo para volver al encuadre</div>
+</div>
+<script>
+/* ── visor y memoria de modo ── */
+(function(){
+  var CLAVE = 'curso-modo';
+
+  /* ── 1 · recordar el modo entre capítulos ─────────────────────────── */
+  function aplicaGuardado(){
+    var q = null;
+    try { q = localStorage.getItem(CLAVE); } catch(e){}
+    if (q !== 'claro') return;
+    var t = setInterval(function(){
+      if (!window.toggleProyector) return;
+      clearInterval(t);
+      if (!document.documentElement.classList.contains('proyector')) window.toggleProyector();
+    }, 60);
+    setTimeout(function(){ clearInterval(t); }, 6000);
+  }
+  aplicaGuardado();
+
+  var btn = document.getElementById('pmode');
+  if (btn) btn.addEventListener('click', function(){
+    setTimeout(function(){
+      try {
+        localStorage.setItem(CLAVE,
+          document.documentElement.classList.contains('proyector') ? 'claro' : 'oscuro');
+      } catch(e){}
+      var h = document.getElementById('hintmodo');
+      if (h) h.style.display = 'none';
+    }, 30);
+  });
+
+  /* aviso la primera vez, sólo en pantalla pequeña */
+  function pista(){
+    if (window.innerWidth > 820) return;
+    var visto = null;
+    try { visto = localStorage.getItem(CLAVE); } catch(e){}
+    if (visto) return;
+    var d = document.createElement('div');
+    d.id = 'hintmodo';
+    d.innerHTML = '<span class="x">&times;</span>' +
+      '<b>¿Tu profe proyecta en fondo claro?</b>' +
+      'Toca el botón <b style="display:inline">☀ Proyector</b> arriba a la derecha ' +
+      'y verás exactamente lo mismo que está en la pantalla del salón.';
+    document.body.appendChild(d);
+    d.style.display = 'block';
+    d.querySelector('.x').onclick = function(){
+      d.style.display = 'none';
+      try { localStorage.setItem(CLAVE, 'oscuro'); } catch(e){}
+    };
+    setTimeout(function(){ if (d) d.style.display = 'none'; }, 14000);
+  }
+  window.addEventListener('load', function(){ setTimeout(pista, 1200); });
+
+  /* ── 2 · visor de diagramas a pantalla completa ───────────────────── */
+  var vz = document.getElementById('vz'), lienzo = vz.querySelector('.lienzo');
+  var esc = 1, x = 0, y = 0, d0 = 0, esc0 = 1, px = 0, py = 0, arrastrando = false;
+
+  function pinta(){ lienzo.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + esc + ')'; }
+  function encuadre(){ esc = 1; x = 0; y = 0; pinta(); }
+
+  function decorativo(el){
+    /* el arte de fondo va casi transparente y sin recibir clics */
+    for (var i = 0, n = el; i < 4 && n && n !== document.body; i++, n = n.parentElement){
+      var cs = getComputedStyle(n);
+      if (parseFloat(cs.opacity) < 0.3) return true;
+      if (cs.pointerEvents === 'none') return true;
+      var cl = String(n.className && n.className.baseVal !== undefined
+                      ? n.className.baseVal : (n.className || ''));
+      if (/bg-(art|grid|glow)/.test(cl)) return true;
+    }
+    return false;
+  }
+  function grande(svg){
+    var vb = (svg.getAttribute('viewBox') || '').split(/[ ,]+/);
+    if (vb.length < 4) return false;
+    if (!(+vb[2] >= 200 && +vb[3] >= 120)) return false;   // fuera los iconos de 24×24
+    return !decorativo(svg);                                // fuera el arte de fondo
+  }
+
+  window.__vzAbrir = function(svg){
+    lienzo.innerHTML = '';
+    var c = svg.cloneNode(true);
+    c.removeAttribute('style');
+    c.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    lienzo.appendChild(c);
+    encuadre();
+    vz.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  };
+  window.__vzCerrar = function(){
+    vz.classList.remove('on');
+    lienzo.innerHTML = '';
+    document.body.style.overflow = '';
+  };
+
+  /* abrir por delegación: sobrevive a cada re-render de React */
+  function pantallaChica(){
+    return window.innerWidth <= 820 ||
+           (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  }
+  document.addEventListener('click', function(e){
+    if (vz.classList.contains('on')) return;
+    if (!pantallaChica()) return;      /* en proyector el esquema ya se ve grande:
+                                          abrirlo taparía la proyección entera */
+    var svg = e.target.closest ? e.target.closest('svg') : null;
+    if (!svg || !grande(svg)) return;
+    if (svg.closest('#vz')) return;
+    e.preventDefault();
+    window.__vzAbrir(svg);
+  }, true);
+
+  /* marcar los diagramas como ampliables */
+  function marcar(){
+    document.querySelectorAll('#root svg').forEach(function(s){
+      if (!grande(s) || s.classList.contains('zoomable')) return;
+      s.classList.add('zoomable');
+      var p = s.parentNode;
+      if (p && pantallaChica() && !p.querySelector('.tocar')) {
+        var cs = getComputedStyle(p);
+        if (cs.position === 'static') p.style.position = 'relative';
+        var b = document.createElement('span');
+        b.className = 'tocar'; b.textContent = 'Toca para ampliar';
+        p.appendChild(b);
+      }
+    });
+  }
+  var raiz = document.getElementById('root');
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(){ marcar(); }).observe(raiz, {childList:true, subtree:true});
+  }
+  window.addEventListener('load', function(){ setTimeout(marcar, 500); });
+
+  /* ── gestos ────────────────────────────────────────────────────────── */
+  function dist(t){
+    var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  vz.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2){ d0 = dist(e.touches); esc0 = esc; }
+    else if (e.touches.length === 1 && esc > 1){
+      arrastrando = true; px = e.touches[0].clientX - x; py = e.touches[0].clientY - y;
+    }
+  }, {passive:true});
+  vz.addEventListener('touchmove', function(e){
+    if (e.touches.length === 2 && d0){
+      e.preventDefault();
+      esc = Math.min(6, Math.max(0.6, esc0 * (dist(e.touches) / d0)));
+      if (esc <= 1.02) { encuadre(); } else { pinta(); }
+    } else if (arrastrando && e.touches.length === 1){
+      e.preventDefault();
+      x = e.touches[0].clientX - px; y = e.touches[0].clientY - py; pinta();
+    }
+  }, {passive:false});
+  vz.addEventListener('touchend', function(e){
+    if (e.touches.length === 0){
+      arrastrando = false; d0 = 0;
+      /* alejar del todo = volver al encuadre original */
+      if (esc <= 1.02) encuadre();
+    }
+  }, {passive:true});
+
+  /* rueda del ratón, para el portátil */
+  vz.addEventListener('wheel', function(e){
+    if (!vz.classList.contains('on')) return;
+    e.preventDefault();
+    esc = Math.min(6, Math.max(0.6, esc * (e.deltaY < 0 ? 1.12 : 0.89)));
+    if (esc <= 1.02) encuadre(); else pinta();
+  }, {passive:false});
+
+  vz.addEventListener('dblclick', function(){ esc > 1.02 ? encuadre() : (esc = 2, pinta()); });
+
+  /* .lienzo cubre toda la pantalla, así que comparar con e.target===vz nunca
+     funcionaba. Cierra cualquier toque que NO caiga sobre el dibujo. */
+  vz.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('svg')) return;
+    if (e.target.closest && e.target.closest('.cerrar')) return;
+    window.__vzCerrar();
+  });
+
+  /* las flechas y Escape cierran, en vez de quedar atrapadas detrás del visor */
+  document.addEventListener('keydown', function(e){
+    if (!vz.classList.contains('on')) return;
+    if (e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === ' ' || e.key === 'PageUp' || e.key === 'PageDown') {
+      window.__vzCerrar();
+    }
+  }, true);
+
+  /* si por lo que sea cambia la diapositiva, el visor no se queda encima */
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++) {
+        var add = muts[i].addedNodes;
+        for (var j = 0; j < add.length; j++) {
+          var n = add[j];
+          if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+            if (vz.classList.contains('on')) window.__vzCerrar();
+            return;
+          }
+        }
+      }
+    }).observe(raiz, {childList: true, subtree: true});
+  }
+})();
+</script>
 </body>
 </html>

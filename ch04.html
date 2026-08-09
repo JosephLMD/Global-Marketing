@@ -26,24 +26,101 @@
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
-const T  = "#63b356";   // green accent
-const T2 = "#9de84d";   // bright lime
-const BL = "#4a9eed";   // blue
-const AM = "#f0a500";   // amber
-const RD = "#e05252";   // red
-const BG = "#090b10";
-const BG2= "#0f1318";
-const BG3= "#0d1117";
-const W  = "#f0f0eb";
-const G  = "#7a7a72";
-const BDR= "rgba(255,255,255,.08)";
+let T  = "#63b356";   // green accent
+let T2 = "#9de84d";   // bright lime
+let BL = "#4a9eed";   // blue
+let AM = "#f0a500";   // amber
+let RD = "#e05252";   // red
+let BG = "#090b10";
+let BG2= "#0f1318";
+let BG3= "#0d1117";
+let W  = "#f0f0eb";
+let G  = "#7a7a72";
+let BDR= "rgba(255,255,255,.08)";
 
 // ── RESPONSIVE ──────────────────────────────────────────────────
 // MOB is refreshed by App on every resize; V(desktop, mobile) picks per viewport.
 let MOB = typeof window!=='undefined' && window.innerWidth<=820;
 const V = (d,m) => MOB ? m : d;
+
+/* ═══ MODO PROYECTOR ═══ */
+// Todo lo de aquí abajo sólo actúa cuando PROJ es true. Con PROJ en false el
+// mazo se comporta exactamente igual que antes.
+let PROJ = false;
+const KP = 1.3;                                   // escala tipográfica
+/* ── tamaño por tipo ── */
+// Tipos que aprietan más contenido y por eso venían con letra más chica.
+let TIPO = '';
+const EXTRA_TIPO = {comparison:1.18, case:1.14, diagram:1.15, quiz:1.10};
+// Medido componente a componente: de los 28 esquemas, sólo el Venn de
+// glocalización usa position:absolute con medidas fijas. Los demás son
+// rejillas, flex o SVG: reflujen solos y su letra SÍ debe escalar.
+// El Venn no está aquí porque se amplía con transform en su propia diapositiva.
+const COMPUESTAS = [];
+const KT = () => COMPUESTAS.indexOf(TIPO) > -1 ? 1 : KP * (EXTRA_TIPO[TIPO] || 1);
+const PX  = n => PROJ ? Math.round(n*KT()) : n;       // tamaños sueltos
+const PXV = (d,m) => PROJ ? Math.round(d*KT()) : (MOB ? m : d);
+const FW  = w => PROJ ? Math.min(900, w+100) : w;   // un escalón más de peso
+const INK = () => PROJ ? '#fff' : '#000';           // texto sobre un acento
+const SURF = a => PROJ ? 'rgba(0,0,0,'+Math.min(1,a*2.2).toFixed(3)+')'
+                       : 'rgba(255,255,255,'+a+')';
+const PAL_N = {"T": "#63b356", "T2": "#9de84d", "BL": "#4a9eed", "AM": "#f0a500", "RD": "#e05252", "BG": "#090b10", "BG2": "#0f1318", "BG3": "#0d1117", "W": "#f0f0eb", "G": "#7a7a72", "BDR": "rgba(255,255,255,.08)"};
+const PAL_P = {"T": "#1c7a34", "T2": "#3f7d12", "BL": "#0b57b8", "AM": "#8a5a00", "RD": "#b3261e", "BG": "#ffffff", "BG2": "#f1f4f8", "BG3": "#e8edf3", "W": "#0b0f14", "G": "#3f4a55", "BDR": "rgba(0,0,0,.16)"};
+const AC_MAP = {};
+
+function _rl(h){                                     // luminancia relativa
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var v=[0,2,4].map(function(i){
+    var c=parseInt(h.substr(i,2),16)/255;
+    return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);
+  });
+  return .2126*v[0]+.7152*v[1]+.0722*v[2];
+}
+function _contra(h){ return (1.05)/(_rl(h)+.05); }   // contra blanco
+function _oscurece(h){                               // baja hasta 4,5:1
+  h=String(h).replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);
+  for(var i=0;i<40;i++){
+    var hex='#'+[r,g,b].map(function(x){return ('0'+Math.round(x).toString(16)).slice(-2);}).join('');
+    if(_contra(hex)>=4.5) return hex;
+    r*=.92; g*=.92; b*=.92;
+  }
+  return '#333333';
+}
+function ACC(c){                                      // acento seguro
+  if(!c || !PROJ) return c;
+  var k=String(c).toLowerCase();
+  return AC_MAP[k] || _oscurece(k);
+}
+function aplicaPaleta(){
+  var p = PROJ ? PAL_P : PAL_N;
+  T = p.T;
+  T2 = p.T2;
+  BL = p.BL;
+  AM = p.AM;
+  RD = p.RD;
+  BG = p.BG;
+  BG2 = p.BG2;
+  BG3 = p.BG3;
+  W = p.W;
+  G = p.G;
+  BDR = p.BDR;
+}
+function toggleProyector(){
+  PROJ = !PROJ;
+  document.documentElement.classList.toggle('proyector', PROJ);
+  aplicaPaleta();
+  var b=document.getElementById('pmode');
+  if(b) b.textContent = PROJ ? '\u263e Pantalla' : '\u2600 Proyector';
+  if(window.__rerender) window.__rerender();
+}
+window.toggleProyector = toggleProyector;
+window.__proyectorInfo = function(){ return {PROJ:PROJ, K:KP}; };
+
 // Standard slide root: identical on desktop; on mobile becomes natural-height + scrollable content
-const SR = (style={}) => ({...style, ...(MOB ? {height:'auto', minHeight:'100%'} : {})});
+const SR = (style={}) => ({...style, ...((MOB||PROJ) ? {height:'auto', minHeight:'100%'} : {})});
 
 // ── BACKGROUND ART ──────────────────────────────────────────────
 const BgGlobe = ({opacity=0.03}) => (
@@ -83,7 +160,7 @@ function P({children,style={}}){return <div style={{position:'relative',zIndex:2
 
 const ModuleTag = ({module,color=T}) => (
   <div style={{display:'inline-flex',alignItems:'center',gap:6,background:`${color}12`,border:`1px solid ${color}35`,
-    borderRadius:100,padding:'5px 16px',fontSize:12,color,fontWeight:700,letterSpacing:2,
+    borderRadius:100,padding:'5px 16px',fontSize:PX(12),color,fontWeight:FW(700),letterSpacing:2,
     textTransform:'uppercase',marginBottom:20}}>
     {module}
   </div>
@@ -119,18 +196,18 @@ const SLIDES = [
   { type:'title',
     tag:'Universidad del Rosario · Global Marketing · Chapter 4',
     title:'International\nCompetitiveness',
-    subtitle:'Why do some firms win globally while others vanish?\nFrom national advantage to blue oceans — the full competitive map.',
-    author:'Based on Hollensen, S. — Global Marketing, 5th Edition' },
+    subtitle:'Why do some firms win globally while others vanish?\nFrom national advantage to blue oceans: the full competitive map.',
+    author:'Based on Hollensen, S.: Global Marketing, 5th Edition' },
 
   { type:'impact',
     title:'Why Competitiveness Analysis Matters',
     stats:[
-      {n:'3',   d:'Levels of analysis — nation (macro), industry (meso), firm (micro). Competitiveness is built on all three.', src:'Hollensen, Ch. 4'},
-      {n:'5+1', d:'Porter\'s five competitive forces — plus a sixth player: complementors who collaborate instead of compete.',  src:'Porter (1980) · The Value Net'},
+      {n:'3',   d:'Levels of analysis: nation (macro), industry (meso), firm (micro). Competitiveness is built on all three.', src:'Hollensen, Ch. 4'},
+      {n:'5+1', d:'Porter\'s five competitive forces: plus a sixth player: complementors who collaborate instead of compete.',  src:'Porter (1980) · The Value Net'},
       {n:'2',   d:'Routes to competitive advantage: higher perceived value or lower relative cost. Master at least one.',        src:'The Competitive Triangle'},
       {n:'4',   d:'Actions that create a blue ocean: eliminate, reduce, raise, create. Airbnb used all four.',                src:'Kim & Mauborgne (1997)'},
     ],
-    quote:'Competition is not won by fighting harder. It\'s won by choosing where — and where not — to fight.' },
+    quote:'Competition is not won by fighting harder. It\'s won by choosing where (and where not) to fight.' },
 
   { type:'agenda',
     title:'What We Cover Today',
@@ -149,7 +226,7 @@ const SLIDES = [
 
   { type:'concept', module:'Module 1', icon:'layers',
     title:'Three Levels of Competitiveness',
-    text:'International competitiveness is built on three connected levels. Macro: national competitiveness — the conditions of the home country, captured by Porter\'s diamond. Meso: competition within the industry, captured by the five forces. Micro: the individual firm\'s value chain, where competitive advantage is actually created and defended.',
+    text:'International competitiveness is built on three connected levels. Macro: national competitiveness, the conditions of the home country, captured by Porter\'s diamond. Meso: competition within the industry, captured by the five forces. Micro: the individual firm\'s value chain, where competitive advantage is actually created and defended.',
     highlight:'Colombia\'s coffee cluster (macro) shapes the industry (meso) that shapes Juan Valdez\'s strategy (micro).' },
 
   { type:'porter_diamond' },
@@ -162,9 +239,9 @@ const SLIDES = [
   { type:'exercise', module:'Module 1',
     title:'Exercise 1 · Reading the Diamond',
     question:'Denmark dominates the world insulin market. Analysts point to its tight cluster of pharmaceutical firms, world-class research hospitals and a demanding national health system. Which element of Porter\'s diamond does the cluster of pharma firms and research hospitals represent?',
-    options:['A) Factor conditions — they are simply inputs to production.','B) Related and supporting industries — a cluster feeding the industry world-class inputs and knowledge.','C) Chance — Denmark was lucky to have them.'],
+    options:['A) Factor conditions: they are simply inputs to production.','B) Related and supporting industries: a cluster feeding the industry world-class inputs and knowledge.','C) Chance: Denmark was lucky to have them.'],
     correct:1,
-    explanation:'Option B. Clusters of internationally competitive suppliers and related industries are a core corner of the diamond. The demanding health system is a demand condition — both corners reinforce each other.' },
+    explanation:'Option B. Clusters of internationally competitive suppliers and related industries are a core corner of the diamond. The demanding health system is a demand condition: both corners reinforce each other.' },
 
   // ── MODULE 2 ────────────────────────────────────────────────────────────
   { type:'module_title', num:2, title:'Industry Competition: The Five Forces', icon:'target',
@@ -182,7 +259,7 @@ const SLIDES = [
     title:'Supplier Power vs Buyer Power',
     left:{label:'Bargaining Power of Suppliers is HIGH when…', color:BL, items:[
       {k:'Concentration', v:'Supply is dominated by a few companies'},
-      {k:'Uniqueness',    v:'Products are unique — hard to substitute'},
+      {k:'Uniqueness',    v:'Products are unique: hard to substitute'},
       {k:'Switching',     v:'Changing supplier is costly'},
       {k:'Integration',   v:'Forward integration is possible; backward unlikely'},
       {k:'Importance',    v:'Your market matters little to the supplier group'},
@@ -190,55 +267,55 @@ const SLIDES = [
     right:{label:'Bargaining Power of Buyers is HIGH when…', color:T, items:[
       {k:'Concentration', v:'Buyers are concentrated and purchase in large volumes'},
       {k:'Integration',   v:'Backward integration is likely'},
-      {k:'Standardization',v:'Products are standardized — easy to switch'},
+      {k:'Standardization',v:'Products are standardized: easy to switch'},
       {k:'Alternatives',  v:'Many suppliers exist'},
-      {k:'Price focus',   v:'Buyers earn low profits — price matters more than quality'},
+      {k:'Price focus',   v:'Buyers earn low profits: price matters more than quality'},
     ]}},
 
   { type:'concept', module:'Module 2', icon:'users',
     title:'From Five Forces to Five Sources',
-    text:'Porter\'s model assumes pure rivalry. The collaborative five sources model flips the lens: each force can also become a partner — alliances with suppliers, joint ventures with buyers, cooperation with makers of substitutes, even with direct rivals. The value net adds a sixth player: complementors, whose products make yours more valuable.',
+    text:'Porter\'s model assumes pure rivalry. The collaborative five sources model flips the lens: each force can also become a partner, alliances with suppliers, joint ventures with buyers, cooperation with makers of substitutes, even with direct rivals. The value net adds a sixth player: complementors, whose products make yours more valuable.',
     highlight:'PlayStation and game studios: rivals for margin, partners in growing the whole ecosystem.' },
 
   { type:'exercise', module:'Module 2',
     title:'Exercise 2 · Diagnose the Industry',
     question:'An industry shows: low entry barriers, standardized products, concentrated buyers purchasing in volume, and cheap substitutes everywhere. What do the five forces predict?',
-    options:['A) High profitability — standardization lowers costs for everyone.','B) Low profitability — every force squeezes margin: easy entry, price-driven buyers, substitute pressure.','C) The model cannot say anything without knowing the firms involved.'],
+    options:['A) High profitability: standardization lowers costs for everyone.','B) Low profitability: every force squeezes margin: easy entry, price-driven buyers, substitute pressure.','C) The model cannot say anything without knowing the firms involved.'],
     correct:1,
-    explanation:'Option B. The five forces describe industry structure, not individual firms. When all forces press at once, the profit pool shrinks for everybody — which is exactly why firms seek blue oceans (Module 5).' },
+    explanation:'Option B. The five forces describe industry structure, not individual firms. When all forces press at once, the profit pool shrinks for everybody: which is exactly why firms seek blue oceans (Module 5).' },
 
   // ── MODULE 3 ────────────────────────────────────────────────────────────
   { type:'module_title', num:3, title:'The Competitive Triangle', icon:'trend',
-    question:'Customer, firm, competitor — who wins the customer\'s favour, and why?' },
+    question:'Customer, firm, competitor: who wins the customer\'s favour, and why?' },
 
   { type:'competitive_triangle' },
 
   { type:'concept', module:'Module 3', icon:'star',
     title:'Perceived Value',
-    text:'The customer weighs the perceived value of your offering against the competitor\'s — functional, social, emotional and economic dimensions — relative to the price each one charges. Winning the customer\'s favour depends on the perceived value offered compared to the relative costs between the firm and the competitor.',
+    text:'The customer weighs the perceived value of your offering against the competitor\'s (functional, social, emotional and economic dimensions) relative to the price each one charges. Winning the customer\'s favour depends on the perceived value offered compared to the relative costs between the firm and the competitor.',
     highlight:'Value is perceived, not engineered. The customer\'s belief is the only scoreboard that counts.' },
 
   { type:'concept', module:'Module 3', icon:'chart',
     title:'Relative Cost & the Cost Drivers',
     text:'Relative cost advantage is the firm\'s cost position as its value chain configuration compares to competitors\'. The cost drivers: capacity utilization, linkages, interrelationships, integration, timing, policy decisions, location and institutional factors. The experience curve adds a dynamic: unit costs fall as cumulative production grows.',
-    highlight:'Two firms, same price, same product — the one with the cheaper value chain keeps the profit.' },
+    highlight:'Two firms, same price, same product: the one with the cheaper value chain keeps the profit.' },
 
   { type:'case', module:'Module 3', icon:'alert',
     title:'Case: Leapfrogging the Experience Curve',
     problem:'Incumbents ride the experience curve: each doubling of cumulative output cuts unit costs, building a cost moat that newcomers seemingly cannot cross. Playing catch-up on the same curve looks hopeless.',
-    solution:'Challengers don\'t replay the incumbent\'s history — they jump over it. By entering with the newest production technology, a latecomer starts on a lower cost curve altogether. Korean and Chinese manufacturers used exactly this leapfrog in shipbuilding, displays and batteries.',
+    solution:'Challengers don\'t replay the incumbent\'s history: they jump over it. By entering with the newest production technology, a latecomer starts on a lower cost curve altogether. Korean and Chinese manufacturers used exactly this leapfrog in shipbuilding, displays and batteries.',
     lesson:'Experience protects you only until someone starts from a better curve.' },
 
   { type:'exercise', module:'Module 3',
     title:'Exercise 3 · Who Wins the Triangle?',
-    question:'Firm A and Firm B sell similar machines at similar prices. Firm A\'s customers report fewer breakdowns and faster service response. According to the competitive triangle, who wins — and why?',
-    options:['A) Firm B, if its production costs are lower — cost always decides.','B) Firm A — at equal price, higher perceived value (reliability, service) wins the customer\'s favour.','C) Neither — with similar products and prices the result is random.'],
+    question:'Firm A and Firm B sell similar machines at similar prices. Firm A\'s customers report fewer breakdowns and faster service response. According to the competitive triangle, who wins and why?',
+    options:['A) Firm B, if its production costs are lower: cost always decides.','B) Firm A: at equal price, higher perceived value (reliability, service) wins the customer\'s favour.','C) Neither: with similar products and prices the result is random.'],
     correct:1,
     explanation:'Option B. The triangle says favour goes to whoever offers more perceived value relative to price. Cost position (Firm B\'s possible edge) protects profit margins, but it doesn\'t win the customer by itself.' },
 
   // ── MODULE 4 ────────────────────────────────────────────────────────────
   { type:'module_title', num:4, title:'Roots of Advantage: Competences & Benchmarking', icon:'cpu',
-    question:'What lies beneath a winning position — and how do you measure yours?' },
+    question:'What lies beneath a winning position and how do you measure yours?' },
 
   { type:'competence_roots' },
 
@@ -249,15 +326,15 @@ const SLIDES = [
 
   { type:'concept', module:'Module 4', icon:'refresh',
     title:'Competitive Benchmarking',
-    text:'Benchmarking is a technique for assessing relative marketplace performance compared with main competitors: choose the criteria customers actually care about, rate yourself and your rivals on each, and act on the gaps. Adding CSR value drivers — reputation, employee motivation, risk reduction — shows where advantage is being built or quietly leaking.',
+    text:'Benchmarking is a technique for assessing relative marketplace performance compared with main competitors: choose the criteria customers actually care about, rate yourself and your rivals on each, and act on the gaps. Adding CSR value drivers (reputation, employee motivation, risk reduction) shows where advantage is being built or quietly leaking.',
     highlight:'Benchmark what customers value, not what is easy to measure.' },
 
   { type:'exercise', module:'Module 4',
     title:'Exercise 4 · Resource or Core Competence?',
-    question:'A Colombian logistics company owns 200 trucks (fact A) and is famous for delivering to any town in the Andes within 24 hours — something no rival has managed to copy in ten years (fact B). Which one is the core competence?',
-    options:['A) The 200 trucks — physical assets are the foundation of everything.','B) The 24-hour Andes delivery capability — a hard-to-imitate activity the firm performs better than competitors.','C) Both are core competences in equal measure.'],
+    question:'A Colombian logistics company owns 200 trucks (fact A) and is famous for delivering to any town in the Andes within 24 hours: something no rival has managed to copy in ten years (fact B). Which one is the core competence?',
+    options:['A) The 200 trucks: physical assets are the foundation of everything.','B) The 24-hour Andes delivery capability: a hard-to-imitate activity the firm performs better than competitors.','C) Both are core competences in equal measure.'],
     correct:1,
-    explanation:'Option B. Trucks are resources — any funded rival can buy 200 trucks tomorrow. The routing knowledge, driver network and processes behind 24-hour Andean delivery are tacit, accumulated and hard to copy: that\'s the core competence.' },
+    explanation:'Option B. Trucks are resources: any funded rival can buy 200 trucks tomorrow. The routing knowledge, driver network and processes behind 24-hour Andean delivery are tacit, accumulated and hard to copy: that\'s the core competence.' },
 
   // ── MODULE 5 ────────────────────────────────────────────────────────────
   { type:'module_title', num:5, title:'Blue Ocean Strategy', icon:'shuffle',
@@ -275,7 +352,7 @@ const SLIDES = [
     ]},
     right:{label:'Blue Ocean Strategy', color:BL, items:[
       {k:'Market',      v:'Unserved market space, relatively unknown'},
-      {k:'Competition', v:'Competitors not yet structured — made irrelevant'},
+      {k:'Competition', v:'Competitors not yet structured: made irrelevant'},
       {k:'Demand',      v:'Create new demand · attract non-customers'},
       {k:'Rule',        v:'Avoid head-to-head competition entirely'},
       {k:'Trade-off',   v:'Pursue value AND low cost via value innovation'},
@@ -284,36 +361,36 @@ const SLIDES = [
   { type:'four_actions' },
 
   { type:'case', module:'Module 5', icon:'award',
-    title:'Case: Airbnb — Value Innovation in Travel',
-    problem:'The lodging industry competed on the same checklist: location, star ratings, lobbies, amenities. Every hotel copied every other, margins shrank in a classic red ocean — and budget travelers who wanted something local and affordable had nowhere to go.',
-    solution:'Airbnb asked the four questions instead of copying. It eliminated owning property and front desks, reduced the cost to travelers and the capital tied up in real estate, raised the variety of places to stay and local authenticity far above any hotel chain, and created a trust layer — verified profiles, reviews and secure payments — that made booking a stranger\'s home feel safe. A brand-new market space between hotels and couch-surfing.',
+    title:'Case: Airbnb, Value Innovation in Travel',
+    problem:'The lodging industry competed on the same checklist: location, star ratings, lobbies, amenities. Every hotel copied every other, margins shrank in a classic red ocean and budget travelers who wanted something local and affordable had nowhere to go.',
+    solution:'Airbnb asked the four questions instead of copying. It eliminated owning property and front desks, reduced the cost to travelers and the capital tied up in real estate, raised the variety of places to stay and local authenticity far above any hotel chain, and created a trust layer (verified profiles, reviews and secure payments) that made booking a stranger\'s home feel safe. A brand-new market space between hotels and couch-surfing.',
     lesson:'Value innovation = raising what customers truly value while ruthlessly cutting everything else.' },
 
   { type:'case', module:'Module 5', icon:'award',
-    title:'Case: Nintendo Wii — A Blue Ocean in Gaming',
-    problem:'In the 2000s console war, Sony and Microsoft fought a red-ocean spec battle: more processing power, HD graphics, bigger game budgets — all aimed at the same hardcore gamers.',
-    solution:'Nintendo exited the arms race. The Wii cut raw hardware specs (making the console cheaper), created intuitive motion controls and family games, and attracted non-customers: families, seniors, casual players. Its value curve looked nothing like Xbox\'s or PS3\'s — on purpose.',
+    title:'Case: Nintendo Wii, A Blue Ocean in Gaming',
+    problem:'In the 2000s console war, Sony and Microsoft fought a red-ocean spec battle: more processing power, HD graphics, bigger game budgets, all aimed at the same hardcore gamers.',
+    solution:'Nintendo exited the arms race. The Wii cut raw hardware specs (making the console cheaper), created intuitive motion controls and family games, and attracted non-customers: families, seniors, casual players. Its value curve looked nothing like Xbox\'s or PS3\'s, on purpose.',
     lesson:'The Wii won by changing the factors of competition, not by winning on the old ones.' },
 
   { type:'exercise', module:'Module 5',
     title:'Exercise 5 · Spot the Blue Ocean',
     question:'A Bogotá gym chain stops buying more machines, removes the free-weights area from new locations, and launches 30-minute guided circuits aimed at people who feel intimidated by traditional gyms. What is this?',
-    options:['A) Red ocean differentiation — it\'s still a gym competing with gyms.','B) Blue ocean value innovation — eliminating and reducing standard factors while creating new ones to attract non-customers.','C) Pure cost leadership — fewer machines just means lower costs.'],
+    options:['A) Red ocean differentiation: it\'s still a gym competing with gyms.','B) Blue ocean value innovation: eliminating and reducing standard factors while creating new ones to attract non-customers.','C) Pure cost leadership: fewer machines just means lower costs.'],
     correct:1,
-    explanation:'Option B. Eliminate (free weights), reduce (equipment variety), create (guided 30-minute circuits) — and the target is non-customers of the industry. That\'s the four actions framework producing a new market space, exactly like Curves did in fitness.' },
+    explanation:'Option B. Eliminate (free weights), reduce (equipment variety), create (guided 30-minute circuits) and the target is non-customers of the industry. That\'s the four actions framework producing a new market space, exactly like Curves did in fitness.' },
 
   // ── MODULE 6 ────────────────────────────────────────────────────────────
   { type:'module_title', num:6, title:'Key Takeaways & Final Assessment', icon:'star',
     question:'Let\'s see how much of the competitive map you can redraw from memory.' },
 
   { type:'takeaways',
-    title:'Chapter 4 — What You Now Know',
+    title:'Chapter 4: What You Now Know',
     items:[
-      {icon:'flag',   c:T,  t:'Porter\'s Diamond',        d:'National advantage grows from factor conditions, demand conditions, related industries and firm rivalry — pushed by chance and government.'},
-      {icon:'target', c:BL, t:'Five Forces → Five Sources', d:'Industry attractiveness is structural — and every hostile force can be flipped into a collaborator.'},
+      {icon:'flag',   c:T,  t:'Porter\'s Diamond',        d:'National advantage grows from factor conditions, demand conditions, related industries and firm rivalry: pushed by chance and government.'},
+      {icon:'target', c:BL, t:'Five Forces → Five Sources', d:'Industry attractiveness is structural and every hostile force can be flipped into a collaborator.'},
       {icon:'trend',  c:AM, t:'Competitive Triangle',     d:'Win on perceived value, relative cost, or both. The customer\'s perception is the scoreboard.'},
       {icon:'cpu',    c:T2, t:'Core Competences',         d:'Advantage roots in resources and tacit knowledge rivals can\'t copy. Benchmark to find the gaps.'},
-      {icon:'shuffle',c:RD, t:'Blue Ocean',               d:'Eliminate, reduce, raise, create — change the factors of competition instead of fighting harder.'},
+      {icon:'shuffle',c:RD, t:'Blue Ocean',               d:'Eliminate, reduce, raise, create: change the factors of competition instead of fighting harder.'},
     ]},
 
   { type:'discussion',
@@ -324,7 +401,7 @@ const SLIDES = [
       'How can a country with high labour costs improve its national competitiveness?',
       'As the global marketing manager for Coca-Cola, how would you monitor reactions around the world to a major competitor such as Pepsi?',
     ],
-    resource:{label:'Research resource — back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
+    resource:{label:'Research resource: back your answers with real industry news:', name:'Marketing Dive', url:'https://www.marketingdive.com/'}},
 
   { type:'quiz_intro',
     title:'Final Assessment',
@@ -367,7 +444,7 @@ const SLIDES = [
   { type:'closing',
     title:'See You Next Class',
     subtitle:'Chapter 14: Product Decisions\nBuilding, branding and adapting products for world markets.',
-    quote:'"Strategy is about making choices, trade-offs; it\'s about deliberately choosing to be different." — Michael Porter' },
+    quote:'"Strategy is about making choices, trade-offs; it\'s about deliberately choosing to be different.": Michael Porter' },
 ];
 
 // ── SLIDE COMPONENTS ──────────────────────────────────────────────────────
@@ -376,10 +453,10 @@ const TitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.4}}>
-      <div style={{fontSize:V(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:700,marginBottom:20}}>{data.tag}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
-      <p style={{fontSize:V(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
-      <div style={{fontSize:13,color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
+      <div style={{fontSize:PXV(12,11),color:T,letterSpacing:V(4,2),textTransform:'uppercase',fontWeight:FW(700),marginBottom:20}}>{data.tag}</div>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(72,40),lineHeight:1.05,margin:'0 0 28px',whiteSpace:'pre-line'}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,17),color:G,maxWidth:680,lineHeight:1.65,whiteSpace:'pre-line',marginBottom:32}}>{data.subtitle}</p>
+      <div style={{fontSize:PX(13),color:`${G}80`,fontStyle:'italic'}}>{data.author}</div>
     </P>
     {!MOB&&<P style={{flex:.8,display:'flex',justifyContent:'center',opacity:.06}}>
       <div style={{width:380,height:380}}>{Ico.globe(T)}</div>
@@ -391,19 +468,19 @@ const ImpactSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.03}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),marginBottom:V(44,24),color:W}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(22,12),marginBottom:V(36,22)}}>
         {data.stats.map((s,i)=>(
           <div key={i} style={{background:BG2,padding:V('28px 30px','18px 18px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,14),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(42,30),fontWeight:900,color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,30),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0}}>{s.n}</div>
             <div>
-              <div style={{fontSize:V(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
-              <div style={{fontSize:12,color:`${G}80`}}>{s.src}</div>
+              <div style={{fontSize:PXV(18,15),lineHeight:1.5,color:W,marginBottom:5}}>{s.d}</div>
+              <div style={{fontSize:PX(12),color:`${G}80`}}>{s.src}</div>
             </div>
           </div>
         ))}
       </div>
-      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:V(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:12,padding:V('18px 26px','14px 16px'),fontSize:PXV(19,15),color:W,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:24,height:24,flexShrink:0,opacity:.7}}>{Ico.zap(T)}</div> {data.quote}
       </div>
     </P>
@@ -413,13 +490,13 @@ const ImpactSlide = ({data}) => (
 const AgendaSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),textAlign:'center',marginBottom:V(44,24)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('repeat(3,1fr)','1fr 1fr'),gap:V(18,10)}}>
         {data.modules.map(m=>(
           <div key={m.num} style={{background:`${T}06`,border:`1px solid ${T}22`,padding:V('26px 24px','16px 12px'),borderRadius:16,textAlign:'center'}}>
-            <div style={{fontSize:V(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:900}}>0{m.num}</div>
-            <h3 style={{fontSize:V(18,14),marginBottom:7,color:W}}>{m.title}</h3>
-            <p style={{color:G,fontSize:V(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
+            <div style={{fontSize:PXV(40,28),fontFamily:"'Fraunces',serif",color:T,marginBottom:V(10,6),fontWeight:FW(900)}}>0{m.num}</div>
+            <h3 style={{fontSize:PXV(18,14),marginBottom:7,color:W}}>{m.title}</h3>
+            <p style={{color:G,fontSize:PXV(14,12),lineHeight:1.5,margin:0}}>{m.desc}</p>
           </div>
         ))}
       </div>
@@ -431,11 +508,11 @@ const ModuleTitleSlide = ({data}) => (
   <div style={SR({display:'flex',height:'100%',alignItems:'center',padding:V('0 100px','48px 24px'),zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{flex:1.5}}>
-      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:13,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:8,background:`${T}15`,border:`1px solid ${T}40`,borderRadius:100,padding:'6px 18px',fontSize:PX(13),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>
         MODULE {data.num}
       </div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
-      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:V(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(64,36),lineHeight:1.05,margin:'0 0 32px'}}>{data.title}</h1>
+      <div style={{background:BG2,border:`1px solid ${BDR}`,borderRadius:12,padding:V('18px 24px','14px 16px'),fontSize:PXV(21,16),color:G,fontStyle:'italic',display:'flex',gap:14,alignItems:'center'}}>
         <div style={{width:22,height:22,flexShrink:0,opacity:.6}}>{Ico[data.icon]?Ico[data.icon](T):null}</div>
         {data.question}
       </div>
@@ -448,10 +525,10 @@ const ConceptSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.035}/></div>
     <P style={{flex:1.5}}>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
-      <p style={{fontSize:V(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,30),color:T,marginBottom:V(28,18),lineHeight:1.1}}>{data.title}</h2>
+      <p style={{fontSize:PXV(22,16),lineHeight:1.7,color:W,margin:'0 0 24px'}}>{data.text}</p>
       {data.highlight&&(
-        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:V(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
+        <div style={{background:`${AM}10`,border:`1px solid ${AM}35`,borderRadius:10,padding:V('14px 20px','12px 14px'),fontSize:PXV(17,14),color:AM,display:'flex',gap:12,alignItems:'center'}}>
           <div style={{width:18,height:18,flexShrink:0}}>{Ico.zap(AM)}</div> {data.highlight}
         </div>
       )}
@@ -469,16 +546,16 @@ const CaseSlide = ({data}) => (
     </P>}
     <P style={{flex:1.8}}>
       <ModuleTag module={data.module} color={data.icon==='award'?T:RD}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(42,26),marginBottom:V(24,16)}}>{data.title}</h2>
       <div style={{background:`${RD}10`,borderLeft:`5px solid ${RD}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:14}}>
-        <div style={{fontSize:11,color:RD,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.problem}</p>
+        <div style={{fontSize:PX(11),color:RD,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The challenge</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.problem}</p>
       </div>
       <div style={{background:`${T}10`,borderLeft:`5px solid ${T}`,padding:V('18px 22px','14px 14px'),borderRadius:'0 12px 12px 0',marginBottom:12}}>
-        <div style={{fontSize:11,color:T,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
-        <p style={{margin:0,fontSize:V(17,14),lineHeight:1.65}}>{data.solution}</p>
+        <div style={{fontSize:PX(11),color:T,fontWeight:FW(700),letterSpacing:2,textTransform:'uppercase',marginBottom:8}}>The solution</div>
+        <p style={{margin:0,fontSize:PXV(17,14),lineHeight:1.65}}>{data.solution}</p>
       </div>
-      <div style={{fontSize:V(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
+      <div style={{fontSize:PXV(15,13),color:AM,fontStyle:'italic',display:'flex',gap:8,alignItems:'flex-start'}}>
         <div style={{width:16,height:16,flexShrink:0,marginTop:2}}>{Ico.zap(AM)}</div> {data.lesson}
       </div>
     </P>
@@ -489,18 +566,18 @@ const ComparisonSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module={data.module}/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(44,26),marginBottom:V(28,18)}}>{data.title}</h2>
       <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(24,14)}}>
         {[data.left,data.right].map((side,si)=>(
           <div key={si} style={{background:BG2,borderRadius:16,border:`1px solid ${side.color}30`,overflow:'hidden'}}>
-            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:15,fontWeight:700,color:side.color,borderBottom:`1px solid ${side.color}20`}}>
+            <div style={{background:`${side.color}15`,padding:'14px 22px',fontSize:PX(15),fontWeight:FW(700),color:side.color,borderBottom:`1px solid ${side.color}20`}}>
               {side.label}
             </div>
             <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:12}}>
               {side.items.map((item,i)=>(
-                <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                  <div style={{fontSize:12,fontWeight:700,color:side.color,minWidth:V(100,82),flexShrink:0,paddingTop:2}}>{item.k}</div>
-                  <div style={{fontSize:V(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
+                <div key={i} style={{display:'grid',gridTemplateColumns:V(PX(104)+'px 1fr','84px 1fr'),columnGap:12,alignItems:'baseline'}}>
+                  <div style={{fontSize:PX(12),fontWeight:FW(700),color:side.color}}>{item.k}</div>
+                  <div style={{fontSize:PXV(14,13),color:G,lineHeight:1.5}}>{item.v}</div>
                 </div>
               ))}
             </div>
@@ -513,8 +590,8 @@ const ComparisonSlide = ({data}) => (
 
 const DBox = ({c,t,d,dashed}) => (
   <div style={{background:BG2,border:`1px ${dashed?'dashed':'solid'} ${c}40`,borderRadius:12,padding:V('14px 18px','11px 13px'),flex:1}}>
-    <div style={{fontSize:V(15,13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(13,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:PXV(15,13),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(13,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -522,8 +599,8 @@ const PorterDiamondSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 1"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Diamond — National Competitiveness</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Porter (1990) — The Competitive Advantage of Nations</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Porter's Diamond — National Competitiveness</h2>
+      <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Porter (1990) — The Competitive Advantage of Nations</p>
       <div style={{display:'flex',flexDirection:'column',gap:V(12,10),maxWidth:880,margin:'0 auto',width:'100%'}}>
         <DBox c={T} t="Firm Strategy, Structure & Rivalry" d="How companies are created, organized and managed — and the intensity of domestic rivalry that trains them for global battle"/>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(12,10)}}>
@@ -542,8 +619,8 @@ const PorterDiamondSlide = () => (
 
 const FFBox = ({c,t,d,center}) => (
   <div style={{background:center?`${c}10`:BG2,border:`${center?2:1}px solid ${c}${center?'':'35'}`,borderRadius:12,padding:V('14px 16px','12px 14px'),textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-    <div style={{fontSize:V(center?17:15,center?15:13),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:V(center?17:15,center?15:13),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -559,8 +636,8 @@ const FiveForcesSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 2"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>Porter's Five Forces — Industry Level</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>The structure of the industry decides the size of the profit pool — before any firm makes a move.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>Porter's Five Forces — Industry Level</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>The structure of the industry decides the size of the profit pool — before any firm makes a move.</p>
         {MOB ? (
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {boxes.entrants}{boxes.suppliers}{boxes.rivalry}{boxes.buyers}{boxes.substitutes}
@@ -579,8 +656,8 @@ const FiveForcesSlide = () => {
 
 const TriBox = ({c,t,d}) => (
   <div style={{background:BG2,border:`1px solid ${c}40`,borderRadius:14,padding:V('16px 22px','12px 14px'),textAlign:'center',minWidth:V(200,0),flex:V('none',1)}}>
-    <div style={{fontSize:V(16,14),fontWeight:700,color:c,marginBottom:5}}>{t}</div>
-    <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{d}</div>
+    <div style={{fontSize:PXV(16,14),fontWeight:FW(700),color:c,marginBottom:5}}>{t}</div>
+    <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{d}</div>
   </div>
 );
 
@@ -588,24 +665,24 @@ const CompetitiveTriangleSlide = () => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
       <ModuleTag module="Module 3"/>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Competitive Triangle</h2>
-      <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>A customer, the firm, and a competitor. Favour goes to whoever offers more perceived value per cost.</p>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Competitive Triangle</h2>
+      <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(24,16)}}>A customer, the firm, and a competitor. Favour goes to whoever offers more perceived value per cost.</p>
       <div style={{maxWidth:860,margin:'0 auto',width:'100%'}}>
         <div style={{display:'flex',justifyContent:'center',marginBottom:V(10,8)}}>
           <TriBox c={AM} t="THE CUSTOMER" d="Compares perceived value vs price across the alternatives"/>
         </div>
-        <div style={{display:'flex',justifyContent:'space-between',margin:V('0 60px 10px','0 4px 8px'),fontSize:V(12,10),color:G,fontStyle:'italic'}}>
+        <div style={{display:'flex',justifyContent:'space-between',margin:V('0 60px 10px','0 4px 8px'),fontSize:PXV(12,10),color:G,fontStyle:'italic'}}>
           <div>↗ Perceived value / price A</div>
           <div>Perceived value / price B ↖</div>
         </div>
         <div style={{display:'flex',flexDirection:V('row','column'),gap:V(14,10),alignItems:'stretch'}}>
           <TriBox c={T} t="FIRM A" d="R&D → Production → Marketing → Sales & Service"/>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            <div style={{background:`${RD}12`,border:`1px solid ${RD}35`,borderRadius:100,padding:'8px 18px',fontSize:V(12,11),fontWeight:700,color:RD,whiteSpace:'nowrap'}}>RELATIVE COSTS</div>
+            <div style={{background:`${RD}12`,border:`1px solid ${RD}35`,borderRadius:100,padding:'8px 18px',fontSize:PXV(12,11),fontWeight:FW(700),color:RD,whiteSpace:'nowrap'}}>RELATIVE COSTS</div>
           </div>
           <TriBox c={BL} t="FIRM B" d="R&D → Production → Marketing → Sales & Service"/>
         </div>
-        <p style={{color:`${G}90`,fontSize:V(13,11),marginTop:V(18,12),fontStyle:'italic',textAlign:'center'}}>Both firms run the same chain. Advantage = running it for MORE perceived value, or at LOWER relative cost.</p>
+        <p style={{color:`${G}90`,fontSize:PXV(13,11),marginTop:V(18,12),fontStyle:'italic',textAlign:'center'}}>Both firms run the same chain. Advantage = running it for MORE perceived value, or at LOWER relative cost.</p>
       </div>
     </P>
   </div>
@@ -622,16 +699,16 @@ const CompetenceRootsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 4"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Roots of Competitive Advantage</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(24,16)}}>Source: adapted from Jüttner and Wehrli (1994) — performance grows from roots competitors can't see.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Roots of Competitive Advantage</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(24,16)}}>Source: adapted from Jüttner and Wehrli (1994) — performance grows from roots competitors can't see.</p>
         <div style={{display:'flex',flexDirection:'column',gap:V(10,8),alignItems:'center'}}>
           {layers.map((l,i)=>(
             <div key={i} style={{width:V(l.w,'100%'),background:BG2,border:`1px solid ${l.c}40`,borderRadius:12,padding:V('13px 20px','11px 14px'),textAlign:'center'}}>
-              <div style={{fontSize:V(14,12),fontWeight:700,color:l.c,letterSpacing:1,marginBottom:4}}>{l.t}</div>
-              <div style={{fontSize:V(12,11),color:G,lineHeight:1.5}}>{l.d}</div>
+              <div style={{fontSize:PXV(14,12),fontWeight:FW(700),color:l.c,letterSpacing:1,marginBottom:4}}>{l.t}</div>
+              <div style={{fontSize:PXV(12,11),color:G,lineHeight:1.5}}>{l.d}</div>
             </div>
           ))}
-          <div style={{display:'flex',gap:10,marginTop:V(8,4),fontSize:V(12,10),color:`${G}90`,fontStyle:'italic',flexWrap:'wrap',justifyContent:'center'}}>
+          <div style={{display:'flex',gap:10,marginTop:V(8,4),fontSize:PXV(12,10),color:`${G}90`,fontStyle:'italic',flexWrap:'wrap',justifyContent:'center'}}>
             <span>↑ The pyramid is read bottom-up: resources feed competences, competences feed advantage, advantage feeds performance.</span>
           </div>
         </div>
@@ -651,15 +728,15 @@ const FourActionsSlide = () => {
     <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <ModuleTag module="Module 5"/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),marginBottom:6}}>The Four Actions Framework</h2>
-        <p style={{color:G,fontSize:V(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),marginBottom:6}}>The Four Actions Framework</h2>
+        <p style={{color:G,fontSize:PXV(14,12),marginBottom:V(22,16)}}>Source: Kim & Mauborgne (1997) — the four questions behind every blue-ocean value curve.</p>
         <div style={{display:'grid',gridTemplateColumns:V('1fr 1fr','1fr'),gap:V(16,10),maxWidth:920,margin:'0 auto',width:'100%'}}>
           {acts.map((a,i)=>(
             <div key={i} style={{background:BG2,border:`1px solid ${a.c}35`,borderRadius:14,overflow:'hidden'}}>
-              <div style={{background:`${a.c}15`,padding:V('10px 18px','9px 14px'),fontSize:V(14,12),fontWeight:700,color:a.c,letterSpacing:2}}>{a.t}</div>
+              <div style={{background:`${a.c}15`,padding:V('10px 18px','9px 14px'),fontSize:PXV(14,12),fontWeight:FW(700),color:a.c,letterSpacing:2}}>{a.t}</div>
               <div style={{padding:V('14px 18px','11px 14px')}}>
-                <div style={{fontSize:V(14,12),color:W,lineHeight:1.55,marginBottom:8}}>{a.q}</div>
-                <div style={{fontSize:V(12,11),color:a.c,fontStyle:'italic'}}>→ {a.a}</div>
+                <div style={{fontSize:PXV(14,12),color:W,lineHeight:1.55,marginBottom:8}}>{a.q}</div>
+                <div style={{fontSize:PXV(12,11),color:a.c,fontStyle:'italic'}}>→ {a.a}</div>
               </div>
             </div>
           ))}
@@ -672,14 +749,14 @@ const TakeawaysSlide = ({data}) => (
   <div style={SR({padding:V('0 80px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <div className="bg-art"><BgGlobe opacity={.04}/></div>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(52,28),marginBottom:V(36,22),textAlign:'center'}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(14,10),maxWidth:900,margin:'0 auto',width:'100%'}}>
         {data.items.map((item,i)=>(
           <div key={i} style={{background:BG2,padding:V('18px 24px','14px 14px'),borderRadius:14,border:`1px solid ${item.c}25`,display:'flex',gap:V(20,12),alignItems:'center'}}>
             <div style={{width:V(36,26),height:V(36,26),flexShrink:0,opacity:.85}}>{Ico[item.icon]?Ico[item.icon](item.c):null}</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:V(17,15),fontWeight:700,color:item.c,marginBottom:4}}>{item.t}</div>
-              <div style={{fontSize:V(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
+              <div style={{fontSize:PXV(17,15),fontWeight:FW(700),color:item.c,marginBottom:4}}>{item.t}</div>
+              <div style={{fontSize:PXV(15,13),color:G,lineHeight:1.5}}>{item.d}</div>
             </div>
           </div>
         ))}
@@ -691,21 +768,21 @@ const TakeawaysSlide = ({data}) => (
 const DiscussionSlide = ({data}) => (
   <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
     <P>
-      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
+      <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(48,28),marginBottom:V(36,22),color:T}}>{data.title}</h2>
       <div style={{display:'flex',flexDirection:'column',gap:V(18,12)}}>
         {data.questions.map((q,i)=>(
           <div key={i} style={{background:BG2,padding:V('20px 24px','14px 16px'),borderRadius:14,border:`1px solid ${BDR}`,display:'flex',gap:V(18,12),alignItems:'flex-start'}}>
-            <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),fontWeight:900,color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
-            <div style={{fontSize:V(19,15),lineHeight:1.6,color:W}}>{q}</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),fontWeight:FW(900),color:T,lineHeight:1,flexShrink:0,minWidth:V(32,24)}}>{i+1}</div>
+            <div style={{fontSize:PXV(19,15),lineHeight:1.6,color:W}}>{q}</div>
           </div>
         ))}
       </div>
       {data.resource && (
         <div style={{marginTop:V(28,18),display:'flex',alignItems:'center',gap:14,background:`${T}0d`,border:`1px solid ${T}35`,borderRadius:14,padding:V('16px 24px','13px 16px')}}>
           <div style={{width:22,height:22,flexShrink:0}}>{Ico.link(T)}</div>
-          <div style={{fontSize:V(16,14),color:G,lineHeight:1.5}}>
+          <div style={{fontSize:PXV(16,14),color:G,lineHeight:1.5}}>
             {data.resource.label}{' '}
-            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:700,textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
+            <a href={data.resource.url} target="_blank" rel="noopener noreferrer" style={{color:T2,fontWeight:FW(700),textDecoration:'none',borderBottom:`1px solid ${T2}60`}}>{data.resource.name} →</a>
           </div>
         </div>
       )}
@@ -719,22 +796,22 @@ const ExerciseSlide = ({data}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',maxWidth:1100,margin:'0 auto',zIndex:2})}>
       <P>
         <ModuleTag module={data.module}/>
-        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:V(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
-        <div style={{fontSize:V(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
+        <h2 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(40,24),color:T,textAlign:'center',marginBottom:22}}>{data.title}</h2>
+        <div style={{fontSize:PXV(22,16),lineHeight:1.55,textAlign:'center',marginBottom:V(32,20),color:W}}>{data.question}</div>
         <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:V(28,20)}}>
           {data.options.map((opt,i)=>(
-            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:V(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
+            <div key={i} style={{padding:V('18px 22px','14px 16px'),borderRadius:12,border:revealed?(i===data.correct?`2px solid ${T}`:`1px solid ${RD}30`):`1px solid ${BDR}`,background:revealed?(i===data.correct?`${T}12`:`${RD}08`):BG2,fontSize:PXV(18,15),transition:'all .25s',color:revealed?(i===data.correct?T:G):W}}>
               {opt}
             </div>
           ))}
         </div>
         <div style={{textAlign:'center'}}>
           {!revealed?(
-            <button onClick={()=>setRevealed(true)} style={{background:T,color:'#000',border:'none',padding:'15px 42px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+            <button onClick={()=>setRevealed(true)} style={{background:T,color:INK(),border:'none',padding:'15px 42px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
               Reveal Answer
             </button>
           ):(
-            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:V(17,14),lineHeight:1.6,textAlign:'left'}}>
+            <div style={{background:`${T}12`,border:`1px solid ${T}35`,padding:V('18px 24px','14px 16px'),borderRadius:12,color:T,fontSize:PXV(17,14),lineHeight:1.6,textAlign:'left'}}>
               <strong>Explanation:</strong> {data.explanation}
             </div>
           )}
@@ -749,9 +826,9 @@ const QuizIntroSlide = ({data,onStart}) => (
     <div className="bg-art"><BgGlobe opacity={.05}/></div>
     <P style={{textAlign:'center'}}>
       <div style={{width:V(80,60),height:V(80,60),margin:'0 auto 28px',opacity:.8}}>{Ico.target(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(68,38),marginBottom:14}}>{data.title}</h1>
-      <p style={{fontSize:V(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
-      <button onClick={onStart} style={{background:T,color:'#000',border:'none',padding:'18px 56px',fontSize:20,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(68,38),marginBottom:14}}>{data.title}</h1>
+      <p style={{fontSize:PXV(22,16),color:G,marginBottom:V(48,32)}}>{data.subtitle}</p>
+      <button onClick={onStart} style={{background:T,color:INK(),border:'none',padding:'18px 56px',fontSize:PX(20),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
         Start Assessment →
       </button>
     </P>
@@ -779,17 +856,17 @@ const QuizSlide = ({data,onFinish}) => {
     return(
       <div style={SR({display:'flex',height:'100%',alignItems:'center',justifyContent:'center',flexDirection:'column',padding:V(0,'48px 24px'),zIndex:2})}>
         <P style={{textAlign:'center'}}>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
-          <div style={{fontFamily:"'Fraunces',serif",fontSize:V(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
-          <div style={{fontSize:18,color:G,marginBottom:36}}>{pct}% correct answers</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(96,64),color:rating.c,marginBottom:8}}>{score}/{data.questions.length}</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:PXV(32,22),color:rating.c,marginBottom:14}}>{rating.l}</div>
+          <div style={{fontSize:PX(18),color:G,marginBottom:36}}>{pct}% correct answers</div>
           <div style={{display:'flex',gap:V(10,8),justifyContent:'center',flexWrap:'wrap',maxWidth:700,marginBottom:36}}>
             {data.questions.map((q,i)=>(
-              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:V(16,14),color:answers[i]===q.correct?T:RD,fontWeight:700}}>
+              <div key={i} style={{width:V(44,36),height:V(44,36),borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',background:answers[i]===q.correct?`${T}25`:`${RD}20`,border:`2px solid ${answers[i]===q.correct?T:RD}`,fontSize:PXV(16,14),color:answers[i]===q.correct?T:RD,fontWeight:FW(700)}}>
                 {answers[i]===q.correct?'✓':'✗'}
               </div>
             ))}
           </div>
-          <button onClick={onFinish} style={{background:T,color:'#000',border:'none',padding:'14px 40px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={onFinish} style={{background:T,color:INK(),border:'none',padding:'14px 40px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             Continue →
           </button>
         </P>
@@ -803,12 +880,12 @@ const QuizSlide = ({data,onFinish}) => {
     <div style={SR({padding:V('0 100px','32px 20px'),height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',zIndex:2})}>
       <P>
         <div style={{display:'flex',justifyContent:'space-between',marginBottom:20,alignItems:'center',gap:14}}>
-          <div style={{fontSize:12,color:G,fontWeight:700,letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
+          <div style={{fontSize:PX(12),color:G,fontWeight:FW(700),letterSpacing:2}}>QUESTION {current+1} / {data.questions.length}</div>
           <div style={{width:V(220,100),height:5,background:BG2,borderRadius:3,overflow:'hidden'}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((current+1)/data.questions.length)*100}%`,transition:'width .3s'}}/>
           </div>
         </div>
-        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:V(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
+        <h3 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(34,21),marginBottom:V(28,18),color:W,lineHeight:1.35}}>{q.q}</h3>
         <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:24}}>
           {q.opts.map((opt,i)=>{
             let bg=BG2,border=`1px solid ${BDR}`,color=W;
@@ -817,14 +894,14 @@ const QuizSlide = ({data,onFinish}) => {
               else if(i===answers[current]){bg=`${RD}10`;border=`2px solid ${RD}`;color=RD;}
             }
             return(
-              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:V(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
+              <div key={i} onClick={()=>answer(i)} style={{padding:V('15px 20px','13px 14px'),borderRadius:10,border,background:bg,fontSize:PXV(18,15),color,cursor:answered?'default':'pointer',transition:'all .2s'}}>
                 {opt}
               </div>
             );
           })}
         </div>
         {answered&&(
-          <button onClick={next} style={{background:T,color:'#000',border:'none',padding:'13px 34px',fontSize:16,fontWeight:700,borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
+          <button onClick={next} style={{background:T,color:INK(),border:'none',padding:'13px 34px',fontSize:PX(16),fontWeight:FW(700),borderRadius:100,cursor:'pointer',fontFamily:'inherit'}}>
             {current<data.questions.length-1?'Next Question →':'See Results →'}
           </button>
         )}
@@ -838,12 +915,12 @@ const ClosingSlide = ({data}) => (
     <div className="bg-art"><BgGlobe opacity={.06}/></div>
     <P>
       <div style={{width:60,height:60,margin:'0 auto 28px',opacity:.7}}>{Ico.globe(T)}</div>
-      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:V(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
-      <p style={{fontSize:V(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
+      <h1 style={{fontFamily:"'Fraunces',serif",fontSize:PXV(62,34),marginBottom:20,lineHeight:1.1}}>{data.title}</h1>
+      <p style={{fontSize:PXV(20,16),color:G,marginBottom:V(40,28),whiteSpace:'pre-line',lineHeight:1.7}}>{data.subtitle}</p>
       <div style={{background:`${T}10`,border:`1px solid ${T}30`,borderRadius:14,padding:V('22px 36px','16px 18px'),maxWidth:800,margin:'0 auto'}}>
-        <div style={{fontSize:V(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
+        <div style={{fontSize:PXV(18,15),color:W,fontStyle:'italic',lineHeight:1.7}}>{data.quote}</div>
       </div>
-      <div style={{marginTop:V(40,28),fontSize:V(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
+      <div style={{marginTop:V(40,28),fontSize:PXV(13,11),color:`${G}60`,letterSpacing:2,textTransform:'uppercase'}}>Universidad del Rosario · Global Marketing · Hollensen 5th Ed.</div>
     </P>
   </div>
 );
@@ -896,6 +973,8 @@ function App(){
   },[next,prev,s.type]);
 
   const renderSlide=()=>{
+    TIPO = s.type;
+    try{ var d=document.documentElement; d.dataset.tipo = s.type; d.dataset.compuesta = (COMPUESTAS.indexOf(s.type)>-1 ? '1' : '0');}catch(e){}
     switch(s.type){
       case 'title':            return <TitleSlide data={s}/>;
       case 'impact':           return <ImpactSlide data={s}/>;
@@ -928,29 +1007,29 @@ function App(){
       <div className="bg-grid"/>
       <div className="bg-glow"/>
       <div className="bg-glow-left"/>
-      <div key={cur} className={`slide-enter${MOB?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:MOB?'auto':'hidden'}}>
+      <div key={cur} className={`slide-enter${(MOB||PROJ)?' slide-scroll':''}`} style={{flex:1,position:'relative',overflow:(MOB||PROJ)?'auto':'hidden'}}>
         {renderSlide()}
       </div>
       {/* FOOTER NAV */}
       <div style={{height:V(72,60),borderTop:`1px solid ${BDR}`,display:'flex',alignItems:'center',justifyContent:'space-between',padding:V('0 40px','0 14px'),gap:V(0,10),zIndex:10,background:BG2,flexShrink:0}}>
         <div style={{display:'flex',alignItems:'center',gap:14}}>
           {!MOB&&<div style={{display:'flex',flexDirection:'column',gap:2}}>
-            <div style={{fontSize:12,color:T,fontWeight:700,letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
-            <div style={{fontSize:11,color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 4</div>
+            <div style={{fontSize:PX(12),color:T,fontWeight:FW(700),letterSpacing:3,textTransform:'uppercase'}}>Universidad del Rosario</div>
+            <div style={{fontSize:PX(11),color:`${G}70`,letterSpacing:1}}>Global Marketing · Chapter 4</div>
           </div>}
           {!MOB&&<button onClick={()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen();}} title="Fullscreen (F)" style={{background:'transparent',border:`1px solid ${BDR}`,color:G,width:32,height:32,borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginLeft:8}}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="14" height="14"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
           </button>}
-          {MOB&&<div style={{fontSize:10,color:T,fontWeight:700,letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.4</div>}
+          {MOB&&<div style={{fontSize:PX(10),color:T,fontWeight:FW(700),letterSpacing:1,textTransform:'uppercase',whiteSpace:'nowrap'}}>Global Mkt · Ch.4</div>}
         </div>
         <div style={{display:'flex',alignItems:'center',gap:V(20,10),flex:V('none',1),justifyContent:'center'}}>
-          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>←</button>
+          <button onClick={prev} disabled={cur===0} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===0?'default':'pointer',opacity:cur===0?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>←</button>
           <div style={{width:V(300,'100%'),maxWidth:300,height:4,background:BG3,borderRadius:3,overflow:'hidden',flex:V('none',1)}}>
             <div style={{height:'100%',background:`linear-gradient(90deg,${T},${T2})`,width:`${((cur+1)/total)*100}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:3}}/>
           </div>
-          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:18,fontFamily:'inherit',flexShrink:0}}>→</button>
+          <button onClick={next} disabled={cur===total-1} style={{background:'transparent',border:`1px solid ${BDR}`,color:W,width:42,height:42,borderRadius:'50%',cursor:cur===total-1?'default':'pointer',opacity:cur===total-1?.25:1,fontSize:PX(18),fontFamily:'inherit',flexShrink:0}}>→</button>
         </div>
-        <div style={{fontSize:V(14,12),color:G,fontWeight:600,fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
+        <div style={{fontSize:PXV(14,12),color:G,fontWeight:FW(600),fontFamily:"'Fraunces',serif",whiteSpace:'nowrap'}}>{cur+1} / {total}</div>
       </div>
     </div>
   );
@@ -958,12 +1037,288 @@ function App(){
 
 const root=ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App/>);
+window.__rerender = () => root.render(<App/>);
 </script>
 <style>
-html.lightmode{filter:invert(1) hue-rotate(180deg);background:#fff;}
+html.proyector,html.proyector body{background:#fff;color:#0b0f14}
+html.proyector .bg-grid,html.proyector .bg-glow,html.proyector .bg-glow-left,html.proyector .bg-art{display:none}
+html.proyector #pmode{background:#0b0f14;color:#fff;border-color:#0b0f14}
+/* La diapositiva se desplaza por DENTRO; la barra de navegación no se va de
+   pantalla. El centrado va con margin:auto y NO con justify-content: dentro de
+   una caja con scroll, justify-content:center recorta el principio del
+   contenido y lo deja inalcanzable. */
+html.proyector .slide-enter{display:flex;flex-direction:column}
+html.proyector .slide-enter>*{margin:auto;width:100%;max-width:1560px}
 #pmode{position:fixed;top:14px;right:14px;z-index:99999;background:rgba(127,127,127,.18);border:1px solid rgba(127,127,127,.45);color:inherit;font:600 12px/1 'DM Sans',sans-serif;letter-spacing:.5px;padding:9px 13px;border-radius:8px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #pmode:hover{background:rgba(127,127,127,.32);}
 </style>
-<button id="pmode" onclick="document.documentElement.classList.toggle('lightmode')" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<button id="pmode" onclick="toggleProyector()" title="Modo proyector / aula iluminada (light mode)">☀ Proyector</button>
+<script>
+/* ── arreglos proyector ── */
+// React monta un nodo nuevo con className "slide-enter" cada vez que cambia la
+// diapositiva (lleva key={cur}); los re-render dentro de la misma diapositiva
+// reutilizan el nodo, así que esto NO se dispara al pulsar "Reveal answer".
+(function(){
+  var raiz = document.getElementById('root');
+  if (!raiz || !window.MutationObserver) return;
+  function arriba(){
+    window.scrollTo(0, 0);
+    if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+    var s = raiz.querySelector('.slide-enter');
+    if (s) s.scrollTop = 0;
+  }
+  new MutationObserver(function(muts){
+    for (var i = 0; i < muts.length; i++) {
+      var add = muts[i].addedNodes;
+      for (var j = 0; j < add.length; j++) {
+        var n = add[j];
+        if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+          arriba();
+          requestAnimationFrame(arriba);   // por si la animación de entrada mueve algo
+          return;
+        }
+      }
+    }
+  }).observe(raiz, {childList: true, subtree: true});
+})();
+</script>
+<style>
+#vz{position:fixed;inset:0;z-index:100000;background:rgba(8,10,14,.97);display:none;
+  touch-action:none;overscroll-behavior:contain}
+#vz.on{display:block}
+html.proyector #vz{background:rgba(232,237,243,.985)}
+#vz .lienzo svg{background:#fff;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.45);padding:10px}
+html.proyector #vz .lienzo svg{box-shadow:0 10px 40px rgba(0,0,0,.22);border:1px solid #C9D4E0}
+#vz .cerrar{background:#0072CE !important;border-color:#0072CE !important;color:#fff !important;
+  box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#vz .lienzo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  transform-origin:50% 50%;will-change:transform}
+#vz .lienzo svg{max-width:96vw;max-height:88vh;width:auto;height:auto}
+#vz .cerrar{position:fixed;top:14px;right:14px;z-index:2;background:rgba(127,127,127,.22);
+  border:1px solid rgba(127,127,127,.5);color:#fff;font:700 13px/1 system-ui,sans-serif;
+  padding:11px 15px;border-radius:9px;cursor:pointer}
+html.proyector #vz .cerrar{color:#0b0f14}
+#vz .pista{position:fixed;left:0;right:0;bottom:16px;text-align:center;
+  font:600 12px/1.4 system-ui,sans-serif;color:rgba(255,255,255,.62);pointer-events:none}
+html.proyector #vz .pista{color:rgba(0,0,0,.55)}
+.zoomable{cursor:zoom-in}
+.tocar{position:absolute;right:8px;bottom:8px;background:rgba(127,127,127,.2);
+  border:1px solid rgba(127,127,127,.42);border-radius:7px;padding:5px 9px;
+  font:700 10px/1 system-ui,sans-serif;color:inherit;opacity:.75;pointer-events:none}
+#hintmodo{position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;
+  background:#0072CE;color:#fff;border-radius:12px;padding:13px 15px;
+  font:600 13px/1.45 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#hintmodo b{display:block;font-size:14px;margin-bottom:2px}
+#hintmodo .x{position:absolute;top:8px;right:11px;font-size:17px;opacity:.75;cursor:pointer}
+</style>
+<div id="vz"><div class="lienzo"></div>
+  <button class="cerrar" onclick="window.__vzCerrar()">Cerrar ✕</button>
+  <div class="pista">Pellizca para acercar · aleja del todo para volver al encuadre</div>
+</div>
+<script>
+/* ── visor y memoria de modo ── */
+(function(){
+  var CLAVE = 'curso-modo';
+
+  /* ── 1 · recordar el modo entre capítulos ─────────────────────────── */
+  function aplicaGuardado(){
+    var q = null;
+    try { q = localStorage.getItem(CLAVE); } catch(e){}
+    if (q !== 'claro') return;
+    var t = setInterval(function(){
+      if (!window.toggleProyector) return;
+      clearInterval(t);
+      if (!document.documentElement.classList.contains('proyector')) window.toggleProyector();
+    }, 60);
+    setTimeout(function(){ clearInterval(t); }, 6000);
+  }
+  aplicaGuardado();
+
+  var btn = document.getElementById('pmode');
+  if (btn) btn.addEventListener('click', function(){
+    setTimeout(function(){
+      try {
+        localStorage.setItem(CLAVE,
+          document.documentElement.classList.contains('proyector') ? 'claro' : 'oscuro');
+      } catch(e){}
+      var h = document.getElementById('hintmodo');
+      if (h) h.style.display = 'none';
+    }, 30);
+  });
+
+  /* aviso la primera vez, sólo en pantalla pequeña */
+  function pista(){
+    if (window.innerWidth > 820) return;
+    var visto = null;
+    try { visto = localStorage.getItem(CLAVE); } catch(e){}
+    if (visto) return;
+    var d = document.createElement('div');
+    d.id = 'hintmodo';
+    d.innerHTML = '<span class="x">&times;</span>' +
+      '<b>¿Tu profe proyecta en fondo claro?</b>' +
+      'Toca el botón <b style="display:inline">☀ Proyector</b> arriba a la derecha ' +
+      'y verás exactamente lo mismo que está en la pantalla del salón.';
+    document.body.appendChild(d);
+    d.style.display = 'block';
+    d.querySelector('.x').onclick = function(){
+      d.style.display = 'none';
+      try { localStorage.setItem(CLAVE, 'oscuro'); } catch(e){}
+    };
+    setTimeout(function(){ if (d) d.style.display = 'none'; }, 14000);
+  }
+  window.addEventListener('load', function(){ setTimeout(pista, 1200); });
+
+  /* ── 2 · visor de diagramas a pantalla completa ───────────────────── */
+  var vz = document.getElementById('vz'), lienzo = vz.querySelector('.lienzo');
+  var esc = 1, x = 0, y = 0, d0 = 0, esc0 = 1, px = 0, py = 0, arrastrando = false;
+
+  function pinta(){ lienzo.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + esc + ')'; }
+  function encuadre(){ esc = 1; x = 0; y = 0; pinta(); }
+
+  function decorativo(el){
+    /* el arte de fondo va casi transparente y sin recibir clics */
+    for (var i = 0, n = el; i < 4 && n && n !== document.body; i++, n = n.parentElement){
+      var cs = getComputedStyle(n);
+      if (parseFloat(cs.opacity) < 0.3) return true;
+      if (cs.pointerEvents === 'none') return true;
+      var cl = String(n.className && n.className.baseVal !== undefined
+                      ? n.className.baseVal : (n.className || ''));
+      if (/bg-(art|grid|glow)/.test(cl)) return true;
+    }
+    return false;
+  }
+  function grande(svg){
+    var vb = (svg.getAttribute('viewBox') || '').split(/[ ,]+/);
+    if (vb.length < 4) return false;
+    if (!(+vb[2] >= 200 && +vb[3] >= 120)) return false;   // fuera los iconos de 24×24
+    return !decorativo(svg);                                // fuera el arte de fondo
+  }
+
+  window.__vzAbrir = function(svg){
+    lienzo.innerHTML = '';
+    var c = svg.cloneNode(true);
+    c.removeAttribute('style');
+    c.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    lienzo.appendChild(c);
+    encuadre();
+    vz.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  };
+  window.__vzCerrar = function(){
+    vz.classList.remove('on');
+    lienzo.innerHTML = '';
+    document.body.style.overflow = '';
+  };
+
+  /* abrir por delegación: sobrevive a cada re-render de React */
+  function pantallaChica(){
+    return window.innerWidth <= 820 ||
+           (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  }
+  document.addEventListener('click', function(e){
+    if (vz.classList.contains('on')) return;
+    if (!pantallaChica()) return;      /* en proyector el esquema ya se ve grande:
+                                          abrirlo taparía la proyección entera */
+    var svg = e.target.closest ? e.target.closest('svg') : null;
+    if (!svg || !grande(svg)) return;
+    if (svg.closest('#vz')) return;
+    e.preventDefault();
+    window.__vzAbrir(svg);
+  }, true);
+
+  /* marcar los diagramas como ampliables */
+  function marcar(){
+    document.querySelectorAll('#root svg').forEach(function(s){
+      if (!grande(s) || s.classList.contains('zoomable')) return;
+      s.classList.add('zoomable');
+      var p = s.parentNode;
+      if (p && pantallaChica() && !p.querySelector('.tocar')) {
+        var cs = getComputedStyle(p);
+        if (cs.position === 'static') p.style.position = 'relative';
+        var b = document.createElement('span');
+        b.className = 'tocar'; b.textContent = 'Toca para ampliar';
+        p.appendChild(b);
+      }
+    });
+  }
+  var raiz = document.getElementById('root');
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(){ marcar(); }).observe(raiz, {childList:true, subtree:true});
+  }
+  window.addEventListener('load', function(){ setTimeout(marcar, 500); });
+
+  /* ── gestos ────────────────────────────────────────────────────────── */
+  function dist(t){
+    var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  vz.addEventListener('touchstart', function(e){
+    if (e.touches.length === 2){ d0 = dist(e.touches); esc0 = esc; }
+    else if (e.touches.length === 1 && esc > 1){
+      arrastrando = true; px = e.touches[0].clientX - x; py = e.touches[0].clientY - y;
+    }
+  }, {passive:true});
+  vz.addEventListener('touchmove', function(e){
+    if (e.touches.length === 2 && d0){
+      e.preventDefault();
+      esc = Math.min(6, Math.max(0.6, esc0 * (dist(e.touches) / d0)));
+      if (esc <= 1.02) { encuadre(); } else { pinta(); }
+    } else if (arrastrando && e.touches.length === 1){
+      e.preventDefault();
+      x = e.touches[0].clientX - px; y = e.touches[0].clientY - py; pinta();
+    }
+  }, {passive:false});
+  vz.addEventListener('touchend', function(e){
+    if (e.touches.length === 0){
+      arrastrando = false; d0 = 0;
+      /* alejar del todo = volver al encuadre original */
+      if (esc <= 1.02) encuadre();
+    }
+  }, {passive:true});
+
+  /* rueda del ratón, para el portátil */
+  vz.addEventListener('wheel', function(e){
+    if (!vz.classList.contains('on')) return;
+    e.preventDefault();
+    esc = Math.min(6, Math.max(0.6, esc * (e.deltaY < 0 ? 1.12 : 0.89)));
+    if (esc <= 1.02) encuadre(); else pinta();
+  }, {passive:false});
+
+  vz.addEventListener('dblclick', function(){ esc > 1.02 ? encuadre() : (esc = 2, pinta()); });
+
+  /* .lienzo cubre toda la pantalla, así que comparar con e.target===vz nunca
+     funcionaba. Cierra cualquier toque que NO caiga sobre el dibujo. */
+  vz.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('svg')) return;
+    if (e.target.closest && e.target.closest('.cerrar')) return;
+    window.__vzCerrar();
+  });
+
+  /* las flechas y Escape cierran, en vez de quedar atrapadas detrás del visor */
+  document.addEventListener('keydown', function(e){
+    if (!vz.classList.contains('on')) return;
+    if (e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+        e.key === ' ' || e.key === 'PageUp' || e.key === 'PageDown') {
+      window.__vzCerrar();
+    }
+  }, true);
+
+  /* si por lo que sea cambia la diapositiva, el visor no se queda encima */
+  if (raiz && window.MutationObserver) {
+    new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++) {
+        var add = muts[i].addedNodes;
+        for (var j = 0; j < add.length; j++) {
+          var n = add[j];
+          if (n.nodeType === 1 && String(n.className || '').indexOf('slide-enter') > -1) {
+            if (vz.classList.contains('on')) window.__vzCerrar();
+            return;
+          }
+        }
+      }
+    }).observe(raiz, {childList: true, subtree: true});
+  }
+})();
+</script>
 </body>
 </html>

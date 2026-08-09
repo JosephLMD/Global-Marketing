@@ -8,7 +8,7 @@
   <style>
     :root{
       --t:#63b356; --t2:#9de84d; --bl:#4a9eed; --am:#f0a500; --rd:#e05252;
-      --bg:#090b10; --bg2:#0f1318; --bg3:#0d1117; --w:#f0f0eb; --g:#7a7a72;
+      --bg:#090b10; --bg2:#0f1318; --bg3:#0d1117; --w:#f0f0eb; --g:#92928a;
       --bdr:rgba(255,255,255,.08);
     }
     *{box-sizing:border-box}
@@ -34,6 +34,13 @@
     .open{margin-top:14px;font-size:13px;font-weight:700;color:var(--ac)}
     footer{margin-top:70px;border-top:1px solid var(--bdr);padding-top:24px;font-size:12px;color:var(--g);letter-spacing:1.5px;text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
     footer a{color:var(--t);text-decoration:none}
+  
+    .card .card .logo-act{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      height:86%;width:auto;max-width:88%;object-fit:contain;opacity:.22;
+      pointer-events:none;z-index:0;user-select:none}
+    .card>*:not(.logo-act){position:relative;z-index:1}
+    /* la franja de color de arriba se queda por encima del logo */
+    .card::before{z-index:2}
   </style>
 </head>
 <body>
@@ -42,7 +49,7 @@
 <div class="wrap">
   <div class="tag">Universidad del Rosario · Escuela de Administración</div>
   <h1>Global Marketing<br>Interactive Masterclasses</h1>
-  <p class="sub">Interactive study decks built from the course bibliography — concepts, real brand cases, exercises with instant feedback, and a graded quiz in every chapter.</p>
+  <p class="sub">Interactive study decks built from the course bibliography: concepts, real brand cases, exercises with instant feedback, and a graded quiz in every chapter.</p>
   <p class="hint">Works on any device · no installation · swipe on mobile, arrow keys on desktop · press F for fullscreen</p>
 
   
@@ -70,7 +77,7 @@
 @media print{.qr-open{display:none}.qr-ov{display:flex!important;position:static}}
 </style>
 <button class="qr-open" onclick="qrShow()" aria-label="Mostrar código QR del curso">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 21h1M21 14h.01"/></svg><span>Mostrar QR — abrir el curso desde el celular</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 21h1M21 14h.01"/></svg><span>Mostrar QR para abrir el curso en el celular</span>
 </button>
 <div class="qr-ov" id="qrOv" role="dialog" aria-modal="true" aria-label="Código QR del curso">
   <button class="qr-x" onclick="qrHide()" aria-label="Cerrar">&times;</button>
@@ -111,7 +118,7 @@ document.addEventListener('keydown',function(e){
     <a class="card" style="--ac:var(--t2)" href="marketing-strategy.html">
       <div class="ch">Special Module</div>
       <h2>Marketing Strategy: First Principles</h2>
-      <p>All customers differ, all customers change, all competitors react, all resources are limited — Palmatier &amp; Sridhar's framework.</p>
+      <p>All customers differ, all customers change, all competitors react, all resources are limited. Palmatier &amp; Sridhar's framework.</p>
       <div class="meta"><span class="pill">6 modules</span><span class="pill">5 exercises</span><span class="pill">10-question quiz</span></div>
       <div class="open">Open masterclass →</div>
     </a>
@@ -152,11 +159,21 @@ document.addEventListener('keydown',function(e){
   <div class="section">Measurement &amp; Tools</div>
   <div class="grid">
     <a class="card" style="--ac:var(--t2)" href="ch18_toolkit.html">
+      <img class="logo-act" src="toolkit-mark.svg" alt="" aria-hidden="true" loading="lazy">
       <div class="ch">Toolkit</div>
       <h2>The Global Marketing Toolkit</h2>
-      <p>Four decision tools that turn marketing into measurable money — Benchmark, Customer Lifetime Value, Brand Funnel and Positioning Map — each with a copy-paste AI mother-prompt that runs in any free AI.</p>
+      <p>Four decision tools that turn marketing into measurable money: Benchmark, Customer Lifetime Value, Brand Funnel and Positioning Map, each with a copy-paste AI mother-prompt that runs in any free AI.</p>
       <div class="meta"><span class="pill">4 tools</span><span class="pill">4 mother-prompts</span><span class="pill">copy &amp; run in any AI</span></div>
       <div class="open">Open toolkit →</div>
+    </a>
+
+    <a class="card" style="--ac:var(--am)" href="caso-sneaker-supremacy.html">
+      <img class="logo-act" src="1689928888_e6-01.webp" alt="" aria-hidden="true" loading="lazy">
+      <div class="ch">Activity 1 · Graded</div>
+      <h2>Nike vs Adidas, Sneaker Supremacy</h2>
+      <p>The case for analysis: sixty years of brand rivalry, how each brand thinks and where they actually fight. Ends with the Benchmark delivery and the full rubric, weights included.</p>
+      <div class="meta"><span class="pill">7 sections</span><span class="pill">2 questions</span><span class="pill">rubric included</span></div>
+      <div class="open">Open the case &rarr;</div>
     </a>
   </div>
 
