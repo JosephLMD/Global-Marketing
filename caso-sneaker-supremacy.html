@@ -124,14 +124,25 @@ strong{font-weight:700}
    Los dos archivos son siluetas del mismo negro, asi que el par se lee como
    una pareja y no como dos recortes distintos. Van en blanco por filtro:
    la banda es de color y una silueta negra encima se perderia. */
-.brand .top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+/* min-height fija: por encima de 720px las dos fichas van lado a lado y si
+   una banda crece con su logo, quedan desalineadas. Asi el alto lo manda la
+   regla, no la imagen. */
+.brand .top{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  min-height:84px}
 .brand .top .tx{min-width:0}
-.brand .lg{flex:0 0 auto;height:38px;width:auto;object-fit:contain;
+.brand .lg{flex:0 0 auto;width:auto;object-fit:contain;
   filter:brightness(0) invert(1);opacity:.95}
-.brand.a .lg{height:46px}   /* el trebol es mas alto que ancho, se compensa */
+/* El swoosh es una curva fina y muy apaisada (2.7:1); el trebol es macizo y
+   casi cuadrado (1.5:1). A igual altura el trebol se ve diminuto al lado del
+   otro, asi que se igualan por la TINTA que pinta cada uno, no por el alto.
+   Al trebol tambien se le quito la palabra "adidas" de debajo: con ella, la
+   parte que se reconoce quedaba reducida a la mitad de la imagen. */
+.brand.n .lg{height:38px}
+.brand.a .lg{height:50px}
 @media(max-width:520px){
-  .brand .lg{height:30px}
-  .brand.a .lg{height:36px}
+  .brand .top{min-height:70px}
+  .brand.n .lg{height:30px}
+  .brand.a .lg{height:40px}
 }
 .brand ul{list-style:none}
 .brand li{font-size:15px;line-height:1.5;padding-left:19px;position:relative;margin-bottom:10px;
