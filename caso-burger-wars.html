@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Case · Burger Wars: McDonald's vs Burger King · Global Marketing</title>
+<meta name="description" content="Activity 2. Benchmark McDonald's against Burger King by age segment, global and Colombia, and build the Burger King campaign.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── Mismo sistema que el caso de Nike y Adidas, para que se lean como
+      hermanos. Los colores de las tarjetas ya venian comprobados a 4.5:1
+      con texto blanco; los dos de marca los medi aparte:
+      rojo McDonald's #C8102E da 5,88:1 y el cafe de Burger King #502314
+      da 13,19:1, los dos con blanco encima. El amarillo de McDonald's
+      NUNCA lleva texto blanco: da 1,56:1. Lleva tinta, que da 11,38:1. ── */
+:root{
+  --tinta:#16181D; --papel:#FFFFFF; --hueso:#F7F7F4; --gris:#5A616B;
+  --linea:#E3E3DE;
+  --c1:#C43B08;  /* empieza aqui        */
+  --c2:#1864AB;  /* la historia         */
+  --c3:#237032;  /* como piensan        */
+  --c4:#5F3DC4;  /* los campos          */
+  --c5:#A61E4D;  /* lo que viene        */
+  --c6:#212529;  /* las preguntas       */
+  --c7:#0B7285;  /* la rubrica          */
+  --c8:#8A4B00;  /* el benchmark        */
+  --mcd:#C8102E; --mcdy:#FFC72C; --bk:#502314; --bko:#D62300;
+  --sombra:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth; scroll-padding-top:74px}
+body{font-family:'Manrope',system-ui,-apple-system,sans-serif;color:var(--tinta);
+  background:var(--hueso);line-height:1.62;font-size:17px;-webkit-text-size-adjust:100%}
+.wrap{max-width:940px;margin:0 auto;padding:0 20px}
+img{max-width:100%;display:block}
+
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linea)}
+.bar{max-width:940px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;gap:14px}
+.bar .tag{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--c1)}
+.bar .tt{font-weight:800;font-size:15px;letter-spacing:-.3px}
+.bar .sp{margin-left:auto;font-size:13px;color:var(--gris);font-weight:600}
+@media(max-width:620px){.bar .sp{display:none}}
+
+.hero{background:var(--tinta);color:#fff;padding:60px 0 52px;position:relative;overflow:hidden}
+.hero .wrap{position:relative;z-index:1}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;
+  color:var(--mcdy);margin-bottom:16px}
+.hero h1{font-size:clamp(30px,6vw,50px);line-height:1.1;letter-spacing:-1.6px;font-weight:800;
+  margin-bottom:18px}
+.hero p{font-size:clamp(16px,2.3vw,20px);color:#C9CCD3;max-width:60ch;line-height:1.55}
+.hero .meta{margin-top:26px;font-size:13.5px;color:#8A9099}
+.hero .meta a{color:#C9CCD3}
+.logos{display:flex;align-items:center;gap:20px;margin-bottom:26px}
+.logos img{height:54px;width:auto}
+.logos .x{font-size:20px;font-weight:800;color:#6B717A;letter-spacing:1px}
+@media(max-width:520px){.logos img{height:40px}}
+
+.idx{padding:38px 0 10px}
+.idx h2{font-size:14px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--gris);margin-bottom:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:13px}
+.card{text-decoration:none;color:#fff;border-radius:15px;padding:19px 20px 17px;
+  box-shadow:var(--sombra);transition:transform .13s ease, box-shadow .13s ease;
+  min-height:118px;display:flex;flex-direction:column}
+.card:hover,.card:focus-visible{transform:translateY(-3px);
+  box-shadow:0 3px 8px rgba(0,0,0,.08),0 14px 32px rgba(0,0,0,.14);outline:none}
+.card .n{font-size:11.5px;font-weight:800;letter-spacing:1.5px;opacity:.82;margin-bottom:7px}
+.card .t{font-size:19.5px;font-weight:800;letter-spacing:-.5px;line-height:1.2;margin-bottom:5px}
+.card .d{font-size:13.5px;line-height:1.45;opacity:.9;font-weight:500;margin-top:auto}
+.c1{background:var(--c1)} .c2{background:var(--c2)} .c3{background:var(--c3)}
+.c4{background:var(--c4)} .c5{background:var(--c5)} .c6{background:var(--c6)}
+.c7{background:var(--c7)} .c8{background:var(--c8)}
+
+section{padding:44px 0 8px;scroll-margin-top:74px}
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.chip{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:#fff;padding:5px 11px;border-radius:100px}
+h2.st{font-size:clamp(24px,4.2vw,34px);letter-spacing:-1px;font-weight:800;line-height:1.15;
+  margin:6px 0 14px}
+.lead{font-size:18.5px;color:#3A4049;max-width:66ch;margin-bottom:18px;line-height:1.6}
+p{margin-bottom:15px;max-width:70ch}
+h3{font-size:20px;font-weight:800;letter-spacing:-.4px;margin:26px 0 9px}
+h4{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:18px 0 7px}
+strong,b{font-weight:700}
+
+.voc{background:#fff;border:1px solid var(--linea);border-radius:15px;padding:20px 22px;
+  margin:22px 0;box-shadow:var(--sombra)}
+.voc h4{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--c1);margin:0 0 13px}
+.voc dl{display:grid;grid-template-columns:1fr;gap:11px}
+@media(min-width:680px){.voc dl{grid-template-columns:1fr 1fr;gap:11px 26px}}
+.voc dt{font-weight:800;font-size:15px}
+.voc dd{font-size:14.5px;color:#454C56;line-height:1.5}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:17px 18px;
+  box-shadow:var(--sombra)}
+.stat .v{font-size:29px;font-weight:800;letter-spacing:-1.1px;line-height:1.05;color:var(--mcd)}
+.stat .l{font-size:13px;color:var(--gris);margin-top:5px;line-height:1.4;font-weight:500}
+
+.tl{position:relative;margin:24px 0 8px;padding-left:30px}
+.tl::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2.5px;
+  background:linear-gradient(var(--mcd),#E8A0AC);border-radius:2px}
+.ev{position:relative;margin-bottom:19px}
+.ev::before{content:'';position:absolute;left:-29px;top:5px;width:12px;height:12px;
+  border-radius:50%;background:var(--mcd);border:2.5px solid #fff;box-shadow:0 0 0 2px var(--mcd)}
+.ev.k::before{background:var(--bk);box-shadow:0 0 0 2px var(--bk)}
+.ev .y{font-size:13px;font-weight:800;color:var(--mcd);letter-spacing:.4px}
+.ev.k .y{color:var(--bk)}
+.ev .h{font-weight:800;font-size:16.5px;margin:1px 0 2px;letter-spacing:-.3px}
+.ev .p{font-size:15px;color:#454C56;line-height:1.5;max-width:62ch}
+
+.vs{display:grid;grid-template-columns:1fr;gap:14px;margin:22px 0}
+@media(min-width:720px){.vs{grid-template-columns:1fr 1fr}}
+.brand{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;
+  box-shadow:var(--sombra)}
+.brand .top{padding:17px 20px;color:#fff}
+.brand.m .top{background:var(--mcd)}
+.brand.k .top{background:var(--bk)}
+.brand .top .nm{font-size:25px;font-weight:800;letter-spacing:-.8px}
+.brand .top .sub{font-size:13.5px;opacity:.9;font-weight:600;margin-top:2px}
+.brand .body{padding:17px 20px 19px}
+.brand ul{list-style:none}
+.brand li{font-size:15px;line-height:1.5;padding-left:19px;position:relative;margin-bottom:10px;
+  color:#333A44}
+.brand li::before{content:'';position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%}
+.brand.m li::before{background:var(--mcd)}
+.brand.k li::before{background:var(--bko)}
+
+blockquote{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:19px 22px;
+  margin:22px 0;box-shadow:var(--sombra)}
+blockquote p{font-size:18px;line-height:1.5;font-weight:600;margin-bottom:9px;color:#22262C}
+blockquote cite{font-size:13.5px;color:var(--gris);font-style:normal;font-weight:600}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;margin:20px 0}
+.field{background:#fff;border:1px solid var(--linea);border-radius:15px;padding:18px 19px;
+  box-shadow:var(--sombra)}
+.field .ic{width:36px;height:36px;border-radius:10px;background:var(--c4);display:flex;
+  align-items:center;justify-content:center;margin-bottom:11px;color:#fff;font-weight:800;font-size:16px}
+.field h4{font-size:17px;font-weight:800;letter-spacing:-.35px;margin:0 0 6px}
+.field p{font-size:14.5px;color:#454C56;line-height:1.5;margin:0}
+.field .who{margin-top:11px;font-size:13px;font-weight:700;color:var(--c4)}
+
+/* ══ el benchmark segmentado ══ */
+.matrix{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:22px;
+  margin:22px 0;box-shadow:var(--sombra)}
+.grid6{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;background:#fff;
+  border:1px solid var(--linea);border-radius:12px;overflow:hidden}
+.grid6 th,.grid6 td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--linea);
+  vertical-align:top}
+.grid6 th{background:var(--c8);color:#fff;font-size:13px;font-weight:800;letter-spacing:.4px}
+.grid6 tr:last-child td{border-bottom:0}
+.grid6 .plus{color:#1B5E2C;font-weight:700}
+.grid6 .minus{color:#9C2A2A;font-weight:700}
+.grid6 td b{display:block;margin-bottom:3px}
+.wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0}
+.bank{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin:18px 0}
+.bank div{background:#fff;border:1px solid var(--linea);border-radius:12px;padding:14px 15px}
+.bank b{display:block;font-size:14px;font-weight:800;color:var(--c8);margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.7px}
+.bank ul{list-style:none;font-size:14.5px;line-height:1.55;color:#454C56}
+.bank li{padding-left:14px;position:relative}
+.bank li::before{content:'';position:absolute;left:0;top:9px;width:5px;height:5px;
+  border-radius:50%;background:var(--c8)}
+
+.q{background:var(--c6);color:#fff;border-radius:17px;padding:24px 26px;margin:16px 0}
+.q .qn{display:inline-flex;align-items:center;justify-content:center;width:33px;height:33px;
+  border-radius:50%;background:var(--mcdy);color:#16181D;font-weight:800;font-size:17px;
+  margin-bottom:12px}
+.q .qt{font-size:clamp(18px,3vw,23px);font-weight:700;line-height:1.35;margin-bottom:13px;
+  letter-spacing:-.4px}
+.q .qw{display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:1.1px;
+  text-transform:uppercase;background:var(--mcdy);color:#16181D;padding:4px 10px;
+  border-radius:100px;vertical-align:middle;margin-left:10px}
+.q .qh{font-size:14.5px;color:#C9CCD3;line-height:1.55;max-width:70ch}
+.q .qh b{color:var(--mcdy);font-weight:700}
+.q .qlist{list-style:none;margin:13px 0 0}
+.q .qlist li{font-size:15.5px;line-height:1.5;color:#D5D8DE;padding-left:20px;position:relative;
+  margin-bottom:8px}
+.q .qlist li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;
+  border-radius:50%;background:var(--mcdy)}
+.q .qlist li b{color:#fff}
+.qparts{display:grid;grid-template-columns:1fr;gap:11px;margin-top:16px}
+@media(min-width:760px){.qparts{grid-template-columns:repeat(3,1fr)}}
+.qpart{background:#2A2E34;border-radius:12px;padding:15px 16px}
+.qpn{font-size:15.5px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
+.qpn span{float:right;font-size:13px;font-weight:800;color:var(--mcdy)}
+.qpart p{font-size:14px;color:#C3C7CE;line-height:1.5;margin:0 0 7px;max-width:none}
+.qpart ul{list-style:none;margin:0}
+.qpart li{font-size:13.8px;color:#C3C7CE;line-height:1.45;margin-bottom:5px;padding-left:13px;
+  position:relative}
+.qpart li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;
+  border-radius:50%;background:#6B717A}
+.qpart li b{color:#fff;font-weight:700}
+
+.steps{counter-reset:s;margin:20px 0}
+.step{display:flex;gap:15px;margin-bottom:15px;background:#fff;border:1px solid var(--linea);
+  border-radius:14px;padding:16px 18px;box-shadow:var(--sombra)}
+.step .sn{counter-increment:s;flex:none;width:31px;height:31px;border-radius:50%;
+  background:var(--c6);color:#fff;font-weight:800;font-size:15px;display:flex;
+  align-items:center;justify-content:center}
+.step .sn::before{content:counter(s)}
+.step h4{font-size:16.5px;font-weight:800;margin:0 0 3px;letter-spacing:-.3px}
+.step p{font-size:14.5px;color:#454C56;margin:0;line-height:1.5}
+
+.rub{background:#fff;border:1px solid var(--linea);border-radius:16px;overflow:hidden;
+  margin:20px 0;box-shadow:var(--sombra)}
+.rr{display:grid;grid-template-columns:1fr;border-top:1px solid var(--linea)}
+@media(min-width:720px){.rr{grid-template-columns:200px 1fr}}
+.rr:first-child{border-top:none}
+.rr .rl{padding:17px 20px;background:#FAFAF8;border-bottom:1px solid var(--linea)}
+@media(min-width:720px){.rr .rl{border-bottom:none;border-right:1px solid var(--linea)}}
+.rr .pct{font-size:31px;font-weight:800;color:var(--c7);letter-spacing:-1.2px;line-height:1}
+.rr .rn{font-size:16px;font-weight:800;margin-top:3px;letter-spacing:-.3px}
+.rr .rb{padding:17px 20px}
+.rr .rb .desc{font-size:15px;color:#333A44;margin-bottom:12px;line-height:1.5}
+.scale{display:grid;gap:6px}
+.sc{display:flex;gap:10px;font-size:13.5px;line-height:1.45;align-items:baseline}
+.sc .num{flex:none;width:21px;height:21px;border-radius:6px;background:#EEF1F3;font-weight:800;
+  font-size:12px;display:flex;align-items:center;justify-content:center;color:#333A44}
+.sc.top .num{background:var(--c7);color:#fff}
+.sc .tx{color:#454C56}
+
+.note{background:#FFF6EC;border:1px solid #F5D6B3;border-radius:14px;padding:17px 20px;
+  margin:20px 0;font-size:15px;line-height:1.55;color:#5A3A12}
+.note b{color:#43290A}
+.keyq{background:#FFF6EC;border:1.5px solid #F0C48A;border-radius:16px;padding:20px 23px;margin:22px 0}
+.keyq h4{margin:0 0 7px;font-size:17px;color:#43290A}
+.keyq p{margin:0;color:#5A3A12;font-size:15.5px;line-height:1.55}
+
+.flow{display:flex;flex-direction:column;align-items:center;gap:5px;margin:22px 0 12px}
+.fstep{background:#fff;border:1.5px solid var(--c6);border-radius:100px;padding:9px 22px;
+  font-size:15px;font-weight:800;letter-spacing:-.2px;text-align:center;box-shadow:var(--sombra)}
+.fstep.last{background:var(--c6);color:#fff}
+.farrow{color:var(--gris);font-size:15px;line-height:1}
+
+.fig{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:20px 22px;
+  margin:22px 0;box-shadow:var(--sombra)}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--gris);margin-top:12px;line-height:1.5}
+
+.src{margin:30px 0 0;padding:20px 0 40px;border-top:1px solid var(--linea);
+  font-size:13.5px;color:var(--gris);line-height:1.6}
+.src a{color:var(--c2)}
+.src p{max-width:none}
+.top-link{display:inline-block;margin:22px 0 0;font-size:13.5px;font-weight:700;
+  color:var(--gris);text-decoration:none}
+.top-link:hover{color:var(--tinta)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <span class="tag">Activity 2</span>
+    <span class="tt">McDonald's vs Burger King</span>
+    <span class="sp">Global Marketing · Case for analysis</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="logos">
+      <img src="mcdonalds-arches.webp" alt="McDonald's">
+      <span class="x">VS</span>
+      <img src="burger-king-logo.png" alt="Burger King">
+    </div>
+    <div class="k">Case for analysis</div>
+    <h1>Burger wars:<br>the fight one side is not having</h1>
+    <p>For fifty years Burger King has been picking a fight with McDonald's. McDonald's has
+      twice the restaurants, five times the ad budget and ten times the revenue, and mostly
+      does not answer. This case is about what the challenger wins by fighting anyway,
+      and what it still <b>cannot</b> win.</p>
+    <div class="meta">Based on the Marketing Dive article by Chris Kelly, 17 May 2022 ·
+      Read the whole thing
+      <a href="https://www.marketingdive.com/news/mcdonalds-burger-king-brand-rivalry-burger-wars/621713/"
+         target="_blank" rel="noopener">here</a>.</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="idx">
+    <h2>Pick a section</h2>
+    <div class="cards">
+      <a class="card c1" href="#start">
+        <div class="n">01</div><div class="t">Start here</div>
+        <div class="d">What this is and what you hand in.</div></a>
+      <a class="card c2" href="#story">
+        <div class="n">02</div><div class="t">The story</div>
+        <div class="d">From a 15-cent hamburger to a $1.5 billion sale.</div></a>
+      <a class="card c3" href="#think">
+        <div class="n">03</div><div class="t">How each brand thinks</div>
+        <div class="d">The leader who ignores you. The underdog who cannot stop.</div></a>
+      <a class="card c4" href="#fields">
+        <div class="n">04</div><div class="t">Where they fight</div>
+        <div class="d">Money, attack ads, food truth, digital, sustainability.</div></a>
+      <a class="card c8" href="#benchmark">
+        <div class="n">05</div><div class="t">The benchmark</div>
+        <div class="d">Six of them. Three ages, two geographies.</div></a>
+      <a class="card c5" href="#next">
+        <div class="n">06</div><div class="t">What comes next</div>
+        <div class="d">The tanker nobody has managed to turn.</div></a>
+      <a class="card c5" href="#deeper" style="background:#7A1638">
+        <div class="n">EXTRA</div><div class="t">Campaigns to use</div>
+        <div class="d">Eight of them, including one famous disaster.</div></a>
+      <a class="card c6" href="#questions">
+        <div class="n">07</div><div class="t">The delivery</div>
+        <div class="d">Two questions. The second one needs the first.</div></a>
+      <a class="card c7" href="#rubric">
+        <div class="n">08</div><div class="t">How you are graded</div>
+        <div class="d">The rubric, in full. No surprises.</div></a>
+    </div>
+  </div>
+
+  <!-- ═══════════ 01 ═══════════ -->
+  <section id="start">
+    <div class="sh"><span class="chip" style="background:var(--c1)">01 · Start here</span></div>
+    <h2 class="st">Same shape as Nike and Adidas. One thing is different.</h2>
+    <p class="lead">You already did this once. Benchmark two brands, find the gap, build the
+      campaign for the challenger. The difference this time is that one benchmark is not
+      enough. The professor wants the analysis <b>segmented</b>, because a 19-year-old and
+      a 42-year-old do not want the same thing from a burger, and Bogotá is not Chicago.</p>
+
+    <h3>What you have to do</h3>
+    <div class="steps">
+      <div class="step"><div class="sn"></div><div>
+        <h4>Build six benchmarks, not one</h4>
+        <p>Three age segments (18 to 24, 25 to 34, 35 to 44), each one looked at globally and
+          in Colombia. Three times two is six.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Give every segment three good attributes and three bad ones</h4>
+        <p>For each brand, in each segment. That is what turns a table into an argument: you
+          are forced to say out loud where your own brand loses.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Find the one segment where Burger King has the best shot</h4>
+        <p>Not the biggest segment. The one where the distance between the two brands is
+          smallest, or where McDonald's strength is worth the least.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Build the Burger King campaign for that segment</h4>
+        <p>Name, brief, and at least two pieces of promotional material. The campaign has to
+          come out of the benchmark, not out of nowhere.</p></div></div>
+    </div>
+
+    <div class="voc">
+      <h4>Words you are going to need</h4>
+      <dl>
+        <dt>Benchmark</dt>
+        <dd>Comparing two brands against the <b>same</b> list of attributes. If you score one
+          brand on price and the other on flavour, you have not benchmarked anything.</dd>
+        <dt>Attribute</dt>
+        <dd>One specific thing a customer can judge: speed, price, taste, cleanliness, how the
+          app works, whether the ice cream machine is broken.</dd>
+        <dt>Challenger brand</dt>
+        <dd>The one that is not winning and therefore gets to break the rules. Burger King has
+          been one for fifty years.</dd>
+        <dt>Brand intimacy</dt>
+        <dd>MBLM's measure of the emotional bond a brand has. McDonald's scores high on
+          nostalgia. Burger King scores below average on almost everything.</dd>
+        <dt>Hackvertising</dt>
+        <dd>Burger King's own word: inserting the brand into something that already exists
+          instead of buying attention. Google Home, competitors' ads, McDonald's own car parks.</dd>
+        <dt>Share of voice</dt>
+        <dd>How much of the category's total advertising is yours. McDonald's spends five times
+          what Burger King does, so it starts every year already louder.</dd>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ═══════════ 02 ═══════════ -->
+  <section id="story">
+    <div class="sh"><span class="chip" style="background:var(--c2)">02 · The story</span></div>
+    <h2 class="st">Seventy years, in the order they happened</h2>
+    <p class="lead">Read this once before you touch the benchmark. Half of what looks like
+      brand personality today is actually the residue of who owned the company that decade.</p>
+
+    <div class="tl">
+      <div class="ev"><div class="y">1940</div>
+        <div class="h">Two brothers open a restaurant in San Bernardino</div>
+        <div class="p">Richard and Maurice McDonald. In 1948 they drop most of the menu, focus
+          on hamburgers and launch the Speedee Service System, applying production-line thinking
+          to food. That is the moment fast food is invented.</div></div>
+      <div class="ev k"><div class="y">1953</div>
+        <div class="h">Someone visits that restaurant and copies it</div>
+        <div class="p">Keith Kramer and Matthew Burns open Insta-Burger King in Jacksonville,
+          Florida, inspired by what they saw in San Bernardino. Burger King begins as an
+          imitation of McDonald's, and the position never really changes.</div></div>
+      <div class="ev"><div class="y">1955 · 1962</div>
+        <div class="h">Ray Kroc arrives and the Golden Arches go up</div>
+        <div class="p">Kroc joins as a franchisee in 1955, buys the brothers out in 1961, and
+          introduces the Golden Arches in 1962. McDonald's dates its own founding to Kroc, not
+          to the brothers.</div></div>
+      <div class="ev k"><div class="y">1959 · 1967</div>
+        <div class="h">Burger King starts changing hands</div>
+        <div class="p">Miami franchisees James McLamore and David Edgerton buy the faltering
+          company in 1959 and shorten the name. Eight years later they sell to Pillsbury. It is
+          the first of many owners, and that instability becomes part of the story.</div></div>
+      <div class="ev"><div class="y">1965 · 1967</div>
+        <div class="h">A clown, and a machine to pay for him</div>
+        <div class="p">Ronald McDonald makes his national debut at the 1965 Macy's parade and
+          the 1966 Super Bowl. In 1967 franchisees begin paying 1% of earnings into a national
+          advertising fund: $5 million grows to $15 million by 1969 and $60 million by 1974.
+          This is the five-times ad budget being built, brick by brick.</div></div>
+      <div class="ev k"><div class="y">1974</div>
+        <div class="h">"Have it your way"</div>
+        <div class="p">Answering the Big Mac jingle's rigid recipe with a jingle about
+          flexibility: "Hold the pickles, hold the lettuce. Special orders don't upset us."
+          Burger King defines itself as the opposite of whatever McDonald's just said.</div></div>
+      <div class="ev k"><div class="y">1982</div>
+        <div class="h">The first attack ad in the category</div>
+        <div class="p">Burger King names McDonald's directly and claims its burgers are 20%
+          smaller. A four-year-old Sarah Michelle Gellar is in the spot. McDonald's sues for
+          what it calls false and disparaging advertising. The suit settles, and same-store
+          sales go up.</div></div>
+      <div class="ev k"><div class="y">1985</div>
+        <div class="h">"Where's Herb?" and a 40% profit collapse</div>
+        <div class="p">A $40 million campaign built around a fictional man who had never eaten
+          a Whopper. Six weeks of teasers, a Super Bowl reveal, a nationwide hunt. It said
+          nothing about the food and nothing about the customer. Profits fell 40% in 1986.
+          Learn this one: it is the clearest example of a big idea with no strategy under it.</div></div>
+      <div class="ev k"><div class="y">2002 · 2010</div>
+        <div class="h">Sold, and sold again</div>
+        <div class="p">Investment firms buy Burger King for $1.5 billion in 2002; 3G Capital
+          buys it in 2010. Each owner brings a new agency and a new idea of what the brand is.</div></div>
+      <div class="ev"><div class="y">2003</div>
+        <div class="h">McDonald's first quarterly loss, and "I'm lovin' it"</div>
+        <div class="p">After the loss, a global agency competition is won by Heye &amp; Partner,
+          a German subsidiary of DDB. The line has anchored McDonald's marketing for nearly
+          twenty years. Consistency is the strategy.</div></div>
+      <div class="ev k"><div class="y">2004 · 2009</div>
+        <div class="h">Crispin Porter + Bogusky, and the internet</div>
+        <div class="p">Subservient Chicken, the Whopper Sacrifice Facebook app, the plastic-faced
+          King, a fictional band, video games for Xbox. Almost a decade of work that predicted
+          how brands would behave once social media took over.</div></div>
+      <div class="ev k"><div class="y">2012</div>
+        <div class="h">Burger King loses second place</div>
+        <div class="p">Wendy's passes it by US sales volume. The rivalry Burger King keeps
+          picking is with the brand two places above it.</div></div>
+      <div class="ev k"><div class="y">2018</div>
+        <div class="h">Whopper Detour</div>
+        <div class="p">Geofencing offers a 1-cent Whopper, but only if you are standing inside
+          a McDonald's. It drove 1.5 million app downloads and made customers physically go to
+          the competitor in order to reject it.</div></div>
+      <div class="ev k"><div class="y">2020</div>
+        <div class="h">Moldy Whopper, then the pandemic</div>
+        <div class="p">A photograph of their own burger rotting, to prove the preservatives are
+          gone. It won at Cannes and the Clios. Weeks later covid arrives and Burger King sales
+          drop 25% in the second quarter.</div></div>
+      <div class="ev"><div class="y">2020</div>
+        <div class="h">McDonald's recovers faster, on plumbing not creative</div>
+        <div class="p">Drive-thru, delivery and digital, what the company calls the three Ds,
+          were already built. Meanwhile Wieden+Kennedy launches Famous Orders with Travis Scott,
+          and it becomes a platform.</div></div>
+      <div class="ev k"><div class="y">2021 · 2022</div>
+        <div class="h">Another reset</div>
+        <div class="p">Global CMO Fernando Machado leaves in April 2021. After a review, the
+          Chicago agency OKRP is named lead in April 2022, with the job of making Burger King
+          culturally relevant again.</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 03 ═══════════ -->
+  <section id="think">
+    <div class="sh"><span class="chip" style="background:var(--c3)">03 · How each brand thinks</span></div>
+    <h2 class="st">One speaks like a leader. The other cannot afford to.</h2>
+
+    <blockquote>
+      <p>"McDonald's was the leader for the longest time, so they spoke with a voice of someone
+        who is a leader in the market. They don't engage in the rivalry... Burger King, on the
+        other hand, being the underdog, got to have all the fun."</p>
+      <cite>Fernanda Bürgel, creative director, PeterMayer</cite>
+    </blockquote>
+
+    <div class="vs">
+      <div class="brand m">
+        <div class="top"><div class="nm">McDonald's</div>
+          <div class="sub">Does not answer, and does not need to</div></div>
+        <div class="body"><ul>
+          <li><b>Consistency as a weapon.</b> "I'm lovin' it" has run for nearly twenty years.
+            Rather than replace it, they keep finding new ways to interpret it.</li>
+          <li><b>Nostalgia.</b> MBLM finds this is where McDonald's is strong, and it is one of
+            the hardest bonds for a competitor to attack.</li>
+          <li><b>Famous Orders.</b> The premise is that everyone already has a McDonald's order,
+            famous or not. It borrows celebrity without renting a personality.</li>
+          <li><b>Infrastructure over ideas.</b> Drive-thru, delivery and digital were built
+            before they were needed, and that is why the pandemic hurt less.</li>
+          <li><b>Stable agency relationships.</b> Long partnerships, chosen deliberately.</li>
+        </ul></div>
+      </div>
+      <div class="brand k">
+        <div class="top"><div class="nm">Burger King</div>
+          <div class="sub">Has to be interesting to be noticed</div></div>
+        <div class="body"><ul>
+          <li><b>Defined by contrast.</b> "Have it your way" exists because the Big Mac recipe
+            was rigid. The identity is built against something else.</li>
+          <li><b>Hackvertising.</b> Getting into culture through the side door instead of buying
+            the front door, because the front door costs five times more.</li>
+          <li><b>Willing to be disliked.</b> A photo of mould on your own product is not a
+            normal decision.</li>
+          <li><b>No stable owner.</b> Pillsbury, TPG, 3G. Each one restarts the brand.</li>
+          <li><b>The real problem.</b> MBLM finds Burger King below average on most archetypes,
+            failing to stand out for any particular attribute. Famous is not the same as
+            differentiated.</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="keyq">
+      <h4>The sentence the whole case turns on</h4>
+      <p>"Burger King is commenting on culture, but culture is commenting on McDonald's."
+       . Paul Prato, PPK. Read it twice. It says the awards and the applause have not moved
+        the thing that matters.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ 04 ═══════════ -->
+  <section id="fields">
+    <div class="sh"><span class="chip" style="background:var(--c4)">04 · Where they fight</span></div>
+    <h2 class="st">Five battlefields, and only one is still open</h2>
+
+    <div class="fig">
+      <svg viewBox="0 0 720 250" role="img" aria-label="McDonald's advantage over Burger King: two times the restaurants, five times the advertising budget, ten times the revenue">
+        <text x="0" y="16" font-family="Manrope,sans-serif" font-size="13" font-weight="800"
+              fill="#5A616B" letter-spacing="1">HOW BIG THE GAP IS</text>
+        <g font-family="Manrope,sans-serif">
+          <!-- restaurantes -->
+          <text x="0" y="52" font-size="14" font-weight="700" fill="#16181D">Restaurants</text>
+          <rect x="150" y="40" width="46" height="16" rx="3" fill="#502314"/>
+          <rect x="150" y="60" width="92" height="16" rx="3" fill="#C8102E"/>
+          <text x="252" y="73" font-size="15" font-weight="800" fill="#C8102E">2x</text>
+          <!-- publicidad -->
+          <text x="0" y="112" font-size="14" font-weight="700" fill="#16181D">Ad budget</text>
+          <rect x="150" y="100" width="46" height="16" rx="3" fill="#502314"/>
+          <rect x="150" y="120" width="230" height="16" rx="3" fill="#C8102E"/>
+          <text x="390" y="133" font-size="15" font-weight="800" fill="#C8102E">5x</text>
+          <!-- ingresos -->
+          <text x="0" y="172" font-size="14" font-weight="700" fill="#16181D">Revenue</text>
+          <rect x="150" y="160" width="46" height="16" rx="3" fill="#502314"/>
+          <rect x="150" y="180" width="460" height="16" rx="3" fill="#C8102E"/>
+          <text x="620" y="193" font-size="15" font-weight="800" fill="#C8102E">10x</text>
+          <!-- leyenda -->
+          <rect x="150" y="222" width="12" height="12" rx="2" fill="#502314"/>
+          <text x="168" y="232" font-size="13" fill="#5A616B">Burger King</text>
+          <rect x="260" y="222" width="12" height="12" rx="2" fill="#C8102E"/>
+          <text x="278" y="232" font-size="13" fill="#5A616B">McDonald's</text>
+        </g>
+      </svg>
+      <div class="cap">Every ratio comes from the article. Note what this means for your
+        benchmark: Burger King cannot win any attribute that money buys. It can only win
+        attributes that money cannot buy.</div>
+    </div>
+
+    <div class="fields">
+      <div class="field"><div class="ic" style="background:var(--c4)">1</div>
+        <h4>Money and scale</h4>
+        <p>Twice the restaurants, five times the advertising, ten times the revenue. This one is
+          not a fight, it is a fact.</p>
+        <div class="who">McDonald's, permanently</div></div>
+      <div class="field"><div class="ic" style="background:var(--c4)">2</div>
+        <h4>Attack advertising</h4>
+        <p>Burger King started it in 1982 and never stopped. The whole category now does it:
+          Wendy's on Twitter, Jack in the Box on broken ice cream machines, Arby's hiring a
+          rapper to write a diss track.</p>
+        <div class="who">Burger King invented it, everyone copied it</div></div>
+      <div class="field"><div class="ic" style="background:var(--c4)">3</div>
+        <h4>Telling the truth about the food</h4>
+        <p>Moldy Whopper and Keep It Real Meals against Famous Orders. One brand argues about
+          ingredients, the other argues about belonging.</p>
+        <div class="who">Split, and worth studying</div></div>
+      <div class="field"><div class="ic" style="background:var(--c4)">4</div>
+        <h4>Digital and delivery</h4>
+        <p>Whopper Detour was brilliant and drove 1.5 million downloads. The three Ds were
+          boring and saved the year. Both matter.</p>
+        <div class="who">McDonald's, on the boring half</div></div>
+      <div class="field"><div class="ic" style="background:var(--c4)">5</div>
+        <h4>Sustainability</h4>
+        <p>The only field nobody has taken. Both brands are, in Bürgel's words, still in the
+          first-idea category. Whoever solves it first gets to claim it forever.</p>
+        <div class="who">Open. This is where your campaign could live</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 05 · EL BENCHMARK ═══════════ -->
+  <section id="benchmark">
+    <div class="sh"><span class="chip" style="background:var(--c8)">05 · The benchmark</span></div>
+    <h2 class="st">Six benchmarks. Here is exactly what that means.</h2>
+    <p class="lead">One benchmark tells you which brand is stronger. Six tell you
+      <b>where</b> and <b>with whom</b>, and that is the difference between a report and an
+      opportunity. Nobody launches a campaign at "everyone".</p>
+
+    <div class="fig">
+      <svg viewBox="0 0 720 220" role="img" aria-label="Grid of six benchmarks: three age segments across global and Colombia">
+        <g font-family="Manrope,sans-serif">
+          <text x="150" y="30" font-size="13" font-weight="800" fill="#5A616B">18 – 24</text>
+          <text x="340" y="30" font-size="13" font-weight="800" fill="#5A616B">25 – 34</text>
+          <text x="530" y="30" font-size="13" font-weight="800" fill="#5A616B">35 – 44</text>
+          <text x="0" y="82" font-size="13" font-weight="800" fill="#5A616B">GLOBAL</text>
+          <text x="0" y="162" font-size="13" font-weight="800" fill="#5A616B">COLOMBIA</text>
+          <g fill="#FFF6EC" stroke="#8A4B00" stroke-width="1.5">
+            <rect x="140" y="46" width="160" height="52" rx="9"/>
+            <rect x="330" y="46" width="160" height="52" rx="9"/>
+            <rect x="520" y="46" width="160" height="52" rx="9"/>
+            <rect x="140" y="126" width="160" height="52" rx="9"/>
+            <rect x="330" y="126" width="160" height="52" rx="9"/>
+            <rect x="520" y="126" width="160" height="52" rx="9"/>
+          </g>
+          <g font-size="12.5" font-weight="700" fill="#8A4B00" text-anchor="middle">
+            <text x="220" y="69">3 good · 3 bad</text><text x="220" y="86">each brand</text>
+            <text x="410" y="69">3 good · 3 bad</text><text x="410" y="86">each brand</text>
+            <text x="600" y="69">3 good · 3 bad</text><text x="600" y="86">each brand</text>
+            <text x="220" y="149">3 good · 3 bad</text><text x="220" y="166">each brand</text>
+            <text x="410" y="149">3 good · 3 bad</text><text x="410" y="166">each brand</text>
+            <text x="600" y="149">3 good · 3 bad</text><text x="600" y="166">each brand</text>
+          </g>
+          <text x="140" y="207" font-size="13" fill="#5A616B">Six grids · two brands each ·
+            twelve attributes per grid · seventy-two judgements in total</text>
+        </g>
+      </svg>
+      <div class="cap">This is the whole of Question 1, drawn. If a grid is empty, that part of
+        the argument does not exist.</div>
+    </div>
+
+    <h3>What one filled grid looks like</h3>
+    <p>This is <b>18 to 24, global</b>, done for you as an example so the format is not the hard
+      part. The thinking is the hard part. Do not copy these attributes. Find your own, and
+      make sure you can defend each one with something you read or something you asked.</p>
+
+    <div class="wrapper">
+      <table class="grid6">
+        <tr><th style="width:16%">Segment 18–24 · Global</th>
+            <th style="width:42%">McDonald's</th><th style="width:42%">Burger King</th></tr>
+        <tr>
+          <td><b>Strong</b><span class="plus">+ + +</span></td>
+          <td><span class="plus">+</span> <b>Cultural presence</b>: Famous Orders put the brand
+              inside music fandom rather than next to it.<br>
+              <span class="plus">+</span> <b>App and delivery that work</b>. The three Ds were
+              built before this segment needed them.<br>
+              <span class="plus">+</span> <b>Nostalgia that starts early</b>: MBLM's strongest
+              archetype for the brand, and it is inherited from childhood.</td>
+          <td><span class="plus">+</span> <b>Willing to be strange</b>: Moldy Whopper is the
+              kind of thing this segment shares without being asked.<br>
+              <span class="plus">+</span> <b>Ingredient honesty</b>: 120 artificial ingredients
+              removed, and a campaign built on saying so.<br>
+              <span class="plus">+</span> <b>Attack humour</b>: the underdog is allowed to be
+              funny about the leader, and this segment enjoys that.</td>
+        </tr>
+        <tr>
+          <td><b>Weak</b><span class="minus">– – –</span></td>
+          <td><span class="minus">–</span> <b>Too safe to be interesting</b>: the leader's
+              voice does not take risks, by design.<br>
+              <span class="minus">–</span> <b>Health perception</b>: the oldest criticism of
+              the brand, and the one that sticks with younger buyers.<br>
+              <span class="minus">–</span> <b>Sustainability</b>: still in the first-idea
+              category, on an issue this segment says it cares about.</td>
+          <td><span class="minus">–</span> <b>Not known for anything specific</b>: MBLM finds
+              it below average on most archetypes. Famous, but not <i>for</i> something.<br>
+              <span class="minus">–</span> <b>Outspent five to one</b>: even a great idea gets
+              seen less often.<br>
+              <span class="minus">–</span> <b>Restarts every few years</b>: new owner, new
+              agency, new personality. Nothing accumulates.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="note">
+      <b>The rule that makes it a benchmark.</b> Both columns have to be judged on the same
+      attributes. If you score McDonald's on "app quality" and Burger King on "sense of humour",
+      you have written two descriptions, not a comparison. Pick your attributes first, then
+      fill both sides.
+    </div>
+
+    <h3>An attribute bank to start from</h3>
+    <p>You do not have to use these, and you should not use all of them. Pick the ones that
+      actually matter to the segment you are looking at . That choice is part of what is
+      being graded.</p>
+    <div class="bank">
+      <div><b>Product</b><ul>
+        <li>Taste and quality</li><li>Menu variety</li><li>Ingredient honesty</li>
+        <li>Plant-based options</li><li>Portion size for the price</li></ul></div>
+      <div><b>Experience</b><ul>
+        <li>Speed of service</li><li>Cleanliness</li><li>Store design</li>
+        <li>Drive-thru</li><li>Staff</li></ul></div>
+      <div><b>Digital</b><ul>
+        <li>App usability</li><li>Delivery coverage</li><li>Loyalty and rewards</li>
+        <li>Social media presence</li></ul></div>
+      <div><b>Brand</b><ul>
+        <li>Nostalgia</li><li>Differentiation</li><li>Humour and irreverence</li>
+        <li>Trust</li><li>Cultural relevance</li></ul></div>
+      <div><b>Value</b><ul>
+        <li>Price perception</li><li>Promotions and coupons</li><li>Combo value</li></ul></div>
+      <div><b>Citizenship</b><ul>
+        <li>Sustainability</li><li>Packaging and waste</li><li>Local sourcing</li>
+        <li>Employment practices</li></ul></div>
+    </div>
+
+    <h3>What changes when you cross the border</h3>
+    <p>The global grid you can build from reading. The Colombian grid you cannot, and that is
+      deliberate. Some questions to answer with your own research, not with assumptions:</p>
+    <ul class="qlist" style="list-style:none;margin:14px 0 18px;max-width:70ch">
+      <li style="padding-left:20px;position:relative;margin-bottom:9px;color:#333A44">
+        <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;
+        background:var(--c8);display:block"></span>
+        How many restaurants does each brand actually have in Colombia, and in which cities?
+        The global ratio almost certainly does not hold here.</li>
+      <li style="padding-left:20px;position:relative;margin-bottom:9px;color:#333A44">
+        <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;
+        background:var(--c8);display:block"></span>
+        Who operates each brand locally, and what does that change about pricing, menu and
+        speed of decision?</li>
+      <li style="padding-left:20px;position:relative;margin-bottom:9px;color:#333A44">
+        <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;
+        background:var(--c8);display:block"></span>
+        Which local competitors matter here that do not exist in the article? A Colombian
+        benchmark that ignores the local burger chains is missing the real fight.</li>
+      <li style="padding-left:20px;position:relative;margin-bottom:9px;color:#333A44">
+        <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;
+        background:var(--c8);display:block"></span>
+        How do people actually order, in store, drive-thru, or through a delivery app? This
+        changes which attributes even matter.</li>
+      <li style="padding-left:20px;position:relative;margin-bottom:9px;color:#333A44">
+        <span style="position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;
+        background:var(--c8);display:block"></span>
+        Is price perception the same across the three age groups? A 19-year-old student and a
+        42-year-old with children are not buying the same thing.</li>
+    </ul>
+    <p>Go and look. Walk into both. Open both apps. Ask ten people in each age group.
+      The teams that do this always end up with a better campaign than the teams that guess,
+      and it is obvious from the first slide which is which.</p>
+
+    <h3>How to read the six grids once they are full</h3>
+    <div class="steps">
+      <div class="step"><div class="sn"></div><div>
+        <h4>Look for the smallest gap, not the biggest market</h4>
+        <p>The segment where McDonald's advantages matter least is the one where a challenger
+          can actually move something.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Look for a McDonald's weakness that Burger King does not share</h4>
+        <p>If both brands are weak on the same thing, it is a category problem, not an
+          opportunity. If only one is weak, that is your opening.</p></div></div>
+      <div class="step"><div class="sn"></div><div>
+        <h4>Check whether global and Colombia disagree</h4>
+        <p>When they do, that is the most interesting finding in your whole analysis. Say so
+          out loud instead of averaging it away.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 06 ═══════════ -->
+  <section id="next">
+    <div class="sh"><span class="chip" style="background:var(--c5)">06 · What comes next</span></div>
+    <h2 class="st">The tanker nobody has managed to turn</h2>
+
+    <blockquote>
+      <p>"Brand intimacy is more of a long term measure; think of it more like trying to turn a
+        tanker. That's good news when you're managing crises... but it's also bad news if you're
+        trying to turn this thing in the right direction."</p>
+      <cite>Mario Natarelli, managing partner, MBLM</cite>
+    </blockquote>
+
+    <h3>Three pressures on both brands</h3>
+    <div class="fields">
+      <div class="field"><div class="ic" style="background:var(--c5)">A</div>
+        <h4>Sustainability</h4>
+        <p>Neither brand has planted a flag. Bürgel compares it to the first man on the moon:
+          whoever solves it first owns it. And she notes both are still on their first idea.</p>
+        <div class="who">Wide open</div></div>
+      <div class="field"><div class="ic" style="background:var(--c5)">B</div>
+        <h4>Plant-based food</h4>
+        <p>McPlant and its equivalents. A real product question and a real positioning question
+          at the same time.</p>
+        <div class="who">Contested</div></div>
+      <div class="field"><div class="ic" style="background:var(--c5)">C</div>
+        <h4>Effectiveness against excellence</h4>
+        <p>Prato's warning: Burger King went looking for an agency to deliver creative
+          effectiveness <i>instead of</i> creative excellence. He calls the idea that these are
+          opposites chilling.</p>
+        <div class="who">A question for you too</div></div>
+    </div>
+
+    <div class="keyq">
+      <h4>Worth arguing about in your group</h4>
+      <p>Burger King has won at Cannes, won at the Clios, and invented tactics the whole
+        industry copied. It is still third by US sales. Does that mean the creative work
+        failed? Or does it mean creative work was never going to fix a problem that lives in
+        restaurant counts and ad budgets? Your answer decides what kind of campaign you build.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ EXTRA ═══════════ -->
+  <section id="deeper">
+    <div class="sh"><span class="chip" style="background:#7A1638">Extra · Campaigns to use</span></div>
+    <h2 class="st">Eight campaigns, including one famous disaster</h2>
+    <p class="lead">Use these as evidence in your benchmark. "Burger King is irreverent" is an
+      opinion. "Burger King photographed its own burger covered in mould" is evidence.</p>
+
+    <div class="fields">
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>Subservient Chicken · 2004</h4>
+        <p>A website where a man in a chicken suit obeyed typed commands. Absurd, and years
+          ahead of how brands would behave online.</p>
+        <div class="who">Crispin Porter + Bogusky</div></div>
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>Whopper Sacrifice · 2009</h4>
+        <p>Delete ten Facebook friends, get a free Whopper. It turned the mechanics of a social
+          network into the joke.</p>
+        <div class="who">Crispin Porter + Bogusky</div></div>
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>Whopper Detour · 2018</h4>
+        <p>A 1-cent Whopper, unlockable only from inside a McDonald's. 1.5 million app
+          downloads. Prato calls it about as cold-blooded as it gets.</p>
+        <div class="who">The clearest example of hackvertising</div></div>
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>Moldy Whopper · 2020</h4>
+        <p>Their own burger, rotting, to prove the preservatives were gone. Won at Cannes and
+          the Clios. Also a reply to the urban legend that McDonald's food never decays.</p>
+        <div class="who">Polarising on purpose</div></div>
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>Keep It Real Meals · 2021</h4>
+        <p>Celebrity meals using the celebrities' real names, to promote removing 120 artificial
+          ingredients. Note that this is Burger King answering McDonald's format.</p>
+        <div class="who">Following, not leading</div></div>
+      <div class="field"><div class="ic" style="background:var(--bk)">BK</div>
+        <h4>"Where's Herb?" · 1985</h4>
+        <p>$40 million on a fictional man who had never eaten a Whopper. No message about the
+          food, no message about the customer. Profits fell 40% the next year.</p>
+        <div class="who">The most useful failure in the case</div></div>
+      <div class="field"><div class="ic" style="background:var(--mcd)">Mc</div>
+        <h4>Famous Orders · 2020 onward</h4>
+        <p>Travis Scott, Mariah Carey, BTS, Saweetie, J Balvin. Built on the idea that everyone
+          already has a McDonald's order, and layered on top of "I'm lovin' it" rather than
+          replacing it.</p>
+        <div class="who">Wieden+Kennedy New York</div></div>
+      <div class="field"><div class="ic" style="background:var(--mcd)">Mc</div>
+        <h4>"I'm lovin' it" · 2003</h4>
+        <p>Nearly twenty years on the same line. Taylor of WARC points out how unusual that is:
+          most brands would have replaced it three times by now.</p>
+        <div class="who">Heye &amp; Partner</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 07 ═══════════ -->
+  <section id="questions">
+    <div class="sh"><span class="chip" style="background:var(--c6)">07 · The delivery</span></div>
+    <h2 class="st">Two questions, and the second one needs the first</h2>
+
+    <div class="flow">
+      <div class="fstep">Six benchmarks</div><div class="farrow">▼</div>
+      <div class="fstep">Pick the segment with the opening</div><div class="farrow">▼</div>
+      <div class="fstep">Explain why that segment</div><div class="farrow">▼</div>
+      <div class="fstep">Build the Burger King campaign</div><div class="farrow">▼</div>
+      <div class="fstep last">Two pieces of promotional material</div>
+    </div>
+
+    <div class="q">
+      <div class="qn">1</div>
+      <div class="qt">Benchmark McDonald's against Burger King
+        <span class="qw">50% of the grade</span></div>
+      <div class="qh">Use the Benchmark tool. Compare the two brands globally and in Colombia,
+        for each of the three age segments. Your analysis has to let you:</div>
+      <ul class="qlist">
+        <li><b>Compare competitiveness</b> in each of the six grids, on the same attributes for
+          both brands.</li>
+        <li><b>Name three strengths and three weaknesses</b> per brand, per segment. Six
+          judgements per grid, thirty-six per brand in total.</li>
+        <li><b>Identify one segment</b> where Burger King has a real opportunity.</li>
+        <li><b>Explain why that segment</b> and not one of the other five. This sentence is
+          where most of the marks live.</li>
+      </ul>
+    </div>
+
+    <div class="q">
+      <div class="qn">2</div>
+      <div class="qt">Build the Burger King campaign
+        <span class="qw">50% of the grade</span></div>
+      <div class="qh">Using the segment and the opportunity you found in Question 1, create a
+        campaign for Burger King. It has to visibly come out of the benchmark: if we can
+        cover up Question 1 and your campaign still makes the same sense, the two halves are
+        not connected.</div>
+      <div class="qparts">
+        <div class="qpart">
+          <div class="qpn">Campaign name <span>10%</span></div>
+          <p>Creative, memorable, and connected to the segment and the opportunity.</p>
+          <ul><li>Say it out loud before you commit to it.</li>
+            <li>If it needs a sentence to explain it, keep looking.</li></ul>
+        </div>
+        <div class="qpart">
+          <div class="qpn">Campaign brief <span>20%</span></div>
+          <p>Short and decided. Five parts:</p>
+          <ul><li><b>Target</b>: who exactly, from your six grids.</li>
+            <li><b>Opportunity</b>: what the benchmark found.</li>
+            <li><b>Objective</b>: what the campaign has to achieve.</li>
+            <li><b>Big idea</b>: the central thought.</li>
+            <li><b>Key message</b>: what they should remember.</li></ul>
+        </div>
+        <div class="qpart">
+          <div class="qpn">Promotional material <span>20%</span></div>
+          <p>At least two pieces, at real formats.</p>
+          <ul><li>Social post, billboard, digital ad</li>
+            <li>Video concept, influencer activation</li>
+            <li>Event, experiential, OOH</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>One warning drawn from the case.</b> "Where's Herb?" cost $40 million and failed
+      because it had a big idea and no strategy under it. A campaign that is funny but does not
+      answer anything your benchmark found is the same mistake, at a smaller scale.
+    </div>
+  </section>
+
+  <!-- ═══════════ 08 ═══════════ -->
+  <section id="rubric">
+    <div class="sh"><span class="chip" style="background:var(--c7)">08 · How you are graded</span></div>
+    <h2 class="st">The rubric, in full</h2>
+    <p class="lead">Same structure as the Nike and Adidas delivery. Half the grade is the
+      benchmark, half is the campaign, and inside the campaign half the weight is whether it
+      actually came from the benchmark.</p>
+
+    <h3>The two halves</h3>
+    <div class="rub">
+      <div class="rr"><div class="rl"><div class="pct">50%</div>
+        <div class="rn">Question 1 · Benchmark</div></div>
+        <div class="rb"><div class="desc">The six grids, the three strengths and three weaknesses
+          per brand per segment, the segment you chose and the reason you chose it.</div>
+          <div class="scale">
+            <div class="sc top"><div class="num">5</div><div class="tx">Excellent use of
+              benchmark. All six grids complete and consistent, attributes matched across
+              brands, opportunity clearly identified and well argued.</div></div>
+            <div class="sc"><div class="num">4</div><div class="tx">Good use of benchmark.
+              Clear comparison, opportunity identified, some grids thinner than others.</div></div>
+            <div class="sc"><div class="num">3</div><div class="tx">Adequate use of benchmark
+              and a reasonable opportunity, but the segmentation adds little.</div></div>
+            <div class="sc"><div class="num">2</div><div class="tx">Basic or weak use of
+              benchmark. Attributes not matched between brands, or segments not really
+              distinguished.</div></div>
+            <div class="sc"><div class="num">1</div><div class="tx">Little or no effective use
+              of benchmark. Description instead of comparison.</div></div>
+          </div></div></div>
+      <div class="rr"><div class="rl"><div class="pct">50%</div>
+        <div class="rn">Question 2 · The campaign</div></div>
+        <div class="rb"><div class="desc">Name, brief and promotional material, judged mostly on
+          whether they follow from Question 1.</div></div></div>
+    </div>
+
+    <h3>How Question 2 splits</h3>
+    <div class="rub">
+      <div class="rr"><div class="rl"><div class="pct">50%</div>
+        <div class="rn">Benchmark → campaign alignment</div></div>
+        <div class="rb"><div class="desc">Of Question 2. Did you use the opportunity your
+          benchmark found to build a campaign that is relevant for Burger King? This is the
+          single heaviest criterion in the delivery.</div></div></div>
+      <div class="rr"><div class="rl"><div class="pct">10%</div>
+        <div class="rn">Campaign name</div></div>
+        <div class="rb"><div class="desc">Of Question 2. Creative, memorable, connected to the
+          target and the opportunity.</div></div></div>
+      <div class="rr"><div class="rl"><div class="pct">20%</div>
+        <div class="rn">Campaign brief</div></div>
+        <div class="rb"><div class="desc">Of Question 2. Target, opportunity, objective, big
+          idea and key message. Decided, not described.</div></div></div>
+      <div class="rr"><div class="rl"><div class="pct">20%</div>
+        <div class="rn">Promotional material</div></div>
+        <div class="rb"><div class="desc">Of Question 2. At least two pieces, built at formats
+          that would actually run.</div></div></div>
+    </div>
+
+    <div class="keyq">
+      <h4>The question the whole grade comes down to</h4>
+      <p>Did you use the opportunity identified through the benchmark to create a relevant
+        campaign for Burger King? Everything else is detail.</p>
+    </div>
+
+    <a class="top-link" href="#">↑ Back to the top</a>
+  </section>
+
+  <div class="src">
+    <p><b>Source.</b> This case is a teaching summary of: Chris Kelly, "Burger wars: How Burger
+      King's rivalry with McDonald's reverberates through adland", <i>Marketing Dive</i>,
+      17 May 2022.
+      <a href="https://www.marketingdive.com/news/mcdonalds-burger-king-brand-rivalry-burger-wars/621713/"
+         target="_blank" rel="noopener">marketingdive.com</a>.
+      Part III of a four-part series on brand rivalries; Part II was the Nike and Adidas case
+      used in Activity 1. Every figure quoted here, from twice the restaurants, five times the ad
+      budget, ten times the revenue, the $40 million "Where's Herb?" campaign, the 40% profit
+      fall in 1986, the $1.5 billion sale in 2002, the 1.5 million app downloads from Whopper
+      Detour, the 25% sales drop in the second quarter of 2020, all come from that article.
+      Experts quoted: Fernanda Bürgel (PeterMayer), Paul Prato (PPK), Mario Natarelli (MBLM)
+      and Cathy Taylor (WARC).</p>
+    <p style="margin-top:10px">The Colombian half of the benchmark is deliberately not answered
+      here. That research is the assignment.</p>
+    <p style="margin-top:10px">Prepared for Global Marketing, 2026. McDonald's, Burger King,
+      Wendy's and all other brand names and logos belong to their owners and are used here for
+      educational commentary only.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
